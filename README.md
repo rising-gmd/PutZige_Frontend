@@ -26,34 +26,138 @@ For a complete list of available schematics (such as `components`, `directives`,
 ng generate --help
 ```
 
-## Building
+# Project
 
-To build the project run:
+This repository contains an Angular application. The document below summarizes how to build, test, and contribute following the project's conventions.
 
-```bash
-ng build
-```
+## Development server
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Start the dev server (local development):
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+Open http://localhost:4200/ in your browser. The app reloads on file changes.
 
-For end-to-end (e2e) testing, run:
+## Build
+
+Create a production build:
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+To build with a specific Angular configuration:
 
-## Additional Resources
+```bash
+npm run build -- --configuration production
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Built artifacts are placed in the `dist/` folder.
+
+## Linting & formatting
+
+Run linters and format checks:
+
+```bash
+npm run lint
+npm run format
+```
+
+Note: `lint` uses `@angular-eslint`; `husky` + `lint-staged` run checks on pre-commit.
+
+## Unit tests (Jest)
+
+This project uses Jest for unit tests. Run tests with coverage:
+
+```bash
+npm test
+```
+
+Quick coverage report (open in browser):
+
+```bash
+# run tests (creates coverage/) then open coverage/lcov-report/index.html
+npm test
+```
+
+Enforce an 80% global coverage threshold locally (example):
+
+```bash
+npx jest --coverage --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}'
+```
+
+Recommended: add the same `coverageThreshold` to `jest.config.js` so CI fails when thresholds are not met.
+
+## End-to-end tests (Playwright)
+
+E2E tests use Playwright. Run them with:
+
+```bash
+npm run e2e
+# or
+npx playwright test
+```
+
+Run headed (visible browser) mode:
+
+```bash
+npx playwright test --headed
+```
+
+## Commit messages & hooks
+
+This repository enforces Conventional Commits. Use the format:
+
+```
+type(scope): short description
+```
+
+Examples: `feat(auth): add login button`, `fix(api): handle 500`. Husky and `commitlint` enforce this on commit.
+
+If hooks are not installed, run:
+
+```bash
+npm run prepare
+```
+
+## CI / Coverage policy
+
+- CI should run `npm ci`, `npm test`, and `npm run e2e`.
+- Ensure `jest.config.js` contains a `coverageThreshold` entry to enforce the 80% global coverage gate.
+
+Example `jest.config.js` fragment to enforce thresholds:
+
+```js
+module.exports = {
+  preset: "jest-preset-angular",
+  setupFilesAfterEnv: ["<rootDir>/setup-jest.ts"],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+};
+```
+
+## Troubleshooting
+
+- If tests fail after switching to Jest, ensure `jest`, `jest-preset-angular`, `ts-jest`, and `@types/jest` are installed.
+- If Playwright tests fail, run `npx playwright install` to install browser binaries.
+
+## Quick commands
+
+```bash
+npm ci            # install clean dependencies (CI)
+npm install       # install locally
+npm start         # dev server
+npm run build     # production build
+npm test          # unit tests (Jest) with coverage
+npm run e2e       # run Playwright end-to-end tests
+npm run lint      # lint the codebase
+npm run prepare   # install git hooks
+```
