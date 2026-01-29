@@ -4,14 +4,19 @@ describe('email.validator', () => {
   const validator = emailValidator();
 
   it('returns null for empty value', () => {
-    expect(validator({ value: '' } as any)).toBeNull();
+    const control = { value: '' } as unknown as { value: string };
+    expect(validator(control)).toBeNull();
   });
 
   it('validates correct email', () => {
-    expect(validator({ value: 'test@example.com' } as any)).toBeNull();
+    const control = { value: 'test@example.com' } as unknown as {
+      value: string;
+    };
+    expect(validator(control)).toBeNull();
   });
 
   it('returns error for invalid email', () => {
-    expect(validator({ value: 'invalid-email' } as any)).toEqual({ email: true });
+    const control = { value: 'invalid-email' } as unknown as { value: string };
+    expect(validator(control)).toEqual({ email: true });
   });
 });

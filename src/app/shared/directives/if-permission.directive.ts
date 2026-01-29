@@ -1,17 +1,21 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import {
+  Directive,
+  Input,
+  TemplateRef,
+  ViewContainerRef,
+  inject,
+} from '@angular/core';
 
 @Directive({
   selector: '[appIfPermission]',
 })
 export class IfPermissionDirective {
-  constructor(
-    private tpl: TemplateRef<unknown>,
-    private vcr: ViewContainerRef
-  ) {}
+  private readonly tpl = inject(TemplateRef) as TemplateRef<unknown>;
+  private readonly vcr = inject(ViewContainerRef) as ViewContainerRef;
 
   @Input() set appIfPermission(condition: boolean) {
     if (condition) {
-      this.vcr.createEmbeddedView(this.tpl as TemplateRef<unknown>);
+      this.vcr.createEmbeddedView(this.tpl);
     } else {
       this.vcr.clear();
     }

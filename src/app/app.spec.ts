@@ -4,7 +4,7 @@ describe('App', () => {
   it('has a title signal', () => {
     const app = new App();
     // property exists
-    expect((app as any).title).toBeDefined();
+    expect((app as unknown as { title: unknown }).title).toBeDefined();
   });
 });
 import { TestBed } from '@angular/core/testing';
