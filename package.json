@@ -50,6 +50,7 @@
     "@testing-library/angular": "^19.0.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jasmine": "^6.0.0",
     "@types/jest": "^30.0.0",
     "angular-eslint": "21.2.0",
     "esbuild": "^0.27.2",

@@ -1,3 +1,12 @@
+import { App } from './app';
+
+describe('App', () => {
+  it('has a title signal', () => {
+    const app = new App();
+    // property exists
+    expect((app as any).title).toBeDefined();
+  });
+});
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 

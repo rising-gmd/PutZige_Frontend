@@ -1,17 +1,13 @@
-import {
-  Directive,
-  Input,
-  TemplateRef,
-  ViewContainerRef,
-  inject,
-} from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
 
 @Directive({
   selector: '[appIfPermission]',
 })
 export class IfPermissionDirective {
-  private tpl = inject<TemplateRef<unknown>>(TemplateRef);
-  private vcr = inject(ViewContainerRef);
+  constructor(
+    private tpl: TemplateRef<unknown>,
+    private vcr: ViewContainerRef
+  ) {}
 
   @Input() set appIfPermission(condition: boolean) {
     if (condition) {
