@@ -1,0 +1,22 @@
+// Override PrimeNG theme to match design system
+:root {
+  --primary-color: #{$color-primary};
+  --primary-color-text: #ffffff;
+  --surface-ground: #{$color-bg-primary};
+  --surface-section: #{$color-bg-secondary};
+  --text-color: #{$color-text-primary};
+  --text-color-secondary: #{$color-text-secondary};
+  --border-radius: #{$border-radius-md};
+  // Override specific components
+  --inputtext-padding-y: #{$spacing-sm};
+  --inputtext-padding-x: #{$spacing-md};
+}
+
+// Dark theme
+[data-theme='dark'] {
+  --primary-color: #818cf8;
+  --surface-ground: #1f2937;
+  --surface-section: #111827;
+  --text-color: #f9fafb;
+  --text-color-secondary: #d1d5db;
+}
