@@ -1,5 +1,5 @@
 # =====================================================
-# Build outputs (never commit)
+# Build outputs
 # =====================================================
 /dist
 /tmp
@@ -16,15 +16,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Lockfiles:
-# Keep ONE lockfile per package manager if your org policy requires it.
-# Uncomment ONLY the ones you do NOT use.
+# Lockfiles
+# Keep only the lockfile your project uses
 /yarn.lock
 /pnpm-lock.yaml
-# package-lock.json  <-- keep if using npm (default)
+# package-lock.json  <-- keep if using npm
 
 # =====================================================
-# Environment files & secrets (critical)
+# Environment files & secrets
 # =====================================================
 .env
 .env.*
@@ -39,7 +38,6 @@ pnpm-debug.log*
 # =====================================================
 # Angular / tooling caches
 # =====================================================
-.angular
 .nx
 .eslintcache
 .stylelintcache
@@ -100,3 +98,9 @@ Desktop.ini
 *.swp
 *.tmp
 *.bak
+
+# =====================================================
+# GitHub / AI internal files
+# =====================================================
+/ai/
+/.github/
