@@ -3,6 +3,7 @@
 This folder demonstrates the architecture pattern for feature modules in Putzige.
 
 ## What's Implemented (Examples)
+
 - ✅ `chat-container/` - Smart container component pattern
 - ✅ `message-list/` - Presentation component pattern
 - ✅ `chat-api.service.ts` - REST API service pattern
@@ -10,7 +11,9 @@ This folder demonstrates the architecture pattern for feature modules in Putzige
 - ✅ `chat.state.ts` - Signal-based state management pattern
 
 ## What to Build Later
+
 Follow this same structure for:
+
 - `conversation-list/`
 - `message-input/`
 - `chat-header/`
@@ -19,6 +22,7 @@ Follow this same structure for:
 - etc.
 
 ## Key Principles
+
 1. Container components orchestrate business logic
 2. Presentation components are pure and reusable
 3. Services handle API and real-time communication

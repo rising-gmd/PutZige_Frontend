@@ -1,2 +1,11 @@
-<h1>Hello GMD</h1>
-<p-button label="Toggle Dark Mode" (onClick)="toggleDarkMode()"></p-button>
+@if (showHeader()) {
+  <header class="app-header">
+    <h1>Hello GMD</h1>
+    <p-button label="Toggle Dark Mode" (onClick)="toggleDarkMode()"></p-button>
+    <a routerLink="/register" class="ms-2">Register</a>
+  </header>
+}
+
+<main>
+  <router-outlet></router-outlet>
+</main>

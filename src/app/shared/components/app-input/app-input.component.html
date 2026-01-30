@@ -1,0 +1,18 @@
+<div class="app-input">
+  <input
+    pInputText
+    [type]="type"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [value]="value"
+    (input)="update($any($event.target).value)"
+    (blur)="onTouched()"
+    class="app-input__control"
+    aria-invalid="{{ !!error }}"
+  />
+  @if (error) {
+    <p-message severity="error" variant="simple" size="small">{{
+      error
+    }}</p-message>
+  }
+</div>
