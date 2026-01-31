@@ -76,6 +76,10 @@ export class RegisterComponent {
         passwordPattern(),
       ],
     }),
+    terms: new FormControl<boolean>(false, {
+      nonNullable: true,
+      validators: [Validators.requiredTrue],
+    }),
   });
 
   get email() {
@@ -86,6 +90,9 @@ export class RegisterComponent {
   }
   get password() {
     return this.form.controls.password;
+  }
+  get terms() {
+    return this.form.controls.terms;
   }
 
   async onSubmit(): Promise<void> {
@@ -130,6 +137,13 @@ export class RegisterComponent {
       if (errs['pattern'])
         return this.translate.instant('errors.validation.password.pattern');
       return this.translate.instant('errors.validation.password.invalid');
+    }
+
+    // Terms checkbox
+    if (control === this.terms) {
+      if (errs['required'] || errs['requiredTrue'])
+        return this.translate.instant('errors.validation.terms.required');
+      return this.translate.instant('errors.validation.terms.required');
     }
 
     // Generic messages

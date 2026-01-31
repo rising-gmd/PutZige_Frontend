@@ -47,6 +47,9 @@
       },
       "username": {
         "pattern": "Username must be 3–50 characters and may contain letters, numbers and underscore"
+      },
+      "terms": {
+        "required": "You must agree to the Terms & Conditions"
       }
     }
   },

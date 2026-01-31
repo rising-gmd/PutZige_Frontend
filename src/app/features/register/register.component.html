@@ -82,8 +82,14 @@
       ></app-password>
 
       <label class="terms">
-        <input type="checkbox" /> {{ "common.labels.agreeTo" | translate }}
+        <input type="checkbox" formControlName="terms" />
+        {{ "common.labels.agreeTo" | translate }}
         <a href="#">{{ "common.terms" | translate }}</a>
+        @if (submitted() || terms.touched) {
+          <p-message severity="error" variant="simple" size="small">{{
+            errorMessage(terms)
+          }}</p-message>
+        }
       </label>
 
       <app-button

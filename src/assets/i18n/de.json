@@ -47,6 +47,9 @@
       },
       "username": {
         "pattern": "Benutzername muss 3–50 Zeichen lang sein und darf Buchstaben, Zahlen und Unterstriche enthalten"
+      },
+      "terms": {
+        "required": "Sie müssen den Geschäftsbedingungen zustimmen"
       }
     }
   },

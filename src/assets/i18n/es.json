@@ -47,6 +47,9 @@
       },
       "username": {
         "pattern": "El nombre de usuario debe tener 3–50 caracteres y puede contener letras, números y guión bajo"
+      },
+      "terms": {
+        "required": "Debe aceptar los Términos y Condiciones"
       }
     }
   },
