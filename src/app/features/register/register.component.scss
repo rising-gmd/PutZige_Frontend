@@ -34,9 +34,9 @@
   padding: 3rem;
   width: 100%;
   max-width: 480px;
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  box-shadow: var(--shadow-lg);
   margin: auto; /* centers horizontally and vertically within the grid cell */
   place-self: center; /* ensure centering inside the grid cell */
   /* nudge the card slightly left so visual spacing between image and form looks balanced */
@@ -56,8 +56,8 @@
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #eee;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   cursor: pointer;
 }
 .google-btn .google-icon {
@@ -68,10 +68,10 @@
 .divider {
   text-align: center;
   margin: 1rem 0;
-  color: #9aa0a6;
+  color: var(--app-muted);
 }
 .divider span {
-  background: #fff;
+  background: var(--app-surface);
   padding: 0 0.5rem;
 }
 
@@ -90,8 +90,8 @@
   height: 44px;
   border-radius: 8px;
   padding: 0 0.75rem;
-  background: #fff;
-  border: 1px solid #e6e9ef;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
 }
 
 .register-card .p-password .p-inputtext {
@@ -100,7 +100,7 @@
 
 .terms {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--app-muted-strong);
   margin-top: 0.25rem;
 }
 .terms input {
@@ -121,9 +121,13 @@
   width: 100%;
   border-radius: 24px;
   padding: 0.75rem 1rem;
-  background: linear-gradient(90deg, #645cff 0%, #5b3eff 100%);
+  background: linear-gradient(
+    90deg,
+    var(--app-primary-start) 0%,
+    var(--app-primary-end) 100%
+  );
   border: none;
-  color: #fff;
+  color: var(--app-surface);
 }
 
 @media (max-width: 1200px) {

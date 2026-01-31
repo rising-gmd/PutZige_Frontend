@@ -45,6 +45,21 @@
   --z-modal: 1050;
   --z-popover: 1060;
   --z-tooltip: 1070;
+
+  /* App design tokens mapped to PrimeNG theme tokens */
+  --app-surface: var(--p-surface-0);
+  --app-surface-100: var(--p-surface-100);
+  --app-border: var(--p-surface-200);
+  --app-muted: var(--p-text-secondary);
+  --app-muted-strong: var(--p-text-500);
+  --app-primary-start: var(--p-primary-500);
+  --app-primary-end: var(--p-primary-600);
+
+  /* Brand tokens (mapped) */
+  --google-blue: #4285f4;
+  --google-green: #34a853;
+  --google-yellow: #fbbc05;
+  --google-red: #ea4335;
 }
 
 // Base
@@ -107,4 +122,9 @@ select {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Global adjustments for PrimeNG wrapped components to avoid ::ng-deep */
+.app-password .p-password .p-inputtext {
+  width: 100%;
 }
