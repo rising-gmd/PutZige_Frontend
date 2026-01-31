@@ -128,3 +128,9 @@ select {
 .app-password .p-password .p-inputtext {
   width: 100%;
 }
+
+/* Ensure PrimeNG password feedback panel appears above form elements (e.g. terms checkbox)
+   Uses design token `--z-popover` so ordering is consistent across the app. */
+.p-password-panel {
+  z-index: var(--z-popover) !important;
+}
