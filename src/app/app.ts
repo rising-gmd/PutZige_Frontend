@@ -1,9 +1,7 @@
-import { ButtonModule } from 'primeng/button';
-import { Component, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { DarkModeService } from './theme/dark-mode.service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-root',
@@ -11,23 +9,4 @@ import { DarkModeService } from './theme/dark-mode.service';
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
 })
-export class App {
-  protected readonly title = signal('test');
-  private readonly darkMode = inject(DarkModeService);
-  private readonly router = inject(Router);
-
-  showHeader = signal(true);
-
-  constructor() {
-    this.showHeader.set(!this.router.url.includes('/register'));
-    this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe((ev) => {
-        this.showHeader.set(!ev.url.includes('/register'));
-      });
-  }
-
-  toggleDarkMode(): void {
-    this.darkMode.toggle();
-  }
-}
+export class App {}
