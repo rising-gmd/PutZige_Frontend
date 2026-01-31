@@ -71,7 +71,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-function handleError(
+export function handleError(
   httpError: HttpErrorResponse,
   translateService: TranslateService,
   notificationSvc: NotificationService,
@@ -316,7 +316,7 @@ function showToast(
 
 // showToastMessage removed: NotificationService.show replaces direct MessageService calls
 
-function shouldRetry(error: unknown, retryCount: number): boolean {
+export function shouldRetry(error: unknown, retryCount: number): boolean {
   if (retryCount >= RETRY_CONFIG.MAX_RETRIES) {
     return false;
   }
@@ -335,7 +335,7 @@ function shouldRetry(error: unknown, retryCount: number): boolean {
   return false;
 }
 
-function logErrorToMonitoring(error: HttpErrorResponse): void {
+export function logErrorToMonitoring(error: HttpErrorResponse): void {
   if (!environment.production) {
     // During dev show sanitized console output
     console.error('Server error:', {

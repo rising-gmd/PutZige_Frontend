@@ -33,7 +33,7 @@ interface DedupeEntry {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService implements OnDestroy {
-  private readonly msgs = inject(MessageService);
+  private msgs: MessageService | undefined = undefined;
 
   // Deduplication cache with entry count tracking
   private readonly dedupeCache = new Map<string, DedupeEntry>();
@@ -47,7 +47,10 @@ export class NotificationService implements OnDestroy {
   // Emergency fallback mode (if MessageService fails)
   private fallbackMode = false;
 
-  constructor() {
+  // Allow optional constructor injection for tests; prefer `inject()` in production.
+  // eslint-disable-next-line @angular-eslint/prefer-inject
+  constructor(msgs?: MessageService) {
+    this.msgs = msgs ?? inject(MessageService);
     this.startCleanupTimer();
   }
 
@@ -219,7 +222,7 @@ export class NotificationService implements OnDestroy {
   private stripHtml(str: string): string {
     // Create temporary element for safe HTML stripping
     const tmp = document.createElement('div');
-    tmp.textContent = str;
+    tmp.innerHTML = str;
     return tmp.textContent || tmp.innerText || '';
   }
 
@@ -355,7 +358,7 @@ export class NotificationService implements OnDestroy {
     options?: NotificationOptions,
   ): void {
     try {
-      this.msgs.add({
+      this.msgs!.add({
         severity,
         summary,
         detail,

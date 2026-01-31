@@ -2,7 +2,7 @@ module.exports = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns: ['/node_modules/', '/e2e/'], 
+  testPathIgnorePatterns: ['/node_modules/', '/e2e/', '/.github/'], 
   moduleFileExtensions: ['ts', 'html', 'js', 'json', 'mjs'],
   transform: {
     '^.+\\.(ts|js|html)$': [

@@ -49,20 +49,20 @@ export const apiBaseUrlInterceptor: HttpInterceptorFn = (req, next) => {
 /**
  * Check if URL is absolute (http://, https://, ftp://, etc.)
  */
-function isAbsoluteUrl(url: string): boolean {
+export function isAbsoluteUrl(url: string): boolean {
   return /^[a-z][a-z\d+\-.]*:/i.test(url);
 }
 
 /**
  * Check if URL points to frontend static assets
  */
-function isFrontendAsset(url: string): boolean {
+export function isFrontendAsset(url: string): boolean {
   const assetPaths = ['/assets/', '/i18n/', '/locales/', '/fonts/', '/images/'];
 
   return assetPaths.some((path) => url.startsWith(path));
 }
 
-function buildApiUrl(
+export function buildApiUrl(
   relativePath: string,
   config: EnvironmentApiConfig,
 ): string {
