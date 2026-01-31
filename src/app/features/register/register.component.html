@@ -53,7 +53,7 @@
         [placeholder]="'common.labels.username' | translate"
         [error]="
           submitted() || username.touched
-            ? errorMessage(username, 'common.labels.username' | translate)
+            ? errorMessage(username, 'common.labels.username')
             : null
         "
       ></app-input>
@@ -64,7 +64,7 @@
         [placeholder]="'common.labels.email' | translate"
         [error]="
           submitted() || email.touched
-            ? errorMessage(email, 'common.labels.email' | translate)
+            ? errorMessage(email, 'common.labels.email')
             : null
         "
       ></app-input>
@@ -76,7 +76,7 @@
         [strength]="true"
         [error]="
           submitted() || password.touched
-            ? errorMessage(password, 'common.labels.password' | translate)
+            ? errorMessage(password, 'common.labels.password')
             : null
         "
       ></app-password>

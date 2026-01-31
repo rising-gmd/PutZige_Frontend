@@ -19,6 +19,7 @@ import { AppButtonComponent } from '../../shared/components/app-button/app-butto
 import { RegisterService } from './register.service';
 import { firstValueFrom } from 'rxjs';
 import { AbstractControl } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 
 function usernameValidator() {
   return Validators.pattern(/^[A-Za-z0-9_]{3,50}$/);
@@ -49,6 +50,7 @@ function passwordPattern() {
 })
 export class RegisterComponent {
   private readonly service = inject(RegisterService);
+  private readonly translate = inject(TranslateService);
 
   loading = signal(false);
   submitted = signal(false);
@@ -103,33 +105,53 @@ export class RegisterComponent {
     }
   }
 
-  errorMessage(control: AbstractControl | null, label?: string): string | null {
-    const field = label ? `${label}` : 'This field';
+  errorMessage(
+    control: AbstractControl | null,
+    labelKey?: string,
+  ): string | null {
     if (!control || !control.errors) return null;
     const errs = control.errors;
-    // Password-specific concise messages
+
+    // Resolve label for messages (labelKey is translation key like 'common.labels.password')
+    const label = labelKey
+      ? this.translate.instant(labelKey)
+      : this.translate.instant('common.labels.field');
+
+    // Password-specific messages (use i18n keys)
     if (control === this.password) {
-      if (errs['required']) return 'Password is required.';
-      if (errs['minlength']) return 'Use at least 8 characters.';
+      if (errs['required'])
+        return this.translate.instant('errors.validation.password.required');
+      if (errs['minlength'])
+        return this.translate.instant('errors.validation.password.minLength', {
+          count: errs['minlength'].requiredLength,
+        });
       if (errs['pattern'])
-        return 'Include uppercase, lowercase, number and symbol.';
-      return 'Password is invalid.';
+        return this.translate.instant('errors.validation.password.pattern');
+      return this.translate.instant('errors.validation.password.invalid');
     }
 
-    // Generic field messages
-    if (errs['required']) return `${field} is required.`;
-    if (errs['email']) return 'Please enter a valid email address.';
+    // Generic messages
+    if (errs['required'])
+      return this.translate.instant('errors.validation.required');
+    if (errs['email']) return this.translate.instant('errors.validation.email');
     if (errs['maxlength'])
-      return `${field} must be at most ${errs['maxlength'].requiredLength} characters.`;
+      return this.translate.instant('errors.validation.maxLength', {
+        count: errs['maxlength'].requiredLength,
+      });
     if (errs['minlength'])
-      return `${field} must be at least ${errs['minlength'].requiredLength} characters.`;
+      return this.translate.instant('errors.validation.minLength', {
+        count: errs['minlength'].requiredLength,
+      });
     if (errs['pattern']) {
       const value = control.value || '';
       if (/^[A-Za-z0-9_]*$/.test(value)) {
-        return `${field} must be 3–50 characters and may contain letters, numbers and underscore.`;
+        return this.translate.instant('errors.validation.username.pattern');
       }
-      return `${field} must contain uppercase, lowercase, a number, and a special character.`;
+      return this.translate.instant('errors.validation.password.pattern');
     }
-    return `${field} is invalid.`;
+    return (
+      this.translate.instant('errors.validation.invalid') ||
+      `${label} is invalid.`
+    );
   }
 }

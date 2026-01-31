@@ -35,7 +35,18 @@
   "errors": {
     "validation": {
       "required": "Dieses Feld ist erforderlich",
-      "email": "Ungültiges E-Mail-Format"
+      "email": "Ungültiges E-Mail-Format",
+      "minLength": "Muss mindestens {{count}} Zeichen enthalten",
+      "maxLength": "Darf höchstens {{count}} Zeichen enthalten",
+      "password": {
+        "required": "Passwort ist erforderlich",
+        "minLength": "Verwende mindestens {{count}} Zeichen",
+        "pattern": "Füge Groß-/Kleinbuchstaben, Zahl und Sonderzeichen hinzu",
+        "invalid": "Passwort ist ungültig"
+      },
+      "username": {
+        "pattern": "Benutzername muss 3–50 Zeichen lang sein und darf Buchstaben, Zahlen und Unterstriche enthalten"
+      }
     }
   },
   "primeng": {}

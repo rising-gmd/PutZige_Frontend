@@ -35,7 +35,18 @@
   "errors": {
     "validation": {
       "required": "This field is required",
-      "email": "Invalid email format"
+      "email": "Invalid email format",
+      "minLength": "Must be at least {{count}} characters",
+      "maxLength": "Must be at most {{count}} characters",
+      "password": {
+        "required": "Password is required",
+        "minLength": "Use at least {{count}} characters",
+        "pattern": "Include uppercase, lowercase, number and symbol",
+        "invalid": "Password is invalid"
+      },
+      "username": {
+        "pattern": "Username must be 3–50 characters and may contain letters, numbers and underscore"
+      }
     }
   },
   "primeng": {}

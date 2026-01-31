@@ -35,7 +35,18 @@
   "errors": {
     "validation": {
       "required": "Este campo es obligatorio",
-      "email": "Formato de correo inválido"
+      "email": "Formato de correo inválido",
+      "minLength": "Debe tener al menos {{count}} caracteres",
+      "maxLength": "Debe tener como máximo {{count}} caracteres",
+      "password": {
+        "required": "La contraseña es obligatoria",
+        "minLength": "Usa al menos {{count}} caracteres",
+        "pattern": "Incluye mayúsculas, minúsculas, número y símbolo",
+        "invalid": "La contraseña no es válida"
+      },
+      "username": {
+        "pattern": "El nombre de usuario debe tener 3–50 caracteres y puede contener letras, números y guión bajo"
+      }
     }
   },
   "primeng": {}
