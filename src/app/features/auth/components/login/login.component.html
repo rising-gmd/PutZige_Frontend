@@ -1,0 +1,14 @@
+<div class="auth-form">
+  <h2>{{ "features.auth.login.title" | translate }}</h2>
+  <form (ngSubmit)="submit()">
+    <label>
+      {{ "common.labels.username" | translate }}
+      <input name="username" [(ngModel)]="username" />
+    </label>
+    <label>
+      {{ "common.labels.password" | translate }}
+      <input name="password" type="password" [(ngModel)]="password" />
+    </label>
+    <button type="submit">{{ "common.buttons.login" | translate }}</button>
+  </form>
+</div>

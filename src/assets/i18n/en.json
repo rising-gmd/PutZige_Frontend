@@ -1,0 +1,92 @@
+{
+  "common": {
+    "app": {
+      "title": "PutZige",
+      "welcome": "Hello GMD"
+    },
+    "or": "OR",
+    "terms": "Terms & Conditions",
+    "buttons": {
+      "register": "Register",
+      "login": "Login",
+      "signin": "Sign In",
+      "toggleDark": "Toggle Dark Mode"
+    },
+    "labels": {
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "agreeTo": "I agree to the"
+    }
+  },
+  "features": {
+    "register": {
+      "title": "Create Your Account",
+      "googleSignUp": "Sign Up with Google",
+      "already": "Already have an account?"
+    },
+    "auth": {
+      "login": {
+        "title": "Login",
+        "submit": "Login"
+      }
+    }
+  },
+  "errors": {
+    "network": {
+      "offline": "No internet connection. Please check your network and try again.",
+      "timeout": "Request timed out. Please try again.",
+      "cors": "Unable to connect to the server. Please contact support.",
+      "unknown": "Network error occurred. Please try again later."
+    },
+    "auth": {
+      "unauthorized": "Your session has expired. Please log in again.",
+      "invalidCredentials": "Invalid username or password.",
+      "tokenExpired": "Your session has expired. Redirecting to login...",
+      "forbidden": "You don't have permission to access this resource."
+    },
+    "client": {
+      "badRequest": "Invalid request. Please check your input.",
+      "notFound": "The requested resource was not found.",
+      "conflict": "This resource already exists.",
+      "validation": "Please correct the errors and try again."
+    },
+    "server": {
+      "internalError": "An unexpected error occurred. Our team has been notified.",
+      "badGateway": "Service temporarily unavailable. Please try again.",
+      "serviceUnavailable": "Service is under maintenance. Please try again later.",
+      "unknown": "Something went wrong. Please try again later."
+    },
+    "rateLimit": {
+      "tooManyRequests": "Too many requests. Please wait {{seconds}} seconds and try again."
+    },
+    "validation": {
+      "required": "This field is required",
+      "requiredField": "{{field}} is required",
+      "email": "Invalid email format",
+      "minLength": "Must be at least {{count}} characters",
+      "maxLength": "Must be at most {{count}} characters",
+      "password": {
+        "required": "Password is required",
+        "minLength": "Use at least {{count}} characters",
+        "pattern": "Include uppercase, lowercase, number and symbol",
+        "invalid": "Password is invalid"
+      },
+      "username": {
+        "pattern": "Username must be 3–50 characters and may contain letters, numbers and underscore",
+        "invalidChars": "Username contains invalid characters: {{chars}}. Allowed: letters, numbers and underscore"
+      },
+      "terms": {
+        "required": "You must agree to the Terms & Conditions"
+      }
+    },
+    "titles": {
+      "error": "Error",
+      "warning": "Warning",
+      "networkError": "Connection Error",
+      "authError": "Authentication Error",
+      "serverError": "Server Error"
+    }
+  },
+  "primeng": {}
+}

@@ -1,0 +1,92 @@
+{
+  "common": {
+    "app": {
+      "title": "PutZige",
+      "welcome": "Hola GMD"
+    },
+    "or": "O",
+    "terms": "Términos y Condiciones",
+    "buttons": {
+      "register": "Registrarse",
+      "login": "Iniciar sesión",
+      "signin": "Iniciar sesión",
+      "toggleDark": "Cambiar modo oscuro"
+    },
+    "labels": {
+      "username": "Nombre de usuario",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "agreeTo": "Acepto los"
+    }
+  },
+  "features": {
+    "register": {
+      "title": "Crea tu cuenta",
+      "googleSignUp": "Regístrate con Google",
+      "already": "¿Ya tienes una cuenta?"
+    },
+    "auth": {
+      "login": {
+        "title": "Iniciar sesión",
+        "submit": "Entrar"
+      }
+    }
+  },
+  "errors": {
+    "network": {
+      "offline": "Sin conexión a Internet. Por favor, compruebe su red e inténtelo de nuevo.",
+      "timeout": "La solicitud agotó el tiempo. Por favor, inténtelo de nuevo.",
+      "cors": "No se puede conectar con el servidor. Por favor, contacte con soporte.",
+      "unknown": "Se produjo un error de red. Por favor, inténtelo más tarde."
+    },
+    "auth": {
+      "unauthorized": "Su sesión ha caducado. Por favor, inicie sesión de nuevo.",
+      "invalidCredentials": "Nombre de usuario o contraseña inválidos.",
+      "tokenExpired": "Su sesión ha caducado. Redirigiendo al inicio de sesión...",
+      "forbidden": "No tiene permiso para acceder a este recurso."
+    },
+    "client": {
+      "badRequest": "Solicitud inválida. Por favor, revise sus datos.",
+      "notFound": "El recurso solicitado no fue encontrado.",
+      "conflict": "Este recurso ya existe.",
+      "validation": "Por favor, corrija los errores e inténtelo de nuevo."
+    },
+    "server": {
+      "internalError": "Ocurrió un error inesperado. Nuestro equipo ha sido notificado.",
+      "badGateway": "Servicio temporalmente no disponible. Por favor, inténtelo de nuevo.",
+      "serviceUnavailable": "El servicio está en mantenimiento. Por favor, inténtelo más tarde.",
+      "unknown": "Algo salió mal. Por favor, inténtelo más tarde."
+    },
+    "rateLimit": {
+      "tooManyRequests": "Demasiadas solicitudes. Por favor, espere {{seconds}} segundos e inténtelo de nuevo."
+    },
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "requiredField": "{{field}} es obligatorio",
+      "email": "Formato de correo inválido",
+      "minLength": "Debe tener al menos {{count}} caracteres",
+      "maxLength": "Debe tener como máximo {{count}} caracteres",
+      "password": {
+        "required": "La contraseña es obligatoria",
+        "minLength": "Usa al menos {{count}} caracteres",
+        "pattern": "Incluye mayúsculas, minúsculas, número y símbolo",
+        "invalid": "La contraseña no es válida"
+      },
+      "username": {
+        "pattern": "El nombre de usuario debe tener 3–50 caracteres y puede contener letras, números y guión bajo",
+        "invalidChars": "El nombre de usuario contiene caracteres no permitidos: {{chars}}. Permitidos: letras, números y guión bajo"
+      },
+      "terms": {
+        "required": "Debe aceptar los Términos y Condiciones"
+      }
+    },
+    "titles": {
+      "error": "Error",
+      "warning": "Advertencia",
+      "networkError": "Error de conexión",
+      "authError": "Error de autenticación",
+      "serverError": "Error del servidor"
+    }
+  },
+  "primeng": {}
+}
