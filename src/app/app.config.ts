@@ -25,6 +25,7 @@ import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 import { API_CONFIG } from './core/config/api.config';
 import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
@@ -32,7 +33,9 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([apiBaseUrlInterceptor])),
+    provideHttpClient(
+      withInterceptors([apiBaseUrlInterceptor, errorInterceptor]),
+    ),
     providePrimeNG({
       theme: {
         preset: MyPreset,

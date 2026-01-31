@@ -33,6 +33,33 @@
     }
   },
   "errors": {
+    "network": {
+      "offline": "Keine Internetverbindung. Bitte prüfen Sie Ihr Netzwerk und versuchen Sie es erneut.",
+      "timeout": "Zeitüberschreitung der Anfrage. Bitte versuchen Sie es erneut.",
+      "cors": "Verbindung zum Server nicht möglich. Bitte kontaktieren Sie den Support.",
+      "unknown": "Netzwerkfehler aufgetreten. Bitte versuchen Sie es später erneut."
+    },
+    "auth": {
+      "unauthorized": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+      "invalidCredentials": "Ungültiger Benutzername oder Passwort.",
+      "tokenExpired": "Ihre Sitzung ist abgelaufen. Weiterleitung zur Anmeldung...",
+      "forbidden": "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen."
+    },
+    "client": {
+      "badRequest": "Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingaben.",
+      "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+      "conflict": "Diese Ressource existiert bereits.",
+      "validation": "Bitte korrigieren Sie die Fehler und versuchen Sie es erneut."
+    },
+    "server": {
+      "internalError": "Ein unerwarteter Fehler ist aufgetreten. Unser Team wurde benachrichtigt.",
+      "badGateway": "Dienst vorübergehend nicht verfügbar. Bitte versuchen Sie es erneut.",
+      "serviceUnavailable": "Dienst wird gewartet. Bitte versuchen Sie es später erneut.",
+      "unknown": "Etwas ist schief gelaufen. Bitte versuchen Sie es später erneut."
+    },
+    "rateLimit": {
+      "tooManyRequests": "Zu viele Anfragen. Bitte warten Sie {{seconds}} Sekunden und versuchen Sie es erneut."
+    },
     "validation": {
       "required": "Dieses Feld ist erforderlich",
       "requiredField": "{{field}} ist erforderlich",
@@ -46,11 +73,19 @@
         "invalid": "Passwort ist ungültig"
       },
       "username": {
-        "pattern": "Benutzername muss 3–50 Zeichen lang sein und darf Buchstaben, Zahlen und Unterstriche enthalten"
+        "pattern": "Benutzername muss 3–50 Zeichen lang sein und darf Buchstaben, Zahlen und Unterstriche enthalten",
+        "invalidChars": "Benutzername enthält ungültige Zeichen: {{chars}}. Erlaubt: Buchstaben, Zahlen und Unterstrich"
       },
       "terms": {
         "required": "Sie müssen den Geschäftsbedingungen zustimmen"
       }
+    },
+    "titles": {
+      "error": "Fehler",
+      "warning": "Warnung",
+      "networkError": "Verbindungsfehler",
+      "authError": "Authentifizierungsfehler",
+      "serverError": "Serverfehler"
     }
   },
   "primeng": {}

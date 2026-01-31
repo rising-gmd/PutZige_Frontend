@@ -26,7 +26,8 @@ import {
   usernameValidator,
   passwordPattern,
 } from '../../shared/validators/auth.validators';
-import { getFormError } from '../../shared/utils/form-error.util';
+import { FieldKind, getFormError } from '../../shared/utils/form-error.util';
+import { getFieldErrorDescriptor } from '../../shared/utils/field-error-map';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_PATHS } from '../../core/constants/route.constants';
 import { NotificationService } from '../../shared/services/notification.service';
@@ -150,18 +151,25 @@ export class RegisterComponent {
     control: AbstractControl | null,
     labelKey?: string,
   ): string | null {
-    const label = labelKey
-      ? this.translate.instant(labelKey)
-      : this.translate.instant('common.labels.field');
-
-    const kind =
-      control === this.password
-        ? 'password'
-        : control === this.terms
-          ? 'terms'
-          : 'generic';
-    const desc = getFormError(control, label, kind);
+    const label = this.getLabel(labelKey);
+    const field: FieldKind = this.getField(control);
+    const desc =
+      getFieldErrorDescriptor(control, label, field) ??
+      getFormError(control, label, field);
     if (!desc) return null;
     return this.translate.instant(desc.key, desc.params);
+  }
+
+  private getLabel(labelKey?: string): string {
+    return labelKey
+      ? this.translate.instant(labelKey)
+      : this.translate.instant('common.labels.field');
+  }
+
+  private getField(control: AbstractControl | null): FieldKind {
+    if (control === this.password) return 'password';
+    if (control === this.terms) return 'terms';
+    if (control === this.username) return 'username';
+    return 'generic';
   }
 }

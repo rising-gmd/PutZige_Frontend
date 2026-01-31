@@ -1,14 +1,11 @@
+import { ToastModule } from 'primeng/toast';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
-  imports: [ButtonModule, RouterOutlet, TranslateModule, ToastModule],
-  providers: [MessageService],
+  imports: [RouterOutlet, ToastModule],
+  providers: [],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
 })
