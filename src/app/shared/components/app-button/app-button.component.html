@@ -1,0 +1,13 @@
+<button
+  pButton
+  [attr.type]="type"
+  [disabled]="disabled || loading"
+  [ngClass]="['app-button', 'app-button--' + severity, 'app-button--' + size]"
+  (click)="onClick()"
+  [attr.aria-busy]="loading"
+>
+  <span class="app-button__label">{{ label }}</span>
+  @if (loading) {
+    <i class="pi pi-spin pi-spinner app-button__spinner" aria-hidden="true"></i>
+  }
+</button>

@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { ToastModule } from 'primeng/toast';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastModule],
+  providers: [],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrls: ['./app.scss'],
 })
-export class App {
-  protected readonly title = signal('test');
-}
+export class App {}

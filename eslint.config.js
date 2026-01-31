@@ -40,5 +40,16 @@ module.exports = defineConfig([
       angular.configs.templateAccessibility,
     ],
     rules: {},
-  }
+  },
+  {
+    // Relax strict rules for test files to reduce noise and keep specs readable
+    files: ["**/*.spec.ts", "**/*.spec.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@angular-eslint/prefer-inject": "off",
+    },
+  },
 ]);

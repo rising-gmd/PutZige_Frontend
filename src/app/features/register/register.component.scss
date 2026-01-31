@@ -1,0 +1,157 @@
+.register-page {
+  /* Fill viewport and create a 60/40 split like the reference. Lock height to viewport and hide overflow to avoid vertical scrollbars. */
+  display: grid;
+  grid-template-columns: 60% 40%;
+  width: 100%;
+  height: 100vh; /* lock to viewport height */
+  gap: 2rem;
+  align-items: center; /* vertical centering of grid cells */
+  justify-items: center; /* horizontal centering inside each grid cell */
+  overflow: hidden; /* prevent children from causing page scroll */
+}
+
+.register-visual {
+  /* Prefer the <img> element for reliable loading; keep fallback background removed */
+  background: transparent;
+  min-height: 100vh;
+  width: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+.register-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.register-card {
+  /* Center the card vertically and keep a sensible width on large screens */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+  width: 100%;
+  max-width: 480px;
+  background: var(--app-surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  margin: auto; /* centers horizontally and vertically within the grid cell */
+  place-self: center; /* ensure centering inside the grid cell */
+  /* nudge the card slightly left so visual spacing between image and form looks balanced */
+  transform: translateX(-2vw);
+}
+
+.register-card h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  cursor: pointer;
+}
+.google-btn .google-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.divider {
+  text-align: center;
+  margin: 1rem 0;
+  color: var(--app-muted);
+}
+.divider span {
+  background: var(--app-surface);
+  padding: 0 0.5rem;
+}
+
+.register-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.register-card app-input,
+.register-card app-password {
+  width: 100%;
+}
+
+.register-card .app-input__control,
+.register-card .p-password .p-inputtext {
+  height: 44px;
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+}
+
+.register-card .p-password .p-inputtext {
+  display: block;
+}
+
+.terms {
+  font-size: 0.9rem;
+  color: var(--app-muted-strong);
+  margin-top: 0.25rem;
+}
+.terms input {
+  margin-right: 0.5rem;
+}
+.signin {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Make primary register button full width and rounded to match design */
+.register-card app-button.btn-full {
+  display: block;
+  width: 100%;
+}
+.register-card app-button.btn-full button {
+  width: 100%;
+  border-radius: 24px;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(
+    90deg,
+    var(--app-primary-start) 0%,
+    var(--app-primary-end) 100%
+  );
+  border: none;
+  color: var(--app-surface);
+}
+
+@media (max-width: 1200px) {
+  .register-page {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .register-visual {
+    display: none;
+  }
+  .register-card {
+    padding: 2rem 1rem;
+    max-width: 640px;
+    transform: none; /* remove nudge on smaller screens */
+  }
+}
+
+@media (min-width: 1600px) {
+  /* Maintain 60/40 split on ultra-wide screens and give the form a little more space */
+  .register-page {
+    grid-template-columns: 60% 40%;
+  }
+  .register-card {
+    max-width: 520px;
+    transform: translateX(-3vw);
+  }
+}

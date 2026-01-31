@@ -3,12 +3,18 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
-  async login(_username: string, _password: string): Promise<{ success: boolean }> {
+  async login(
+    _username: string,
+    _password: string,
+  ): Promise<{ success: boolean }> {
     // Placeholder for real API call
     return Promise.resolve({ success: true });
   }
 
-  async register(_username: string, _password: string): Promise<{ success: boolean }> {
+  async register(
+    _username: string,
+    _password: string,
+  ): Promise<{ success: boolean }> {
     return Promise.resolve({ success: true });
   }
 

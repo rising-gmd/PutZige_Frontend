@@ -10,8 +10,15 @@ import {
   selector: '[appIfPermission]',
 })
 export class IfPermissionDirective {
-  private readonly tpl = inject(TemplateRef) as TemplateRef<unknown>;
-  private readonly vcr = inject(ViewContainerRef) as ViewContainerRef;
+  private tpl: TemplateRef<unknown>;
+  private vcr: ViewContainerRef;
+
+  // Allow constructor params for unit tests to provide TemplateRef/ViewContainerRef
+  // eslint-disable-next-line @angular-eslint/prefer-inject
+  constructor(tpl?: TemplateRef<unknown>, vcr?: ViewContainerRef) {
+    this.tpl = tpl ?? inject(TemplateRef);
+    this.vcr = vcr ?? inject(ViewContainerRef);
+  }
 
   @Input() set appIfPermission(condition: boolean) {
     if (condition) {

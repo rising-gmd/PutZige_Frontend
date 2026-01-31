@@ -1,0 +1,61 @@
+export const HTTP_STATUS = {
+  // Network-level (non-HTTP) error
+  NETWORK_ERROR: 0,
+
+  // Success
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+
+  // Client Errors
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  TOO_MANY_REQUESTS: 429,
+
+  // Server Errors
+  INTERNAL_SERVER_ERROR: 500,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+  GATEWAY_TIMEOUT: 504,
+  // Ranges
+  CLIENT_ERROR_MIN: 400,
+  SERVER_ERROR_MIN: 500,
+} as const;
+
+export const ERROR_CODES = {
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  TIMEOUT: 'TIMEOUT',
+  CORS_ERROR: 'CORS_ERROR',
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+} as const;
+
+export const RETRY_CONFIG = {
+  MAX_RETRIES: 3,
+  RETRY_DELAY_MS: 1000,
+  RETRY_STATUS_CODES: [408, 429, 500, 502, 503, 504] as const,
+} as const;
+
+export const REQUEST_CONFIG = {
+  TIMEOUT_MS: 30000,
+  AUTH_REDIRECT_DELAY_MS: 2000,
+  DEFAULT_RETRY_AFTER_SECONDS: 60,
+} as const;
+
+export const NOTIFICATION_CONFIG = {
+  DEFAULT_LIFE_MS: 3000,
+  ERROR_LIFE_MS: 5000,
+  RATE_LIMIT_LIFE_MS: 4000,
+  // Dedupe window should exceed the longest toast life to avoid duplicates
+  DEDUPE_WINDOW_MS: 6000,
+  MAX_CONCURRENT_TOASTS: 5,
+  CLEANUP_INTERVAL_MS: 30000,
+  MAX_CACHE_SIZE: 100,
+  FALLBACK_ALERT_ON_ERROR: false,
+  PRODUCTION_MODE: false,
+} as const;
+
+export type HttpStatus = (typeof HTTP_STATUS)[keyof typeof HTTP_STATUS];

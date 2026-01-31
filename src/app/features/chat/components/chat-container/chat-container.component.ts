@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-chat-container',
   standalone: true,
   templateUrl: './chat-container.component.html',
-  styleUrls: ['./chat-container.component.scss']
+  styleUrls: ['./chat-container.component.scss'],
 })
 export class ChatContainerComponent {}

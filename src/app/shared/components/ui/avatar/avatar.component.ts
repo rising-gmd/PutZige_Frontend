@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-avatar',
   standalone: true,
   templateUrl: './avatar.component.html',
-  styleUrls: ['./avatar.component.scss']
+  styleUrls: ['./avatar.component.scss'],
 })
 export class AvatarComponent {}

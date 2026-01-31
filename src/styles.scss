@@ -1,1 +1,144 @@
-/* You can add global styles to this file, and also import other style files */
+@use "@fontsource/outfit";
+@use "primeicons/primeicons.css";
+
+// CSS Reset
+* {
+  box-sizing: border-box;
+}
+
+// Design Tokens
+:root {
+  // Typography
+  --font-family-primary: "Outfit", sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+
+  // Spacing
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  // Border radius
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  // Shadows
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  // Transitions
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+
+  // Z-index
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* App design tokens mapped to PrimeNG theme tokens */
+  --app-surface: var(--p-surface-0);
+  --app-surface-100: var(--p-surface-100);
+  --app-border: var(--p-surface-200);
+  --app-muted: var(--p-text-secondary);
+  --app-muted-strong: var(--p-text-500);
+  --app-primary-start: var(--p-primary-500);
+  --app-primary-end: var(--p-primary-600);
+
+  /* Brand tokens (mapped) */
+  --google-blue: #4285f4;
+  --google-green: #34a853;
+  --google-yellow: #fbbc05;
+  --google-red: #ea4335;
+}
+
+// Base
+html {
+  font-size: var(--font-size-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  line-height: var(--line-height-base);
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+// Form elements
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+// Utilities
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Global adjustments for PrimeNG wrapped components to avoid ::ng-deep */
+.app-password .p-password .p-inputtext {
+  width: 100%;
+}
+
+/* Ensure PrimeNG password feedback panel appears above form elements (e.g. terms checkbox)
+   Uses design token `--z-popover` so ordering is consistent across the app. */
+.p-password-panel {
+  z-index: var(--z-popover) !important;
+}
+
+/* Ensure the password feedback is elevated above any stacking contexts
+   (transform on the card can create a stacking context). Make the panel
+   a fixed overlay so it won't be clipped by parent stacking contexts. */
+.p-password-panel {
+  position: fixed !important;
+  z-index: 99999 !important;
+}
