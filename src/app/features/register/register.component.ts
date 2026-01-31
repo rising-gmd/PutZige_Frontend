@@ -132,7 +132,7 @@ export class RegisterComponent {
               res.message ??
               this.translate.instant('messages.registrationSuccess');
             this.notifications.showSuccess(msg);
-            void this.router.navigate([ROUTE_PATHS.LOGIN]);
+            void this.router.navigate([ROUTE_PATHS.AUTH, ROUTE_PATHS.LOGIN]);
             return;
           }
 
