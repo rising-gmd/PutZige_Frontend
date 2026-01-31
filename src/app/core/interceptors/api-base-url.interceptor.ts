@@ -21,7 +21,20 @@ export const apiBaseUrlInterceptor: HttpInterceptorFn = (req, next) => {
   // Skip frontend assets to avoid CORS and 404s (e.g. '/assets/...').
   if (rawUrl.startsWith('/') && !rawUrl.startsWith('/assets')) {
     const base = apiConfig.baseUrl.replace(/\/$/, '');
-    const url = `${base}${rawUrl}`;
+    const version = apiConfig.version
+      ? String(apiConfig.version).replace(/^\/+|\/+$/g, '')
+      : '';
+
+    let url: string;
+    // If the caller already targets an '/api' path, don't inject another prefix
+    if (rawUrl.startsWith('/api')) {
+      url = `${base}${rawUrl}`;
+    } else if (version) {
+      url = `${base}/api/${version}${rawUrl}`;
+    } else {
+      url = `${base}${rawUrl}`;
+    }
+
     const apiReq = req.clone({ url });
     return next(apiReq);
   }
