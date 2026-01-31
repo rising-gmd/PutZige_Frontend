@@ -35,6 +35,7 @@
   "errors": {
     "validation": {
       "required": "Este campo es obligatorio",
+      "requiredField": "{{field}} es obligatorio",
       "email": "Formato de correo inválido",
       "minLength": "Debe tener al menos {{count}} caracteres",
       "maxLength": "Debe tener como máximo {{count}} caracteres",

@@ -120,7 +120,9 @@ export class RegisterComponent {
     // Password-specific messages (use i18n keys)
     if (control === this.password) {
       if (errs['required'])
-        return this.translate.instant('errors.validation.password.required');
+        return this.translate.instant('errors.validation.requiredField', {
+          field: label,
+        });
       if (errs['minlength'])
         return this.translate.instant('errors.validation.password.minLength', {
           count: errs['minlength'].requiredLength,
@@ -132,7 +134,9 @@ export class RegisterComponent {
 
     // Generic messages
     if (errs['required'])
-      return this.translate.instant('errors.validation.required');
+      return this.translate.instant('errors.validation.requiredField', {
+        field: label,
+      });
     if (errs['email']) return this.translate.instant('errors.validation.email');
     if (errs['maxlength'])
       return this.translate.instant('errors.validation.maxLength', {
