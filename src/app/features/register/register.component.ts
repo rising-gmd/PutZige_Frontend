@@ -13,6 +13,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MessageModule } from 'primeng/message';
 import { AppInputComponent } from '../../shared/components/app-input/app-input.component';
 import { AppPasswordComponent } from '../../shared/components/app-password/app-password.component';
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
@@ -39,6 +40,7 @@ function passwordPattern() {
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    MessageModule,
     TranslateModule,
     AppInputComponent,
     AppPasswordComponent,
