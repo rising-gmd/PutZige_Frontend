@@ -9,7 +9,7 @@
   </div>
 
   <div class="register-card">
-    <h2>Create Your Account</h2>
+    <h2>{{ "features.register.title" | translate }}</h2>
 
     <button class="google-btn" type="button" (click)="(0)">
       <span class="google-icon" aria-hidden="true">
@@ -40,18 +40,20 @@
           />
         </svg>
       </span>
-      Sign Up with Google
+      {{ "features.register.googleSignUp" | translate }}
     </button>
 
-    <div class="divider"><span>OR</span></div>
+    <div class="divider">
+      <span>{{ "common.or" | translate }}</span>
+    </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <app-input
         formControlName="username"
-        placeholder="Username"
+        [placeholder]="'common.labels.username' | translate"
         [error]="
           submitted() || username.touched
-            ? errorMessage(username, 'Username')
+            ? errorMessage(username, 'common.labels.username' | translate)
             : null
         "
       ></app-input>
@@ -59,40 +61,43 @@
       <app-input
         formControlName="email"
         type="email"
-        placeholder="Your Email"
+        [placeholder]="'common.labels.email' | translate"
         [error]="
-          submitted() || email.touched ? errorMessage(email, 'Email') : null
+          submitted() || email.touched
+            ? errorMessage(email, 'common.labels.email' | translate)
+            : null
         "
       ></app-input>
 
       <app-password
         formControlName="password"
-        placeholder="Password"
+        [placeholder]="'common.labels.password' | translate"
         [showToggle]="true"
         [strength]="true"
         [error]="
           submitted() || password.touched
-            ? errorMessage(password, 'Password')
+            ? errorMessage(password, 'common.labels.password' | translate)
             : null
         "
       ></app-password>
 
       <label class="terms">
-        <input type="checkbox" /> I agree to the
-        <a href="#">Terms &amp; Conditions</a>
+        <input type="checkbox" /> {{ "common.labels.agreeTo" | translate }}
+        <a href="#">{{ "common.terms" | translate }}</a>
       </label>
 
       <app-button
         class="btn-full"
         type="submit"
-        [label]="'Register'"
+        [label]="'common.buttons.register' | translate"
         [loading]="loading()"
         [disabled]="loading()"
         (clicked)="onSubmit()"
       ></app-button>
 
       <div class="signin">
-        Already have an account? <a routerLink="/login">Sign In</a>
+        {{ "features.register.already" | translate }}
+        <a routerLink="/login">{{ "common.buttons.signin" | translate }}</a>
       </div>
     </form>
   </div>

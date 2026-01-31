@@ -1,0 +1,42 @@
+{
+  "common": {
+    "app": {
+      "title": "PutZige",
+      "welcome": "Hallo GMD"
+    },
+    "or": "ODER",
+    "terms": "Geschäftsbedingungen",
+    "buttons": {
+      "register": "Registrieren",
+      "login": "Anmelden",
+      "signin": "Einloggen",
+      "toggleDark": "Dunkelmodus umschalten"
+    },
+    "labels": {
+      "username": "Benutzername",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "agreeTo": "Ich stimme zu"
+    }
+  },
+  "features": {
+    "register": {
+      "title": "Erstelle dein Konto",
+      "googleSignUp": "Mit Google anmelden",
+      "already": "Hast du bereits ein Konto?"
+    },
+    "auth": {
+      "login": {
+        "title": "Anmelden",
+        "submit": "Anmelden"
+      }
+    }
+  },
+  "errors": {
+    "validation": {
+      "required": "Dieses Feld ist erforderlich",
+      "email": "Ungültiges E-Mail-Format"
+    }
+  },
+  "primeng": {}
+}

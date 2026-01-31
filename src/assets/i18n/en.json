@@ -1,0 +1,42 @@
+{
+  "common": {
+    "app": {
+      "title": "PutZige",
+      "welcome": "Hello GMD"
+    },
+    "or": "OR",
+    "terms": "Terms & Conditions",
+    "buttons": {
+      "register": "Register",
+      "login": "Login",
+      "signin": "Sign In",
+      "toggleDark": "Toggle Dark Mode"
+    },
+    "labels": {
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "agreeTo": "I agree to the"
+    }
+  },
+  "features": {
+    "register": {
+      "title": "Create Your Account",
+      "googleSignUp": "Sign Up with Google",
+      "already": "Already have an account?"
+    },
+    "auth": {
+      "login": {
+        "title": "Login",
+        "submit": "Login"
+      }
+    }
+  },
+  "errors": {
+    "validation": {
+      "required": "This field is required",
+      "email": "Invalid email format"
+    }
+  },
+  "primeng": {}
+}

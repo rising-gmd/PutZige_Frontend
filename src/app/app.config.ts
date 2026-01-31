@@ -2,9 +2,17 @@ import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
+  importProvidersFrom,
+  LOCALE_ID,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpClient } from '@angular/common/http';
+import {
+  TranslateModule,
+  TranslateLoader,
+  TranslateService,
+} from '@ngx-translate/core';
+import { Observable } from 'rxjs';
 
 import { providePrimeNG } from 'primeng/config';
 import MyPreset from './theme/my-preset';
@@ -31,5 +39,30 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    // ngx-translate configuration
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        defaultLanguage: 'en',
+        loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient],
+        },
+      }),
+    ),
+    // Provide LOCALE_ID from the active TranslateService language
+    {
+      provide: LOCALE_ID,
+      useFactory: (translate: TranslateService) =>
+        translate.currentLang || 'en',
+      deps: [TranslateService],
+    },
   ],
 };
+
+export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
+  return {
+    getTranslation: (lang: string): Observable<Record<string, string>> =>
+      http.get<Record<string, string>>(`./assets/i18n/${lang}.json`),
+  } as TranslateLoader;
+}

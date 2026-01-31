@@ -5,6 +5,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   FormControl,
   FormGroup,
@@ -37,6 +38,7 @@ function passwordPattern() {
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    TranslateModule,
     AppInputComponent,
     AppPasswordComponent,
     AppButtonComponent,
