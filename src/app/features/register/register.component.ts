@@ -107,6 +107,16 @@ export class RegisterComponent {
     const field = label ? `${label}` : 'This field';
     if (!control || !control.errors) return null;
     const errs = control.errors;
+    // Password-specific concise messages
+    if (control === this.password) {
+      if (errs['required']) return 'Password is required.';
+      if (errs['minlength']) return 'Use at least 8 characters.';
+      if (errs['pattern'])
+        return 'Include uppercase, lowercase, number and symbol.';
+      return 'Password is invalid.';
+    }
+
+    // Generic field messages
     if (errs['required']) return `${field} is required.`;
     if (errs['email']) return 'Please enter a valid email address.';
     if (errs['maxlength'])
