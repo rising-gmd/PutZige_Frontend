@@ -1,8 +1,10 @@
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Component,
   ChangeDetectionStrategy,
   signal,
   inject,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,20 +20,19 @@ import { AppInputComponent } from '../../shared/components/app-input/app-input.c
 import { AppPasswordComponent } from '../../shared/components/app-password/app-password.component';
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
 import { RegisterService } from './register.service';
-import { firstValueFrom } from 'rxjs';
+import type { RegisterResponse } from './register.service';
+import type { ApiResponse } from '../../core/models/api.model';
+import {
+  usernameValidator,
+  passwordPattern,
+} from '../../shared/validators/auth.validators';
+import { getFormError } from '../../shared/utils/form-error.util';
+import { finalize } from 'rxjs/operators';
+import { ROUTE_PATHS } from '../../core/constants/route.constants';
+import { NotificationService } from '../../shared/services/notification.service';
+import { Router } from '@angular/router';
 import { AbstractControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-
-function usernameValidator() {
-  return Validators.pattern(/^[A-Za-z0-9_]{3,50}$/);
-}
-
-function passwordPattern() {
-  // At least 8 chars, uppercase, lowercase, digit, special
-  return Validators.pattern(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-  );
-}
 
 @Component({
   selector: 'app-register',
@@ -53,6 +54,9 @@ function passwordPattern() {
 export class RegisterComponent {
   private readonly service = inject(RegisterService);
   private readonly translate = inject(TranslateService);
+  private readonly notifications = inject(NotificationService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = signal(false);
   submitted = signal(false);
@@ -68,14 +72,14 @@ export class RegisterComponent {
     }),
     username: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required, usernameValidator()],
+      validators: [Validators.required, usernameValidator],
     }),
     password: new FormControl<string>('', {
       nonNullable: true,
       validators: [
         Validators.required,
         Validators.minLength(8),
-        passwordPattern(),
+        passwordPattern,
       ],
     }),
     terms: new FormControl<boolean>(false, {
@@ -105,73 +109,59 @@ export class RegisterComponent {
     }
 
     this.loading.set(true);
-    try {
-      const payload = this.form.getRawValue();
-      await firstValueFrom(this.service.register(payload));
-      // TODO: navigate to sign-in or show success (left minimal intentionally)
-    } finally {
-      this.loading.set(false);
-    }
+
+    const raw = this.form.getRawValue();
+    const payload = {
+      email: raw.email,
+      username: raw.username,
+      password: raw.password,
+      displayName: '',
+    } as const;
+
+    this.service
+      .register(payload)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe({
+        next: (res: ApiResponse<RegisterResponse>) => {
+          if (res && res.success) {
+            const msg =
+              res.message ??
+              this.translate.instant('messages.registrationSuccess');
+            this.notifications.showSuccess(msg);
+            void this.router.navigate([ROUTE_PATHS.LOGIN]);
+            return;
+          }
+
+          const errMsg =
+            res?.message ?? this.translate.instant('errors.generic');
+          this.notifications.showError(errMsg);
+        },
+        error: (err) => {
+          const msg = err?.message ?? this.translate.instant('errors.generic');
+          this.notifications.showError(msg);
+        },
+      });
   }
 
   errorMessage(
     control: AbstractControl | null,
     labelKey?: string,
   ): string | null {
-    if (!control || !control.errors) return null;
-    const errs = control.errors;
-
-    // Resolve label for messages (labelKey is translation key like 'common.labels.password')
     const label = labelKey
       ? this.translate.instant(labelKey)
       : this.translate.instant('common.labels.field');
 
-    // Password-specific messages (use i18n keys)
-    if (control === this.password) {
-      if (errs['required'])
-        return this.translate.instant('errors.validation.requiredField', {
-          field: label,
-        });
-      if (errs['minlength'])
-        return this.translate.instant('errors.validation.password.minLength', {
-          count: errs['minlength'].requiredLength,
-        });
-      if (errs['pattern'])
-        return this.translate.instant('errors.validation.password.pattern');
-      return this.translate.instant('errors.validation.password.invalid');
-    }
-
-    // Terms checkbox
-    if (control === this.terms) {
-      if (errs['required'] || errs['requiredTrue'])
-        return this.translate.instant('errors.validation.terms.required');
-      return this.translate.instant('errors.validation.terms.required');
-    }
-
-    // Generic messages
-    if (errs['required'])
-      return this.translate.instant('errors.validation.requiredField', {
-        field: label,
-      });
-    if (errs['email']) return this.translate.instant('errors.validation.email');
-    if (errs['maxlength'])
-      return this.translate.instant('errors.validation.maxLength', {
-        count: errs['maxlength'].requiredLength,
-      });
-    if (errs['minlength'])
-      return this.translate.instant('errors.validation.minLength', {
-        count: errs['minlength'].requiredLength,
-      });
-    if (errs['pattern']) {
-      const value = control.value || '';
-      if (/^[A-Za-z0-9_]*$/.test(value)) {
-        return this.translate.instant('errors.validation.username.pattern');
-      }
-      return this.translate.instant('errors.validation.password.pattern');
-    }
-    return (
-      this.translate.instant('errors.validation.invalid') ||
-      `${label} is invalid.`
-    );
+    const kind =
+      control === this.password
+        ? 'password'
+        : control === this.terms
+          ? 'terms'
+          : 'generic';
+    const desc = getFormError(control, label, kind);
+    if (!desc) return null;
+    return this.translate.instant(desc.key, desc.params);
   }
 }

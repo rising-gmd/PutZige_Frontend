@@ -6,7 +6,11 @@ import {
   LOCALE_ID,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, HttpClient } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptors,
+  HttpClient,
+} from '@angular/common/http';
 import {
   TranslateModule,
   TranslateLoader,
@@ -18,13 +22,17 @@ import { providePrimeNG } from 'primeng/config';
 import MyPreset from './theme/my-preset';
 
 import { routes } from './app.routes';
+import { environment } from '../environments/environment';
+import { API_CONFIG } from './core/config/api.config';
+import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([apiBaseUrlInterceptor])),
     providePrimeNG({
       theme: {
         preset: MyPreset,
@@ -57,6 +65,17 @@ export const appConfig: ApplicationConfig = {
         translate.currentLang || 'en',
       deps: [TranslateService],
     },
+    // API configuration provider (environment-aware)
+    {
+      provide: API_CONFIG,
+      useValue: {
+        baseUrl: environment.api?.baseUrl ?? '',
+        version: environment.api?.version,
+        timeout: 30000,
+      },
+    },
+    // PrimeNG MessageService used by NotificationService
+    MessageService,
   ],
 };
 
