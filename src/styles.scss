@@ -134,3 +134,11 @@ select {
 .p-password-panel {
   z-index: var(--z-popover) !important;
 }
+
+/* Ensure the password feedback is elevated above any stacking contexts
+   (transform on the card can create a stacking context). Make the panel
+   a fixed overlay so it won't be clipped by parent stacking contexts. */
+.p-password-panel {
+  position: fixed !important;
+  z-index: 99999 !important;
+}
