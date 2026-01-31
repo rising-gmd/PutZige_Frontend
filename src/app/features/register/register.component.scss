@@ -1,35 +1,46 @@
 .register-page {
+  /* Fill viewport and create a 60/40 split like the reference. Lock height to viewport and hide overflow to avoid vertical scrollbars. */
   display: grid;
-  grid-template-columns: 1fr 480px;
-  justify-content: center;
-  min-height: 100vh;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  grid-template-columns: 60% 40%;
+  width: 100%;
+  height: 100vh; /* lock to viewport height */
   gap: 2rem;
+  align-items: center; /* vertical centering of grid cells */
+  justify-items: center; /* horizontal centering inside each grid cell */
+  overflow: hidden; /* prevent children from causing page scroll */
 }
 
 .register-visual {
-  background-image: url("/assets/images/backgrounds/sign_up.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  border-radius: 8px;
-  min-height: 620px;
+  /* Prefer the <img> element for reliable loading; keep fallback background removed */
+  background: transparent;
+  min-height: 100vh;
   width: 100%;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  display: block;
+  overflow: hidden;
+}
+
+.register-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .register-card {
+  /* Center the card vertically and keep a sensible width on large screens */
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 3rem;
-  width: 420px;
+  width: 100%;
+  max-width: 480px;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
-  margin-left: auto;
+  margin: auto; /* centers horizontally and vertically within the grid cell */
+  place-self: center; /* ensure centering inside the grid cell */
+  /* nudge the card slightly left so visual spacing between image and form looks balanced */
+  transform: translateX(-2vw);
 }
 
 .register-card h2 {
@@ -115,7 +126,7 @@
   color: #fff;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .register-page {
     grid-template-columns: 1fr;
     padding: 1rem;
@@ -126,5 +137,17 @@
   .register-card {
     padding: 2rem 1rem;
     max-width: 640px;
+    transform: none; /* remove nudge on smaller screens */
+  }
+}
+
+@media (min-width: 1600px) {
+  /* Maintain 60/40 split on ultra-wide screens and give the form a little more space */
+  .register-page {
+    grid-template-columns: 60% 40%;
+  }
+  .register-card {
+    max-width: 520px;
+    transform: translateX(-3vw);
   }
 }

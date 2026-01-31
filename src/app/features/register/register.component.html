@@ -1,9 +1,12 @@
 <section class="register-page">
-  <div
-    class="register-visual"
-    role="img"
-    aria-label="Sign up illustration"
-  ></div>
+  <div class="register-visual" role="img" aria-label="Sign up illustration">
+    <!-- Use an actual image element so the asset path resolves reliably in dev and prod -->
+    <img
+      src="/assets/images/backgrounds/sign_up.png"
+      alt="Sign up illustration"
+      loading="eager"
+    />
+  </div>
 
   <div class="register-card">
     <h2>Create Your Account</h2>
@@ -45,7 +48,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <app-input
         formControlName="username"
-        placeholder="Your Name"
+        placeholder="Username"
         [error]="
           submitted() || username.touched
             ? errorMessage(username, 'Username')
