@@ -1,8 +1,21 @@
 export const environment = {
   production: true,
-  // Production API base URL. Prefer to set via CI/CD or secrets rather than committing real endpoints.
+
+  // API Configuration
   api: {
-    baseUrl: 'https://api.example.com',
+    // Production backend URL
+    baseUrl: 'https://api.yourapp.com',
+
+    // API version
     version: 'v1',
+
+    // Request timeout (30 seconds)
+    timeout: 30000,
+  },
+
+  // Feature flags
+  features: {
+    enableAnalytics: true,
+    enableDebugMode: false,
   },
 };

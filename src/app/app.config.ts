@@ -72,9 +72,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: API_CONFIG,
       useValue: {
-        baseUrl: environment.api?.baseUrl ?? '',
-        version: environment.api?.version,
-        timeout: 30000,
+        baseUrl: environment.api.baseUrl,
+        version: environment.api.version,
+        timeout: environment.api.timeout,
+        production: environment.production,
       },
     },
     // PrimeNG MessageService used by NotificationService

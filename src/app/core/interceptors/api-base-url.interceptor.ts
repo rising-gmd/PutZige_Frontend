@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { API_CONFIG, ApiConfig } from '../config/api.config';
+import { EnvironmentApiConfig } from '../config/environment.interfaces';
 
 export const apiBaseUrlInterceptor: HttpInterceptorFn = (req, next) => {
   const apiConfig = inject(API_CONFIG) as ApiConfig;
