@@ -37,7 +37,8 @@
       "offline": "Sin conexión a Internet. Por favor, compruebe su red e inténtelo de nuevo.",
       "timeout": "La solicitud agotó el tiempo. Por favor, inténtelo de nuevo.",
       "cors": "No se puede conectar con el servidor. Por favor, contacte con soporte.",
-      "unknown": "Se produjo un error de red. Por favor, inténtelo más tarde."
+      "unknown": "Se produjo un error de red. Por favor, inténtelo más tarde.",
+      "serverUnavailable": "El servidor no está disponible. Por favor, inténtelo más tarde."
     },
     "auth": {
       "unauthorized": "Su sesión ha caducado. Por favor, inicie sesión de nuevo.",

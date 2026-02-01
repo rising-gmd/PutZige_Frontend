@@ -132,17 +132,11 @@ export class RegisterComponent {
               res.message ??
               this.translate.instant('messages.registrationSuccess');
             this.notifications.showSuccess(msg);
-            void this.router.navigate([ROUTE_PATHS.AUTH, ROUTE_PATHS.LOGIN]);
+            this.router.navigateByUrl(
+              `/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`,
+            );
             return;
           }
-
-          const errMsg =
-            res?.message ?? this.translate.instant('errors.generic');
-          this.notifications.showError(errMsg);
-        },
-        error: (err) => {
-          const msg = err?.message ?? this.translate.instant('errors.generic');
-          this.notifications.showError(msg);
         },
       });
   }
