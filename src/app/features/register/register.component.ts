@@ -132,12 +132,16 @@ export class RegisterComponent {
               res.message ??
               this.translate.instant('messages.registrationSuccess');
             this.notifications.showSuccess(msg);
-            this.router.navigateByUrl(
-              `/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`,
-            );
+            this.router.navigateByUrl(`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`);
             return;
           }
-        },
+
+          // Non-success response from API: show error message if provided
+          if (res && !res.success) {
+            const errMsg = res.message ?? this.translate.instant('errors.server.unknown');
+            this.notifications.showError(errMsg);
+          }
+        }
       });
   }
 

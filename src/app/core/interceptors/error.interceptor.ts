@@ -101,9 +101,21 @@ export function handleError(
       return;
     }
 
-    const msg = (
-      httpError.message ?? String(httpError.statusText ?? '')
-    ).toLowerCase();
+    const msgParts = [
+      httpError.message ?? '',
+      String(httpError.statusText ?? ''),
+      typeof httpError.error === 'string' ? httpError.error : (httpError.error as any)?.message || '',
+      String(httpError),
+      (() => {
+        try {
+          return JSON.stringify(httpError as any);
+        } catch {
+          return '';
+        }
+      })(),
+    ];
+    const msg = msgParts.join(' ').toLowerCase();
+    // (debugging removed)
 
     // Backend not running — must check BEFORE CORS because Chrome fires
     // "failed to fetch" on both connection refused and actual CORS failures
@@ -208,8 +220,15 @@ export function handleError(
   ) {
     const apiError = (httpError.error ?? {}) as ApiErrorResponse;
 
-    // Field-level errors present — let the component handle inline display
-    if (apiError?.errors && Object.keys(apiError.errors).length > 0) {
+    const apiErrAny = apiError as any;
+    const errs = apiErrAny?.errors as Record<string, unknown> | undefined;
+    const details = apiErrAny?.details as Record<string, unknown> | undefined;
+
+    const hasFieldErrors =
+      (errs && Object.keys(errs).length > 0) ||
+      (details && Object.keys(details).length > 0);
+
+    if (hasFieldErrors) {
       return;
     }
 
@@ -304,10 +323,16 @@ export function handleError(
 
 // Chrome: "net::ERR_CONNECTION_REFUSED" | Firefox: "econnrefused" | generic fallback
 function isConnectionRefused(msg: string): boolean {
+  if (!msg) return false;
+  const m = msg.toLowerCase();
   return (
-    msg.includes('connection refused') ||
-    msg.includes('err_connection_refused') ||
-    msg.includes('econnrefused')
+    m.includes('connection refused') ||
+    m.includes('err_connection_refused') ||
+    m.includes('econnrefused') ||
+    m.includes('net::err_connection_refused') ||
+    m.includes('net::err_failed') ||
+    m.includes('connectionrefused') ||
+    m.includes('refused')
   );
 }
 
@@ -360,13 +385,27 @@ export function shouldRetry(error: unknown, retryCount: number): boolean {
 
   if (error instanceof HttpErrorResponse) {
     if (error.status === HTTP_STATUS.NETWORK_ERROR) {
-      if (!navigator.onLine) return false;
+      // If the browser is offline, don't retry.
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return false;
 
-      const msg = (
-        error.message ?? String(error.statusText ?? '')
-      ).toLowerCase();
+      // Treat status 0 as a transient network error and retry unless the
+      // message indicates a hard connection refusal.
+      const msgParts = [
+        error.message ?? '',
+        String(error.statusText ?? ''),
+        typeof error.error === 'string' ? error.error : (error.error as any)?.message || '',
+        String(error),
+        (() => {
+          try {
+            return JSON.stringify(error as any);
+          } catch {
+            return '';
+          }
+        })(),
+      ];
+      const msg = msgParts.join(' ').toLowerCase();
+      // (debugging removed)
       if (isConnectionRefused(msg)) return false;
-
       return true;
     }
 

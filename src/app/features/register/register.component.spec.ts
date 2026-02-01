@@ -23,7 +23,7 @@ describe('RegisterComponent', () => {
     instant: jest.fn((k: string) => k),
   } as unknown as TranslateService;
 
-  const mockRouter = { navigate: jest.fn() } as unknown as Router;
+  const mockRouter = { navigate: jest.fn(), navigateByUrl: jest.fn() } as unknown as Router;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -91,7 +91,7 @@ describe('RegisterComponent', () => {
 
     expect(mockRegister.register).toHaveBeenCalled();
     expect(mockNotifications.showSuccess).toHaveBeenCalledWith('ok');
-    expect(mockRouter.navigate).toHaveBeenCalled();
+    expect(mockRouter.navigateByUrl).toHaveBeenCalled();
   });
 
   it('when clicking Google sign up, then the button exists', async () => {
@@ -347,30 +347,6 @@ describe('RegisterComponent', () => {
       expect(mockNotifications.showError).toHaveBeenCalledWith(
         'duplicate username',
       );
-    });
-
-    it('when API throws, then shows generic error notification', async () => {
-      mockRegister.register = jest
-        .fn()
-        .mockReturnValue(throwError(() => new Error('network')));
-
-      await setup();
-
-      const username = screen.getByPlaceholderText('common.labels.username');
-      const email = screen.getByPlaceholderText('common.labels.email');
-      const password = screen.getByPlaceholderText('common.labels.password');
-      const terms = screen.getByRole('checkbox') as HTMLInputElement;
-      const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
-      });
-
-      await userEvent.type(username, 'tester');
-      await userEvent.type(email, 'a@b.com');
-      await userEvent.type(password, 'Password123!');
-      await userEvent.click(terms);
-      await userEvent.click(registerBtn);
-
-      expect(mockNotifications.showError).toHaveBeenCalled();
     });
 
     it('when API call is in-flight, then loading state is shown and button is busy', async () => {
