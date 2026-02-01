@@ -37,7 +37,8 @@
       "offline": "Keine Internetverbindung. Bitte prüfen Sie Ihr Netzwerk und versuchen Sie es erneut.",
       "timeout": "Zeitüberschreitung der Anfrage. Bitte versuchen Sie es erneut.",
       "cors": "Verbindung zum Server nicht möglich. Bitte kontaktieren Sie den Support.",
-      "unknown": "Netzwerkfehler aufgetreten. Bitte versuchen Sie es später erneut."
+      "unknown": "Netzwerkfehler aufgetreten. Bitte versuchen Sie es später erneut.",
+      "serverUnavailable": "Server ist nicht verfügbar. Bitte versuchen Sie es später erneut."
     },
     "auth": {
       "unauthorized": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",

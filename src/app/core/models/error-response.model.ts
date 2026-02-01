@@ -1,7 +1,8 @@
 export interface ApiErrorResponse {
+  success: false;
   message: string;
-  code?: string;
-  details?: Record<string, string[]>;
+  errors?: Record<string, string[]>;
+  statusCode?: number;
   timestamp?: string;
 }
 

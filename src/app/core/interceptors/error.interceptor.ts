@@ -35,7 +35,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   const translateService = inject(TranslateService);
   const notificationSvc = inject(NotificationService);
-
   const routerService = inject(Router);
 
   return next(req).pipe(
@@ -102,9 +101,34 @@ export function handleError(
       return;
     }
 
-    const msg = (
-      httpError.message ?? String(httpError.statusText ?? '')
-    ).toLowerCase();
+    const msgParts = [
+      httpError.message ?? '',
+      String(httpError.statusText ?? ''),
+      typeof httpError.error === 'string' ? httpError.error : (httpError.error as any)?.message || '',
+      String(httpError),
+      (() => {
+        try {
+          return JSON.stringify(httpError as any);
+        } catch {
+          return '';
+        }
+      })(),
+    ];
+    const msg = msgParts.join(' ').toLowerCase();
+    // (debugging removed)
+
+    // Backend not running — must check BEFORE CORS because Chrome fires
+    // "failed to fetch" on both connection refused and actual CORS failures
+    if (isConnectionRefused(msg)) {
+      showToast(
+        translateService,
+        'errors.network.serverUnavailable',
+        'error',
+        undefined,
+        notificationSvc,
+      );
+      return;
+    }
 
     // Broaden detection for common browser network/CORS messages (incl. Firefox wording)
     if (
@@ -127,6 +151,7 @@ export function handleError(
       );
       return;
     }
+
     showToast(
       translateService,
       'errors.network.unknown',
@@ -194,11 +219,32 @@ export function handleError(
     httpError.status === HTTP_STATUS.UNPROCESSABLE_ENTITY
   ) {
     const apiError = (httpError.error ?? {}) as ApiErrorResponse;
-    if (apiError?.details && Object.keys(apiError.details).length > 0) {
-      // Let the component handle inline validation by attaching details to the error object
+
+    const apiErrAny = apiError as any;
+    const errs = apiErrAny?.errors as Record<string, unknown> | undefined;
+    const details = apiErrAny?.details as Record<string, unknown> | undefined;
+
+    const hasFieldErrors =
+      (errs && Object.keys(errs).length > 0) ||
+      (details && Object.keys(details).length > 0);
+
+    if (hasFieldErrors) {
       return;
     }
 
+    // Backend sent a specific message — show it directly
+    if (apiError?.message) {
+      showToast(
+        translateService,
+        apiError.message,
+        'error',
+        undefined,
+        notificationSvc,
+      );
+      return;
+    }
+
+    // No message, no errors — fall back to generic
     showToast(
       translateService,
       'errors.client.badRequest',
@@ -265,12 +311,28 @@ export function handleError(
     );
     return;
   }
+
   showToast(
     translateService,
     'errors.server.unknown',
     'error',
     undefined,
     notificationSvc,
+  );
+}
+
+// Chrome: "net::ERR_CONNECTION_REFUSED" | Firefox: "econnrefused" | generic fallback
+function isConnectionRefused(msg: string): boolean {
+  if (!msg) return false;
+  const m = msg.toLowerCase();
+  return (
+    m.includes('connection refused') ||
+    m.includes('err_connection_refused') ||
+    m.includes('econnrefused') ||
+    m.includes('net::err_connection_refused') ||
+    m.includes('net::err_failed') ||
+    m.includes('connectionrefused') ||
+    m.includes('refused')
   );
 }
 
@@ -314,16 +376,36 @@ function showToast(
   notifierSvc.show(severity, msg, { summary: title, life });
 }
 
-// showToastMessage removed: NotificationService.show replaces direct MessageService calls
-
+// Only retry status 0 when user is online and it's not a hard connection refused —
+// retrying offline or against a downed server just delays the error toast
 export function shouldRetry(error: unknown, retryCount: number): boolean {
   if (retryCount >= RETRY_CONFIG.MAX_RETRIES) {
     return false;
   }
 
   if (error instanceof HttpErrorResponse) {
-    // Network blip
     if (error.status === HTTP_STATUS.NETWORK_ERROR) {
+      // If the browser is offline, don't retry.
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return false;
+
+      // Treat status 0 as a transient network error and retry unless the
+      // message indicates a hard connection refusal.
+      const msgParts = [
+        error.message ?? '',
+        String(error.statusText ?? ''),
+        typeof error.error === 'string' ? error.error : (error.error as any)?.message || '',
+        String(error),
+        (() => {
+          try {
+            return JSON.stringify(error as any);
+          } catch {
+            return '';
+          }
+        })(),
+      ];
+      const msg = msgParts.join(' ').toLowerCase();
+      // (debugging removed)
+      if (isConnectionRefused(msg)) return false;
       return true;
     }
 
