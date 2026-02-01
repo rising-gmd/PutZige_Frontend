@@ -1,5 +1,8 @@
 export interface ApiResponse<T = unknown> {
-  data?: T;
   success?: boolean;
+  data?: T;
   message?: string;
+  errors?: Record<string, string[]>;
+  statusCode?: number;
+  timestamp?: string;
 }
