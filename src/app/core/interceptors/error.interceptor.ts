@@ -104,7 +104,7 @@ export function handleError(
     const msgParts = [
       httpError.message ?? '',
       String(httpError.statusText ?? ''),
-      getErrorBodyMessage(httpError.error) ?? '',
+      getErrorMessage(httpError.error) ?? '',
       String(httpError),
       (() => {
         try {
@@ -336,6 +336,16 @@ function isConnectionRefused(msg: string): boolean {
   );
 }
 
+function getErrorMessage(e: unknown): string | undefined {
+  if (typeof e === 'string') return e;
+  if (e && typeof e === 'object') {
+    const val = (e as Record<string, unknown>)['message'];
+    if (typeof val === 'string') return val;
+    if (val != null) return String(val);
+  }
+  return undefined;
+}
+
 function showToast(
   translateService: TranslateService,
   messageKey: string,
@@ -393,7 +403,7 @@ export function shouldRetry(error: unknown, retryCount: number): boolean {
       const msgParts = [
         error.message ?? '',
         String(error.statusText ?? ''),
-        getErrorBodyMessage(error.error) ?? '',
+        getErrorMessage((error as HttpErrorResponse).error) ?? '',
         String(error),
         (() => {
           try {
@@ -417,19 +427,9 @@ export function shouldRetry(error: unknown, retryCount: number): boolean {
   return false;
 }
 
-function getErrorBodyMessage(body: unknown): string | undefined {
-  if (body == null) return undefined;
-  if (typeof body === 'string') return body;
-  if (typeof body === 'object') {
-    try {
-      const b = body as Record<string, unknown>;
-      if (typeof b['message'] === 'string') return b['message'] as string;
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
-}
+// Note: `getErrorMessage` above handles extracting a human-friendly message
+// from various error body shapes. Keep helper utilities minimal to avoid
+// unused-symbol lint failures.
 
 export function logErrorToMonitoring(error: HttpErrorResponse): void {
   if (!environment.production) {
