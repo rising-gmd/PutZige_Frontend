@@ -1,0 +1,101 @@
+<!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
+<div class="verify-email-viewport">
+  <div class="verify-center">
+    <div class="verify-card">
+      <!-- Verifying State -->
+      <ng-container *ngIf="state() === VerificationState.VERIFYING">
+        <i class="pi pi-spin pi-spinner verify-icon" aria-label="Verifying"></i>
+        <h1>{{ "pages.verifyEmail.verifying.title" | translate }}</h1>
+        <p class="muted">
+          {{ "pages.verifyEmail.verifying.subtitle" | translate }}
+        </p>
+      </ng-container>
+
+      <!-- Success State -->
+      <ng-container *ngIf="state() === VerificationState.SUCCESS">
+        <i
+          class="pi pi-check-circle verify-icon success-icon"
+          aria-hidden="true"
+        ></i>
+        <h1>{{ "pages.verifyEmail.success.title" | translate }}</h1>
+        <p class="muted">
+          {{ "pages.verifyEmail.success.message" | translate }}
+        </p>
+        <p class="redirect-text">
+          {{ "pages.verifyEmail.success.redirect" | translate }}
+        </p>
+      </ng-container>
+
+      <!-- Error State (generic error) -->
+      <ng-container *ngIf="state() === VerificationState.ERROR">
+        <i
+          class="pi pi-exclamation-triangle verify-icon error-icon"
+          aria-hidden="true"
+        ></i>
+        <h1>{{ "pages.verifyEmail.error.title" | translate }}</h1>
+        <p class="error-message">{{ errorMessage() }}</p>
+
+        <app-button
+          class="cta"
+          [label]="'pages.verifyEmail.resend.button' | translate"
+          (clicked)="resendEmail()"
+        ></app-button>
+
+        <a routerLink="/auth/login" class="back-link">
+          {{ "common.buttons.login" | translate }}
+        </a>
+      </ng-container>
+
+      <!-- Expired State (token expired) -->
+      <ng-container *ngIf="state() === VerificationState.EXPIRED">
+        <i class="pi pi-clock verify-icon expired-icon" aria-hidden="true"></i>
+        <h1>{{ "pages.verifyEmail.expired.title" | translate }}</h1>
+        <p class="error-message">{{ errorMessage() }}</p>
+
+        <app-button
+          class="cta"
+          [label]="'pages.verifyEmail.resend.button' | translate"
+          (clicked)="resendEmail()"
+        ></app-button>
+
+        <a routerLink="/auth/login" class="back-link">
+          {{ "common.buttons.login" | translate }}
+        </a>
+      </ng-container>
+
+      <!-- Resending State (API call in progress) -->
+      <ng-container *ngIf="state() === VerificationState.RESENDING">
+        <i class="pi pi-spin pi-spinner verify-icon" aria-label="Sending"></i>
+        <h1>{{ "pages.verifyEmail.resend.sending" | translate }}</h1>
+        <p class="muted">
+          {{ "pages.verifyEmail.resend.subtitle" | translate }}
+        </p>
+      </ng-container>
+
+      <!-- Resent State (email sent successfully) -->
+      <ng-container *ngIf="state() === VerificationState.RESENT">
+        <i
+          class="pi pi-envelope verify-icon resent-icon"
+          aria-hidden="true"
+        ></i>
+        <h1>{{ "pages.verifyEmail.resent.title" | translate }}</h1>
+        <p class="muted">{{ errorMessage() }}</p>
+
+        <app-button
+          class="cta"
+          [label]="'pages.verifyEmail.resend.sendAgain' | translate"
+          (clicked)="resendEmail()"
+        ></app-button>
+
+        <a routerLink="/auth/login" class="back-link">
+          {{ "common.buttons.login" | translate }}
+        </a>
+      </ng-container>
+
+      <!-- Footer note -->
+      <p class="footer-note">
+        {{ "pages.verifyEmail.footer.help" | translate }}
+      </p>
+    </div>
+  </div>
+</div>

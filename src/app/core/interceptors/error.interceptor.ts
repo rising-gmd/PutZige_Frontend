@@ -34,7 +34,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const translateService = inject(TranslateService);
-  const notificationSvc = inject(NotificationService);
+  const notifications = inject(NotificationService);
   const routerService = inject(Router);
 
   return next(req).pipe(
@@ -62,7 +62,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       handleError(
         normalizedError,
         translateService,
-        notificationSvc,
+        notifications,
         routerService,
       );
       return throwError(() => normalizedError);
@@ -73,7 +73,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 export function handleError(
   httpError: HttpErrorResponse,
   translateService: TranslateService,
-  notificationSvc: NotificationService,
+  notifications: NotificationService,
   routerService: Router,
 ): void {
   // Timeout
@@ -83,7 +83,7 @@ export function handleError(
       'errors.network.timeout',
       'error',
       undefined,
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -96,7 +96,7 @@ export function handleError(
         'errors.network.offline',
         'error',
         undefined,
-        notificationSvc,
+        notifications,
       );
       return;
     }
@@ -125,7 +125,7 @@ export function handleError(
         'errors.network.serverUnavailable',
         'error',
         undefined,
-        notificationSvc,
+        notifications,
       );
       return;
     }
@@ -147,7 +147,7 @@ export function handleError(
         'errors.network.cors',
         'error',
         { detail: httpError.message ?? httpError.statusText },
-        notificationSvc,
+        notifications,
       );
       return;
     }
@@ -157,7 +157,7 @@ export function handleError(
       'errors.network.unknown',
       'error',
       { detail: httpError.message ?? httpError.statusText },
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -177,7 +177,7 @@ export function handleError(
       'errors.auth.tokenExpired',
       'warn',
       undefined,
-      notificationSvc,
+      notifications,
     );
 
     setTimeout(() => {
@@ -196,7 +196,7 @@ export function handleError(
       'errors.auth.forbidden',
       'error',
       undefined,
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -208,7 +208,7 @@ export function handleError(
       'errors.client.notFound',
       'warn',
       undefined,
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -221,8 +221,8 @@ export function handleError(
     const apiError = (httpError.error ?? {}) as ApiErrorResponse;
 
     const apiObj = apiError as unknown as Record<string, unknown>;
-    const errs = apiObj.errors as Record<string, unknown> | undefined;
-    const details = apiObj.details as Record<string, unknown> | undefined;
+    const errs = apiObj['errors'] as Record<string, unknown> | undefined;
+    const details = apiObj['details'] as Record<string, unknown> | undefined;
 
     const hasFieldErrors =
       (errs && Object.keys(errs).length > 0) ||
@@ -239,7 +239,7 @@ export function handleError(
         apiError.message,
         'error',
         undefined,
-        notificationSvc,
+        notifications,
       );
       return;
     }
@@ -250,7 +250,7 @@ export function handleError(
       'errors.client.badRequest',
       'error',
       undefined,
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -265,7 +265,7 @@ export function handleError(
     const msg = translateService.instant('errors.rateLimit.tooManyRequests', {
       seconds,
     });
-    notificationSvc.show('warn', msg, {
+    notifications.show('warn', msg, {
       summary: translateService.instant('errors.titles.warning'),
       life: NOTIFICATION_CONFIG.RATE_LIMIT_LIFE_MS,
     });
@@ -280,7 +280,7 @@ export function handleError(
         'errors.server.serviceUnavailable',
         'error',
         undefined,
-        notificationSvc,
+        notifications,
       );
       routerService.navigate([ROUTE_PATHS.MAINTENANCE]);
       return;
@@ -292,7 +292,7 @@ export function handleError(
       'errors.server.internalError',
       'error',
       undefined,
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -307,7 +307,7 @@ export function handleError(
       'errors.client.badRequest',
       'error',
       undefined,
-      notificationSvc,
+      notifications,
     );
     return;
   }
@@ -317,7 +317,7 @@ export function handleError(
     'errors.server.unknown',
     'error',
     undefined,
-    notificationSvc,
+    notifications,
   );
 }
 
@@ -351,9 +351,9 @@ function showToast(
   messageKey: string,
   severity: 'success' | 'info' | 'warn' | 'error',
   params?: Record<string, unknown>,
-  notificationSvc?: NotificationService,
+  notifications?: NotificationService,
 ): void {
-  const notifierSvc = notificationSvc ?? inject(NotificationService);
+  const notifierSvc = notifications ?? inject(NotificationService);
 
   // Guard translation calls so toast still appears if translation lookup fails
   let msg: string;
@@ -426,6 +426,10 @@ export function shouldRetry(error: unknown, retryCount: number): boolean {
 
   return false;
 }
+
+// Note: `getErrorMessage` above handles extracting a human-friendly message
+// from various error body shapes. Keep helper utilities minimal to avoid
+// unused-symbol lint failures.
 
 export function logErrorToMonitoring(error: HttpErrorResponse): void {
   if (!environment.production) {

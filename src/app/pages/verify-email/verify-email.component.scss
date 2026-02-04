@@ -1,0 +1,168 @@
+/* Clean white card design for email verification */
+
+.verify-email-viewport {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+}
+
+.verify-center {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 3rem 2.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Icon states */
+.verify-icon {
+  font-size: 64px;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Success state - green checkmark */
+.verify-icon.success-icon {
+  color: #10b981;
+}
+
+/* Error state - amber/yellow warning */
+.verify-icon.error-icon {
+  color: #f59e0b;
+}
+
+/* Expired state - orange clock */
+.verify-icon.expired-icon {
+  color: #f97316;
+}
+
+/* Resent state - blue envelope */
+.verify-icon.resent-icon {
+  color: #3b82f6;
+}
+
+/* Spinner - blue */
+.pi-spinner {
+  color: #3b82f6;
+}
+
+/* Typography */
+.verify-card h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.muted {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.redirect-text {
+  color: #9ca3af;
+  margin-top: var(--spacing-xs);
+  font-size: 0.875rem;
+}
+
+.error-message {
+  color: #6b7280;
+  margin-bottom: var(--spacing-md);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* CTA button - full width */
+app-button.cta {
+  display: block;
+  width: 100%;
+  margin-top: var(--spacing-sm);
+}
+
+app-button.cta ::ng-deep .p-button {
+  width: 100%;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  background: #3b82f6 !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+app-button.cta ::ng-deep .p-button:hover:not(:disabled) {
+  background: #2563eb !important;
+}
+
+app-button.cta ::ng-deep .p-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Back link */
+.back-link {
+  display: block;
+  margin-top: var(--spacing-md);
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #111827;
+}
+
+/* Footer note */
+.footer-note {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.825rem;
+  color: #9ca3af;
+}
+
+.footer-note a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.footer-note a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .verify-center {
+    padding: var(--spacing-lg);
+  }
+
+  .verify-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .verify-icon {
+    font-size: 56px;
+  }
+
+  .verify-card h1 {
+    font-size: 1.25rem;
+  }
+}
