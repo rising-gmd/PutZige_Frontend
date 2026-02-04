@@ -104,11 +104,11 @@ export function handleError(
     const msgParts = [
       httpError.message ?? '',
       String(httpError.statusText ?? ''),
-      typeof httpError.error === 'string' ? httpError.error : (httpError.error as any)?.message || '',
+      getErrorMessage(httpError.error) ?? '',
       String(httpError),
       (() => {
         try {
-          return JSON.stringify(httpError as any);
+          return JSON.stringify(httpError);
         } catch {
           return '';
         }
@@ -220,9 +220,9 @@ export function handleError(
   ) {
     const apiError = (httpError.error ?? {}) as ApiErrorResponse;
 
-    const apiErrAny = apiError as any;
-    const errs = apiErrAny?.errors as Record<string, unknown> | undefined;
-    const details = apiErrAny?.details as Record<string, unknown> | undefined;
+    const apiObj = apiError as unknown as Record<string, unknown>;
+    const errs = apiObj.errors as Record<string, unknown> | undefined;
+    const details = apiObj.details as Record<string, unknown> | undefined;
 
     const hasFieldErrors =
       (errs && Object.keys(errs).length > 0) ||
@@ -336,6 +336,16 @@ function isConnectionRefused(msg: string): boolean {
   );
 }
 
+function getErrorMessage(e: unknown): string | undefined {
+  if (typeof e === 'string') return e;
+  if (e && typeof e === 'object') {
+    const val = (e as Record<string, unknown>)['message'];
+    if (typeof val === 'string') return val;
+    if (val != null) return String(val);
+  }
+  return undefined;
+}
+
 function showToast(
   translateService: TranslateService,
   messageKey: string,
@@ -393,11 +403,11 @@ export function shouldRetry(error: unknown, retryCount: number): boolean {
       const msgParts = [
         error.message ?? '',
         String(error.statusText ?? ''),
-        typeof error.error === 'string' ? error.error : (error.error as any)?.message || '',
+        getErrorMessage((error as HttpErrorResponse).error) ?? '',
         String(error),
         (() => {
           try {
-            return JSON.stringify(error as any);
+            return JSON.stringify(error);
           } catch {
             return '';
           }
