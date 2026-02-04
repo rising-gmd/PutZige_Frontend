@@ -9,6 +9,13 @@
   overflow: hidden;
 }
 
+/* Page-scoped auth card variables - make auth card light on login page */
+.login-page {
+  --auth-card-surface: var(--auth-card-surface-default);
+  --auth-card-border: var(--auth-card-border-default);
+  --auth-card-text: var(--auth-card-text-default);
+}
+
 .login-visual {
   background: transparent;
   min-height: 100vh;
@@ -31,7 +38,7 @@
   padding: 3rem;
   width: 100%;
   max-width: 480px;
-  background: var(--app-surface);
+  background: var(--auth-card-surface, var(--app-surface));
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
   margin: auto;
@@ -52,8 +59,8 @@
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
+  background: var(--auth-card-surface, var(--app-surface));
+  border: 1px solid var(--auth-card-border, var(--app-border));
   cursor: pointer;
 }
 .google-btn .google-icon {
@@ -67,7 +74,7 @@
   color: var(--app-muted);
 }
 .divider span {
-  background: var(--app-surface);
+  background: var(--auth-card-surface, var(--app-surface));
   padding: 0 0.5rem;
 }
 
@@ -86,8 +93,8 @@
   height: 44px;
   border-radius: 8px;
   padding: 0 0.75rem;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
+  background: var(--auth-card-surface, var(--app-surface));
+  border: 1px solid var(--auth-card-border, var(--app-border));
 }
 
 .login-card .p-password .p-inputtext {

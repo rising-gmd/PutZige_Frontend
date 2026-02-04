@@ -46,22 +46,13 @@
   --z-popover: 1060;
   --z-tooltip: 1070;
 
-  /* App design tokens mapped to PrimeNG theme tokens */
-  --app-surface: var(--p-surface-0);
-  --app-surface-100: var(--p-surface-100);
-  --app-border: var(--p-surface-200);
-  --app-muted: var(--p-text-secondary);
-  --app-muted-strong: var(--p-text-500);
-  --app-primary-start: var(--p-primary-500);
-  --app-primary-end: var(--p-primary-600);
-
-  /* Primitive palette fallbacks for PrimeNG tokens (define only core shades used) */
+  /* Primitive palette for dark theme (default app theme) */
   --p-primary-50: #eef2ff;
   --p-primary-100: #e0e7ff;
   --p-primary-200: #c7d2fe;
   --p-primary-300: #a5b4fc;
   --p-primary-400: #818cf8;
-  --p-primary-500: #3b82f6; /* app primary */
+  --p-primary-500: #3b82f6;
   --p-primary-600: #2563eb;
   --p-primary-700: #1d4ed8;
   --p-primary-800: #1e40af;
@@ -72,17 +63,18 @@
   --p-surface-100: #0f1720;
   --p-surface-200: #111827;
 
+  --p-text-primary: #f3f4f6;
   --p-text-secondary: #9ca3af;
   --p-text-500: #6b7280;
 
-  /* Map app tokens to PrimeNG primitives so components using --p-* work */
-  --app-primary-start: var(--p-primary-500);
-  --app-primary-end: var(--p-primary-600);
+  /* App design tokens mapped to PrimeNG theme tokens */
   --app-surface: var(--p-surface-0);
   --app-surface-100: var(--p-surface-100);
   --app-border: var(--p-surface-200);
   --app-muted: var(--p-text-secondary);
   --app-muted-strong: var(--p-text-500);
+  --app-primary-start: var(--p-primary-500);
+  --app-primary-end: var(--p-primary-600);
 
   /* Page-specific theme tokens (used by pages/components) */
   --app-bg: #050505;
@@ -97,7 +89,13 @@
   --app-danger: #fb7185;
   --app-cta-border: rgba(255, 255, 255, 0.06);
 
-  /* Brand tokens (mapped) */
+  /* Auth card light theme tokens (for login/register pages) */
+  --auth-card-surface-default: #ffffff;
+  --auth-card-border-default: #e5e7eb;
+  --auth-card-text-default: #111827;
+  --auth-card-placeholder-default: #9ca3af;
+
+  /* Brand tokens */
   --google-blue: #4285f4;
   --google-green: #34a853;
   --google-yellow: #fbbc05;
@@ -171,16 +169,25 @@ select {
   width: 100%;
 }
 
-/* Ensure PrimeNG password feedback panel appears above form elements (e.g. terms checkbox)
-   Uses design token `--z-popover` so ordering is consistent across the app. */
+/* Ensure PrimeNG password feedback panel appears above form elements */
 .p-password-panel {
+  position: fixed !important;
   z-index: var(--z-popover) !important;
 }
 
-/* Ensure the password feedback is elevated above any stacking contexts
-   (transform on the card can create a stacking context). Make the panel
-   a fixed overlay so it won't be clipped by parent stacking contexts. */
-.p-password-panel {
-  position: fixed !important;
-  z-index: 99999 !important;
+/* Global auth page input overrides - applies light theme to auth inputs */
+.register-page input.p-inputtext,
+.login-page input.p-inputtext,
+.register-page input.p-password-input.p-component.p-inputtext,
+.login-page input.p-password-input.p-component.p-inputtext {
+  background: var(--auth-card-surface-default) !important;
+  color: var(--auth-card-text-default) !important;
+  border-color: var(--auth-card-border-default) !important;
+}
+
+.register-page input.p-inputtext::placeholder,
+.login-page input.p-inputtext::placeholder,
+.register-page input.p-password-input.p-component.p-inputtext::placeholder,
+.login-page input.p-password-input.p-component.p-inputtext::placeholder {
+  color: var(--auth-card-placeholder-default) !important;
 }
