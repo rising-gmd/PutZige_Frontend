@@ -93,29 +93,37 @@
   "pages": {
     "verifyEmail": {
       "verifying": {
-        "title": "Verifying your email...",
-        "subtitle": "Please wait while we confirm your address."
+        "title": "Verifying Email",
+        "subtitle": "Please wait while we verify your account..."
       },
       "success": {
         "title": "Email Verified!",
-        "message": "Your account is now active.",
+        "message": "Your account is now active",
         "redirect": "Redirecting to login..."
       },
       "error": {
         "title": "Verification Failed"
       },
+      "expired": {
+        "title": "Link Expired"
+      },
+      "errors": {
+        "missingParams": "Invalid verification link. Please check your email.",
+        "expired": "Your verification link has expired. Please request a new one."
+      },
       "resend": {
         "button": "Resend Email",
         "sending": "Sending...",
-        "success": "Verification email sent.",
-        "checkInbox": "Check your inbox for the verification link."
+        "subtitle": "Sending verification email...",
+        "success": "Verification email sent successfully!",
+        "checkInbox": "Check your inbox for a new verification link",
+        "sendAgain": "Send Again"
       },
-      "errors": {
-        "missingParams": "Missing verification data. Please use the link from your email.",
-        "tokenExpired": "Verification token expired. You can request a new verification email."
+      "resent": {
+        "title": "Email Sent"
       },
       "footer": {
-        "help": "If you have any issue confirming your account, please contact support."
+        "help": "Need help? Contact support@putzige.com"
       }
     }
   }

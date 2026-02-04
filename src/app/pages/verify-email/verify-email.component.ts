@@ -15,12 +15,14 @@ import { NotificationService } from '../../shared/services/notification.service'
 import type { ApiResponse } from '../../core/models/api.model';
 import { ROUTE_PATHS } from '../../core/constants/route.constants';
 
-type VerificationState =
-  | 'verifying'
-  | 'success'
-  | 'error'
-  | 'expired'
-  | 'resending';
+enum VerificationState {
+  VERIFYING = 'verifying',
+  SUCCESS = 'success',
+  ERROR = 'error',
+  EXPIRED = 'expired',
+  RESENDING = 'resending',
+  RESENT = 'resent', // After successful resend
+}
 
 @Component({
   selector: 'app-verify-email',
@@ -38,96 +40,173 @@ export class VerifyEmailComponent {
   private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
-  state = signal<VerificationState>('verifying');
-  errorMessage = signal<string | null>(null);
-  private readonly redirectMs = 3000;
+  // Expose enum to template
+  readonly VerificationState = VerificationState;
+
+  state = signal<VerificationState>(VerificationState.VERIFYING);
+  errorMessage = signal<string>('');
+
+  private readonly redirectDelayMs = 3000;
   private email = '';
+  private token = '';
 
   constructor() {
-    this.startVerification();
+    this.initializeVerification();
   }
 
-  private startVerification(): void {
-    const qp = this.route.snapshot.queryParamMap;
-    const email = qp.get('email');
-    const token = qp.get('token');
+  private initializeVerification(): void {
+    const queryParams = this.route.snapshot.queryParamMap;
+    const email = queryParams.get('email');
+    const token = queryParams.get('token');
 
+    // Validate query params
     if (!email || !token) {
-      this.state.set('error');
-      const msg = this.translate.instant(
-        'pages.verifyEmail.errors.missingParams',
-      );
-      this.errorMessage.set(msg);
-      this.notifications.showError(msg);
+      this.handleMissingParams();
       return;
     }
 
     this.email = email;
+    this.token = token;
 
-    this.state.set('verifying');
+    // Auto-verify on page load
+    this.verifyEmail();
+  }
+
+  /**
+   * Handle missing email or token in query params
+   */
+  private handleMissingParams(): void {
+    this.state.set(VerificationState.ERROR);
+    const message = this.translate.instant(
+      'pages.verifyEmail.errors.missingParams',
+    );
+    this.errorMessage.set(message);
+    this.notifications.showError(message);
+  }
+
+  /**
+   * Call verify email API
+   */
+  private verifyEmail(): void {
+    this.state.set(VerificationState.VERIFYING);
 
     this.authApi
-      .verifyEmail(email, token)
+      .verifyEmail(this.email, this.token)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res: ApiResponse<null>) => {
-          if (res && res.success) {
-            const successMsg =
-              res.message ??
-              this.translate.instant('pages.verifyEmail.success.message');
-            this.notifications.showSuccess(successMsg);
-            this.state.set('success');
-            setTimeout(() => {
-              void this.router.navigate([
-                `/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`,
-              ]);
-            }, this.redirectMs);
-            return;
-          }
+        next: (response: ApiResponse<null>) => {
+          this.handleVerificationResponse(response);
+        },
 
-          // Non-success ApiResponse: surface message via NotificationService and show error UI
-          this.state.set('error');
-          const errMsg =
-            res?.message ?? this.translate.instant('errors.server.unknown');
-          this.errorMessage.set(errMsg);
-          this.notifications.showError(errMsg);
-          if (res?.statusCode === 400) {
-            this.state.set('expired');
-          }
+        error: () => {
+          this.handleVerificationError();
         },
       });
   }
 
+  private handleVerificationResponse(response: ApiResponse<null>): void {
+    if (response?.success) {
+      this.handleVerificationSuccess(response.message);
+      return;
+    }
+
+    if (response?.statusCode === 400) {
+      this.handleExpiredToken(response.message);
+    } else {
+      this.handleVerificationError(response?.message);
+    }
+  }
+
+  /**
+   * Handle successful verification
+   */
+  private handleVerificationSuccess(message?: string): void {
+    const successMessage =
+      message ?? this.translate.instant('pages.verifyEmail.success.message');
+    this.state.set(VerificationState.SUCCESS);
+    this.notifications.showSuccess(successMessage);
+
+    setTimeout(() => {
+      void this.router.navigate([`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`]);
+    }, this.redirectDelayMs);
+  }
+
+  /**
+   * Handle expired token
+   */
+  private handleExpiredToken(message?: string): void {
+    const errorMsg =
+      message ?? this.translate.instant('pages.verifyEmail.errors.expired');
+    this.state.set(VerificationState.EXPIRED);
+    this.errorMessage.set(errorMsg);
+    this.notifications.showError(errorMsg);
+  }
+
+  /**
+   * Handle verification error
+   */
+  private handleVerificationError(message?: string): void {
+    const errorMsg = message ?? this.translate.instant('errors.server.unknown');
+    this.state.set(VerificationState.ERROR);
+    this.errorMessage.set(errorMsg);
+    this.notifications.showError(errorMsg);
+  }
+
+  /**
+   * Resend verification email (public method called from template)
+   */
   resendEmail(): void {
-    if (!this.email) return;
-    this.state.set('resending');
+    if (!this.email) {
+      return;
+    }
+
+    this.state.set(VerificationState.RESENDING);
 
     this.authApi
       .resendVerification(this.email)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res: ApiResponse<null>) => {
-          if (res && res.success) {
-            this.state.set('error');
-            const ok = this.translate.instant(
-              'pages.verifyEmail.resend.checkInbox',
-            );
-            this.errorMessage.set(ok);
-            this.notifications.showSuccess(
-              res.message ??
-                this.translate.instant('pages.verifyEmail.resend.success'),
-            );
-            return;
-          }
-
-          this.state.set('error');
-          const err =
-            res.message ?? this.translate.instant('errors.server.unknown');
-          this.errorMessage.set(err);
-          this.notifications.showError(err);
+        next: (response: ApiResponse<null>) => {
+          this.handleResendResponse(response);
+        },
+        error: () => {
+          this.handleResendError();
         },
       });
   }
 
-  // Note: HTTP error handling is performed by the global interceptor; component only consumes ApiResponse
+  /**
+   * Handle resend verification response
+   */
+  private handleResendResponse(response: ApiResponse<null>): void {
+    if (response?.success) {
+      this.handleResendSuccess(response.message);
+    } else {
+      this.handleResendError(response?.message);
+    }
+  }
+
+  /**
+   * Handle successful resend
+   */
+  private handleResendSuccess(message?: string): void {
+    const successMsg =
+      message ?? this.translate.instant('pages.verifyEmail.resend.success');
+    const checkInboxMsg = this.translate.instant(
+      'pages.verifyEmail.resend.checkInbox',
+    );
+    this.state.set(VerificationState.RESENT);
+    this.errorMessage.set(checkInboxMsg);
+    this.notifications.showSuccess(successMsg);
+  }
+
+  /**
+   * Handle resend error
+   */
+  private handleResendError(message?: string): void {
+    const errorMsg = message ?? this.translate.instant('errors.server.unknown');
+    this.state.set(VerificationState.ERROR);
+    this.errorMessage.set(errorMsg);
+    this.notifications.showError(errorMsg);
+  }
 }

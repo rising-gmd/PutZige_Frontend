@@ -93,29 +93,37 @@
   "pages": {
     "verifyEmail": {
       "verifying": {
-        "title": "E-Mail wird verifiziert...",
-        "subtitle": "Bitte warten Sie, während wir Ihre Adresse bestätigen."
+        "title": "E-Mail wird verifiziert",
+        "subtitle": "Bitte warten Sie, während wir Ihr Konto verifizieren..."
       },
       "success": {
         "title": "E-Mail verifiziert!",
-        "message": "Ihr Konto ist jetzt aktiv.",
+        "message": "Ihr Konto ist jetzt aktiv",
         "redirect": "Weiterleitung zur Anmeldung..."
       },
       "error": {
         "title": "Verifizierung fehlgeschlagen"
       },
-      "resend": {
-        "button": "E-Mail erneut senden",
-        "sending": "Senden...",
-        "success": "Verifizierungs-E-Mail gesendet.",
-        "checkInbox": "Überprüfen Sie Ihren Posteingang auf den Bestätigungslink."
+      "expired": {
+        "title": "Link abgelaufen"
       },
       "errors": {
-        "missingParams": "Fehlende Verifizierungsdaten. Bitte verwenden Sie den Link aus Ihrer E-Mail.",
-        "tokenExpired": "Verifizierungstoken abgelaufen. Sie können eine neue Verifizierungs-E-Mail anfordern."
+        "missingParams": "Ungültiger Verifizierungslink. Bitte überprüfen Sie Ihre E-Mail.",
+        "expired": "Ihr Verifizierungslink ist abgelaufen. Bitte fordern Sie einen neuen an."
+      },
+      "resend": {
+        "button": "E-Mail erneut senden",
+        "sending": "Wird gesendet...",
+        "subtitle": "Verifizierungs-E-Mail wird gesendet...",
+        "success": "Verifizierungs-E-Mail erfolgreich gesendet!",
+        "checkInbox": "Überprüfen Sie Ihren Posteingang für einen neuen Verifizierungslink",
+        "sendAgain": "Erneut senden"
+      },
+      "resent": {
+        "title": "E-Mail gesendet"
       },
       "footer": {
-        "help": "Wenn Sie Probleme beim Bestätigen Ihres Kontos haben, kontaktieren Sie bitte den Support."
+        "help": "Benötigen Sie Hilfe? Kontaktieren Sie support@putzige.com"
       }
     }
   }

@@ -1,27 +1,14 @@
-/* Follow register/login conventions: minimal, centered card using app design tokens */
+/* Clean white card design for email verification */
 
 .verify-email-viewport {
   min-height: 100vh;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--app-bg);
-}
-
-.bg-image {
-  position: absolute;
-  inset: 0;
-  background-image: url("/assets/images/backgrounds/sign_up.png");
-  background-size: cover;
-  background-position: center center;
-  filter: saturate(0.6) brightness(0.35);
-  z-index: 0;
+  background: #f3f4f6;
 }
 
 .verify-center {
-  position: relative;
-  z-index: 1;
   width: 100%;
   display: flex;
   align-items: center;
@@ -31,119 +18,151 @@
 
 .verify-card {
   width: 100%;
-  max-width: 560px;
-  padding: calc(var(--spacing-lg) + var(--spacing-sm)) calc(var(--spacing-xl));
-  background: linear-gradient(
-    180deg,
-    var(--app-card-bg-start),
-    var(--app-card-bg-end)
-  );
-  border: 1px solid var(--app-card-border);
-  border-radius: var(--radius-lg);
-  backdrop-filter: blur(6px) saturate(120%);
-  box-shadow: var(--app-card-shadow);
+  max-width: 440px;
+  padding: 3rem 2.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  color: var(--app-text);
 }
 
-.brand {
-  display: flex;
-  justify-content: center;
-  margin-bottom: calc(var(--spacing-xs));
-}
-.brand-mark {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    180deg,
-    var(--app-primary-start),
-    var(--app-primary-end)
-  );
-  color: var(--app-text);
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  box-shadow: var(--app-card-shadow);
-}
-
-.verify-card h1 {
-  margin: 0;
-  font-size: calc(var(--font-size-base) * 1.25);
-  letter-spacing: 0.2px;
-}
-
-.muted {
-  color: var(--app-text-muted);
-  margin: 0;
-}
-.redirect-text {
-  color: var(--app-text-muted-weak);
-  margin-top: var(--spacing-xs);
-  font-size: 0.95rem;
-}
-
-.success-icon,
-.error-icon {
-  font-size: calc(var(--font-size-base) * 3.25);
-}
-.success-icon {
-  color: var(--app-success);
-}
-.error-icon {
-  color: var(--app-danger);
-}
-.verify-spinner {
-  font-size: calc(var(--font-size-base) * 2.25);
-  color: var(--app-text);
-}
-
-.error-text {
-  color: var(--app-danger);
+/* Icon states */
+.verify-icon {
+  font-size: 64px;
   margin-bottom: var(--spacing-sm);
 }
 
-/* CTA button style: full-width, pill */
+/* Success state - green checkmark */
+.verify-icon.success-icon {
+  color: #10b981;
+}
+
+/* Error state - amber/yellow warning */
+.verify-icon.error-icon {
+  color: #f59e0b;
+}
+
+/* Expired state - orange clock */
+.verify-icon.expired-icon {
+  color: #f97316;
+}
+
+/* Resent state - blue envelope */
+.verify-icon.resent-icon {
+  color: #3b82f6;
+}
+
+/* Spinner - blue */
+.pi-spinner {
+  color: #3b82f6;
+}
+
+/* Typography */
+.verify-card h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.muted {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.redirect-text {
+  color: #9ca3af;
+  margin-top: var(--spacing-xs);
+  font-size: 0.875rem;
+}
+
+.error-message {
+  color: #6b7280;
+  margin-bottom: var(--spacing-md);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* CTA button - full width */
 app-button.cta {
   display: block;
-  width: 340px;
-  max-width: 100%;
-  margin: 0.75rem auto 0;
-}
-app-button.cta ::ng-deep .p-button {
-  border-radius: var(--radius-full) !important;
-  padding: 0.85rem 1.2rem !important;
-  background: linear-gradient(
-    90deg,
-    var(--app-primary-start),
-    var(--app-primary-end)
-  ) !important;
-  border: 1px solid var(--app-cta-border) !important;
-  color: var(--app-text) !important;
+  width: 100%;
+  margin-top: var(--spacing-sm);
 }
 
+app-button.cta ::ng-deep .p-button {
+  width: 100%;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  background: #3b82f6 !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+app-button.cta ::ng-deep .p-button:hover:not(:disabled) {
+  background: #2563eb !important;
+}
+
+app-button.cta ::ng-deep .p-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Back link */
 .back-link {
   display: block;
-  margin-top: var(--spacing-lg);
-  color: var(--app-text-muted-weak);
+  margin-top: var(--spacing-md);
+  color: #6b7280;
   text-decoration: none;
-}
-.footer-note {
-  margin-top: var(--spacing-lg);
-  font-size: 0.825rem;
-  color: var(--app-text-muted-weak);
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
 }
 
+.back-link:hover {
+  color: #111827;
+}
+
+/* Footer note */
+.footer-note {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.825rem;
+  color: #9ca3af;
+}
+
+.footer-note a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.footer-note a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
 @media (max-width: 720px) {
-  .verify-card {
+  .verify-center {
     padding: var(--spacing-lg);
-    margin: 0 1rem;
   }
-  app-button.cta {
-    width: 100%;
+
+  .verify-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .verify-icon {
+    font-size: 56px;
+  }
+
+  .verify-card h1 {
+    font-size: 1.25rem;
   }
 }
