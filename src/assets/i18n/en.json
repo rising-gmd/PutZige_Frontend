@@ -89,5 +89,42 @@
       "serverError": "Server Error"
     }
   },
-  "primeng": {}
+  "primeng": {},
+  "pages": {
+    "verifyEmail": {
+      "verifying": {
+        "title": "Verifying Email",
+        "subtitle": "Please wait while we verify your account..."
+      },
+      "success": {
+        "title": "Email Verified!",
+        "message": "Your account is now active",
+        "redirect": "Redirecting to login..."
+      },
+      "error": {
+        "title": "Verification Failed"
+      },
+      "expired": {
+        "title": "Link Expired"
+      },
+      "errors": {
+        "missingParams": "Invalid verification link. Please check your email.",
+        "expired": "Your verification link has expired. Please request a new one."
+      },
+      "resend": {
+        "button": "Resend Email",
+        "sending": "Sending...",
+        "subtitle": "Sending verification email...",
+        "success": "Verification email sent successfully!",
+        "checkInbox": "Check your inbox for a new verification link",
+        "sendAgain": "Send Again"
+      },
+      "resent": {
+        "title": "Email Sent"
+      },
+      "footer": {
+        "help": "Need help? Contact support@putzige.com"
+      }
+    }
+  }
 }

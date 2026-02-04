@@ -89,5 +89,42 @@
       "serverError": "Error del servidor"
     }
   },
-  "primeng": {}
+  "primeng": {},
+  "pages": {
+    "verifyEmail": {
+      "verifying": {
+        "title": "Verificando correo",
+        "subtitle": "Por favor espera mientras verificamos tu cuenta..."
+      },
+      "success": {
+        "title": "¡Correo verificado!",
+        "message": "Tu cuenta está ahora activa",
+        "redirect": "Redirigiendo al inicio de sesión..."
+      },
+      "error": {
+        "title": "Verificación fallida"
+      },
+      "expired": {
+        "title": "Enlace caducado"
+      },
+      "errors": {
+        "missingParams": "Enlace de verificación inválido. Por favor revisa tu correo.",
+        "expired": "Tu enlace de verificación ha caducado. Por favor solicita uno nuevo."
+      },
+      "resend": {
+        "button": "Reenviar correo",
+        "sending": "Enviando...",
+        "subtitle": "Enviando correo de verificación...",
+        "success": "¡Correo de verificación enviado exitosamente!",
+        "checkInbox": "Revisa tu bandeja de entrada para un nuevo enlace de verificación",
+        "sendAgain": "Enviar de nuevo"
+      },
+      "resent": {
+        "title": "Correo enviado"
+      },
+      "footer": {
+        "help": "¿Necesitas ayuda? Contacta a support@putzige.com"
+      }
+    }
+  }
 }

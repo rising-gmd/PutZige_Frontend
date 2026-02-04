@@ -6,12 +6,7 @@ import { Observable } from 'rxjs';
 export class I18nService {
   private translate = inject(TranslateService);
 
-  init(defaultLang = 'en') {
-    const saved = localStorage.getItem('preferredLanguage') || defaultLang;
-    this.translate.addLangs(['en', 'es', 'de']);
-    this.translate.setDefaultLang(defaultLang);
-    this.translate.use(saved);
-  }
+  // No need for init() anymore - APP_INITIALIZER handles it
 
   instant(
     key: string | string[],

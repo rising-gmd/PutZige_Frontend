@@ -4,6 +4,7 @@ import {
   provideZoneChangeDetection,
   importProvidersFrom,
   LOCALE_ID,
+  APP_INITIALIZER,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {
@@ -16,7 +17,7 @@ import {
   TranslateLoader,
   TranslateService,
 } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 
 import { providePrimeNG } from 'primeng/config';
 import MyPreset from './theme/my-preset';
@@ -27,6 +28,29 @@ import { API_CONFIG } from './core/config/api.config';
 import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { MessageService } from 'primeng/api';
+
+export function initializeApp(
+  translate: TranslateService,
+): () => Promise<void> {
+  return () => {
+    const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+
+    translate.setFallbackLang('en');
+
+    translate.addLangs(['en', 'es', 'de']);
+
+    return firstValueFrom(translate.use(savedLang))
+      .then(() => {
+        console.log('Translations loaded successfully');
+        return;
+      })
+
+      .catch((err) => {
+        console.error('Failed to load translations:', err);
+        return firstValueFrom(translate.use('en')).then(() => undefined);
+      });
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,9 +64,7 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: MyPreset,
         options: {
-          // enable toggleable dark mode via a root class
           darkModeSelector: '.my-app-dark',
-          // wrap PrimeNG styles in a CSS layer for predictable overrides
           cssLayer: {
             name: 'primeng',
             order: 'app-styles, primeng',
@@ -61,14 +83,19 @@ export const appConfig: ApplicationConfig = {
         },
       }),
     ),
-    // Provide LOCALE_ID from the active TranslateService language
+    // APP_INITIALIZER - Preload translations before app starts
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApp,
+      deps: [TranslateService],
+      multi: true,
+    },
     {
       provide: LOCALE_ID,
       useFactory: (translate: TranslateService) =>
         translate.currentLang || 'en',
       deps: [TranslateService],
     },
-    // API configuration provider (environment-aware)
     {
       provide: API_CONFIG,
       useValue: {
@@ -78,7 +105,6 @@ export const appConfig: ApplicationConfig = {
         production: environment.production,
       },
     },
-    // PrimeNG MessageService used by NotificationService
     MessageService,
   ],
 };

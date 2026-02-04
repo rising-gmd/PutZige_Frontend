@@ -89,5 +89,42 @@
       "serverError": "Serverfehler"
     }
   },
-  "primeng": {}
+  "primeng": {},
+  "pages": {
+    "verifyEmail": {
+      "verifying": {
+        "title": "E-Mail wird verifiziert",
+        "subtitle": "Bitte warten Sie, während wir Ihr Konto verifizieren..."
+      },
+      "success": {
+        "title": "E-Mail verifiziert!",
+        "message": "Ihr Konto ist jetzt aktiv",
+        "redirect": "Weiterleitung zur Anmeldung..."
+      },
+      "error": {
+        "title": "Verifizierung fehlgeschlagen"
+      },
+      "expired": {
+        "title": "Link abgelaufen"
+      },
+      "errors": {
+        "missingParams": "Ungültiger Verifizierungslink. Bitte überprüfen Sie Ihre E-Mail.",
+        "expired": "Ihr Verifizierungslink ist abgelaufen. Bitte fordern Sie einen neuen an."
+      },
+      "resend": {
+        "button": "E-Mail erneut senden",
+        "sending": "Wird gesendet...",
+        "subtitle": "Verifizierungs-E-Mail wird gesendet...",
+        "success": "Verifizierungs-E-Mail erfolgreich gesendet!",
+        "checkInbox": "Überprüfen Sie Ihren Posteingang für einen neuen Verifizierungslink",
+        "sendAgain": "Erneut senden"
+      },
+      "resent": {
+        "title": "E-Mail gesendet"
+      },
+      "footer": {
+        "help": "Benötigen Sie Hilfe? Kontaktieren Sie support@putzige.com"
+      }
+    }
+  }
 }
