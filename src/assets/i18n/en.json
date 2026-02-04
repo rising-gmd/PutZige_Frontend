@@ -89,5 +89,34 @@
       "serverError": "Server Error"
     }
   },
-  "primeng": {}
+  "primeng": {},
+  "pages": {
+    "verifyEmail": {
+      "verifying": {
+        "title": "Verifying your email...",
+        "subtitle": "Please wait while we confirm your address."
+      },
+      "success": {
+        "title": "Email Verified!",
+        "message": "Your account is now active.",
+        "redirect": "Redirecting to login..."
+      },
+      "error": {
+        "title": "Verification Failed"
+      },
+      "resend": {
+        "button": "Resend Email",
+        "sending": "Sending...",
+        "success": "Verification email sent.",
+        "checkInbox": "Check your inbox for the verification link."
+      },
+      "errors": {
+        "missingParams": "Missing verification data. Please use the link from your email.",
+        "tokenExpired": "Verification token expired. You can request a new verification email."
+      },
+      "footer": {
+        "help": "If you have any issue confirming your account, please contact support."
+      }
+    }
+  }
 }

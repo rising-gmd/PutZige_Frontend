@@ -89,5 +89,34 @@
       "serverError": "Error del servidor"
     }
   },
-  "primeng": {}
+  "primeng": {},
+  "pages": {
+    "verifyEmail": {
+      "verifying": {
+        "title": "Verificando su correo...",
+        "subtitle": "Espere mientras confirmamos su dirección."
+      },
+      "success": {
+        "title": "¡Correo verificado!",
+        "message": "Su cuenta ya está activa.",
+        "redirect": "Redirigiendo al inicio de sesión..."
+      },
+      "error": {
+        "title": "Verificación fallida"
+      },
+      "resend": {
+        "button": "Reenviar correo",
+        "sending": "Enviando...",
+        "success": "Correo de verificación enviado.",
+        "checkInbox": "Revise su bandeja de entrada para el enlace de verificación."
+      },
+      "errors": {
+        "missingParams": "Faltan datos de verificación. Por favor, use el enlace de su correo.",
+        "tokenExpired": "El token de verificación ha caducado. Puede solicitar un nuevo correo de verificación."
+      },
+      "footer": {
+        "help": "Si tiene algún problema para confirmar su cuenta, póngase en contacto con el soporte."
+      }
+    }
+  }
 }

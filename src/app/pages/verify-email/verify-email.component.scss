@@ -1,0 +1,149 @@
+/* Follow register/login conventions: minimal, centered card using app design tokens */
+
+.verify-email-viewport {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-bg);
+}
+
+.bg-image {
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets/images/backgrounds/sign_up.png");
+  background-size: cover;
+  background-position: center center;
+  filter: saturate(0.6) brightness(0.35);
+  z-index: 0;
+}
+
+.verify-center {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 560px;
+  padding: calc(var(--spacing-lg) + var(--spacing-sm)) calc(var(--spacing-xl));
+  background: linear-gradient(
+    180deg,
+    var(--app-card-bg-start),
+    var(--app-card-bg-end)
+  );
+  border: 1px solid var(--app-card-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(6px) saturate(120%);
+  box-shadow: var(--app-card-shadow);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  color: var(--app-text);
+}
+
+.brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: calc(var(--spacing-xs));
+}
+.brand-mark {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    180deg,
+    var(--app-primary-start),
+    var(--app-primary-end)
+  );
+  color: var(--app-text);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  box-shadow: var(--app-card-shadow);
+}
+
+.verify-card h1 {
+  margin: 0;
+  font-size: calc(var(--font-size-base) * 1.25);
+  letter-spacing: 0.2px;
+}
+
+.muted {
+  color: var(--app-text-muted);
+  margin: 0;
+}
+.redirect-text {
+  color: var(--app-text-muted-weak);
+  margin-top: var(--spacing-xs);
+  font-size: 0.95rem;
+}
+
+.success-icon,
+.error-icon {
+  font-size: calc(var(--font-size-base) * 3.25);
+}
+.success-icon {
+  color: var(--app-success);
+}
+.error-icon {
+  color: var(--app-danger);
+}
+.verify-spinner {
+  font-size: calc(var(--font-size-base) * 2.25);
+  color: var(--app-text);
+}
+
+.error-text {
+  color: var(--app-danger);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* CTA button style: full-width, pill */
+app-button.cta {
+  display: block;
+  width: 340px;
+  max-width: 100%;
+  margin: 0.75rem auto 0;
+}
+app-button.cta ::ng-deep .p-button {
+  border-radius: var(--radius-full) !important;
+  padding: 0.85rem 1.2rem !important;
+  background: linear-gradient(
+    90deg,
+    var(--app-primary-start),
+    var(--app-primary-end)
+  ) !important;
+  border: 1px solid var(--app-cta-border) !important;
+  color: var(--app-text) !important;
+}
+
+.back-link {
+  display: block;
+  margin-top: var(--spacing-lg);
+  color: var(--app-text-muted-weak);
+  text-decoration: none;
+}
+.footer-note {
+  margin-top: var(--spacing-lg);
+  font-size: 0.825rem;
+  color: var(--app-text-muted-weak);
+}
+
+@media (max-width: 720px) {
+  .verify-card {
+    padding: var(--spacing-lg);
+    margin: 0 1rem;
+  }
+  app-button.cta {
+    width: 100%;
+  }
+}

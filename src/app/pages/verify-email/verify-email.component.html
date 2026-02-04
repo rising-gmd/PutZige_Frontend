@@ -1,0 +1,64 @@
+<!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
+<div class="verify-email-viewport">
+  <div class="bg-image" role="img" aria-hidden="true"></div>
+  <div class="verify-center">
+    <div class="verify-card">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+      </div>
+
+      <ng-container [ngSwitch]="state()">
+        <ng-container *ngSwitchCase="'verifying'">
+          <i
+            class="pi pi-spin pi-spinner verify-spinner"
+            aria-label="Verifying"
+          ></i>
+          <h1>{{ "pages.verifyEmail.verifying.title" | translate }}</h1>
+          <p class="muted">
+            {{ "pages.verifyEmail.verifying.subtitle" | translate }}
+          </p>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'success'">
+          <i class="pi pi-check-circle success-icon" aria-hidden="true"></i>
+          <h1>{{ "pages.verifyEmail.success.title" | translate }}</h1>
+          <p class="muted">
+            {{ "pages.verifyEmail.success.message" | translate }}
+          </p>
+          <p class="redirect-text">
+            {{ "pages.verifyEmail.success.redirect" | translate }}
+          </p>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+          <i
+            class="pi pi-exclamation-triangle error-icon"
+            aria-hidden="true"
+          ></i>
+          <h1>{{ "pages.verifyEmail.error.title" | translate }}</h1>
+          <p class="error-text">{{ errorMessage() }}</p>
+
+          <app-button
+            class="cta"
+            [label]="
+              state() === 'resending'
+                ? ('pages.verifyEmail.resend.sending' | translate)
+                : ('pages.verifyEmail.resend.button' | translate)
+            "
+            [loading]="state() === 'resending'"
+            [disabled]="state() === 'resending'"
+            (clicked)="resendEmail()"
+          ></app-button>
+
+          <a routerLink="/auth/login" class="back-link muted">{{
+            "common.buttons.login" | translate
+          }}</a>
+        </ng-container>
+      </ng-container>
+
+      <p class="footer-note muted">
+        {{ "pages.verifyEmail.footer.help" | translate }}
+      </p>
+    </div>
+  </div>
+</div>

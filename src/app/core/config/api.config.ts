@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     REGISTER: '/auth/register',
     VERIFY: '/auth/verify',
+    VERIFY_EMAIL: '/auth/verify-email',
+    RESEND_VERIFICATION: '/auth/resend-verification',
   },
   USERS: {
     LIST: '/users',

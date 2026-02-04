@@ -1,5 +1,6 @@
 export const ROUTE_PATHS = {
   LOGIN: 'login',
+  VERIFY_EMAIL: 'verify-email',
   REGISTER: 'register',
   HOME: '',
   AUTH: 'auth',

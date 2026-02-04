@@ -89,5 +89,34 @@
       "serverError": "Serverfehler"
     }
   },
-  "primeng": {}
+  "primeng": {},
+  "pages": {
+    "verifyEmail": {
+      "verifying": {
+        "title": "E-Mail wird verifiziert...",
+        "subtitle": "Bitte warten Sie, während wir Ihre Adresse bestätigen."
+      },
+      "success": {
+        "title": "E-Mail verifiziert!",
+        "message": "Ihr Konto ist jetzt aktiv.",
+        "redirect": "Weiterleitung zur Anmeldung..."
+      },
+      "error": {
+        "title": "Verifizierung fehlgeschlagen"
+      },
+      "resend": {
+        "button": "E-Mail erneut senden",
+        "sending": "Senden...",
+        "success": "Verifizierungs-E-Mail gesendet.",
+        "checkInbox": "Überprüfen Sie Ihren Posteingang auf den Bestätigungslink."
+      },
+      "errors": {
+        "missingParams": "Fehlende Verifizierungsdaten. Bitte verwenden Sie den Link aus Ihrer E-Mail.",
+        "tokenExpired": "Verifizierungstoken abgelaufen. Sie können eine neue Verifizierungs-E-Mail anfordern."
+      },
+      "footer": {
+        "help": "Wenn Sie Probleme beim Bestätigen Ihres Kontos haben, kontaktieren Sie bitte den Support."
+      }
+    }
+  }
 }
