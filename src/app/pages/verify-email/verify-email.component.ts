@@ -10,10 +10,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthApiService } from '../../features/auth/services/auth-api.service';
 import { NotificationService } from '../../shared/services/notification.service';
 import type { ApiResponse } from '../../core/models/api.model';
 import { ROUTE_PATHS } from '../../core/constants/route.constants';
+import { AuthApiService } from '../../features/auth/services/auth-api.service';
 
 enum VerificationState {
   VERIFYING = 'verifying',

@@ -149,7 +149,9 @@ describe('RegisterComponent', () => {
 
       expect(
         (
-          await screen.findAllByText(/errors\.validation\.(email|maxLength)/)
+          await screen.findAllByText(
+            /errors\.validation\.(email|max[_]?length)/i,
+          )
         )[0],
       ).toBeVisible();
     });
@@ -234,7 +236,7 @@ describe('RegisterComponent', () => {
 
       // Validator may report either email format or maxlength depending on internal validation order
       const err = await screen.findByText((content: string) =>
-        /errors\.validation\.(email|maxLength)/.test(content),
+        /errors\.validation\.(email|max[_]?length)/i.test(content),
       );
       expect(err).toBeVisible();
     });
