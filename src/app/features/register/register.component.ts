@@ -130,18 +130,21 @@ export class RegisterComponent {
           if (res && res.success) {
             const msg =
               res.message ??
-              this.translate.instant('messages.registrationSuccess');
+              this.translate.instant('MESSAGES.REGISTRATION_SUCCESS');
             this.notifications.showSuccess(msg);
-            this.router.navigateByUrl(`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`);
+            this.router.navigateByUrl(
+              `/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`,
+            );
             return;
           }
 
           // Non-success response from API: show error message if provided
           if (res && !res.success) {
-            const errMsg = res.message ?? this.translate.instant('errors.server.unknown');
+            const errMsg =
+              res.message ?? this.translate.instant('ERRORS.SERVER.UNKNOWN');
             this.notifications.showError(errMsg);
           }
-        }
+        },
       });
   }
 
@@ -161,7 +164,7 @@ export class RegisterComponent {
   private getLabel(labelKey?: string): string {
     return labelKey
       ? this.translate.instant(labelKey)
-      : this.translate.instant('common.labels.field');
+      : this.translate.instant('COMMON.LABELS.FIELD');
   }
 
   private getField(control: AbstractControl | null): FieldKind {

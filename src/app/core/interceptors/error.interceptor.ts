@@ -80,7 +80,7 @@ export function handleError(
   if ((httpError as unknown as { name?: string })?.name === 'TimeoutError') {
     showToast(
       translateService,
-      'errors.network.timeout',
+      'ERRORS.NETWORK.TIMEOUT',
       'error',
       undefined,
       notifications,
@@ -93,7 +93,7 @@ export function handleError(
     if (!navigator.onLine) {
       showToast(
         translateService,
-        'errors.network.offline',
+        'ERRORS.NETWORK.OFFLINE',
         'error',
         undefined,
         notifications,
@@ -122,7 +122,7 @@ export function handleError(
     if (isConnectionRefused(msg)) {
       showToast(
         translateService,
-        'errors.network.serverUnavailable',
+        'ERRORS.NETWORK.SERVER_UNAVAILABLE',
         'error',
         undefined,
         notifications,
@@ -144,7 +144,7 @@ export function handleError(
     ) {
       showToast(
         translateService,
-        'errors.network.cors',
+        'ERRORS.NETWORK.CORS',
         'error',
         { detail: httpError.message ?? httpError.statusText },
         notifications,
@@ -154,7 +154,7 @@ export function handleError(
 
     showToast(
       translateService,
-      'errors.network.unknown',
+      'ERRORS.NETWORK.UNKNOWN',
       'error',
       { detail: httpError.message ?? httpError.statusText },
       notifications,
@@ -174,7 +174,7 @@ export function handleError(
 
     showToast(
       translateService,
-      'errors.auth.tokenExpired',
+      'ERRORS.AUTH.TOKEN_EXPIRED',
       'warn',
       undefined,
       notifications,
@@ -193,7 +193,7 @@ export function handleError(
   if (httpError.status === HTTP_STATUS.FORBIDDEN) {
     showToast(
       translateService,
-      'errors.auth.forbidden',
+      'ERRORS.AUTH.FORBIDDEN',
       'error',
       undefined,
       notifications,
@@ -205,7 +205,7 @@ export function handleError(
   if (httpError.status === HTTP_STATUS.NOT_FOUND) {
     showToast(
       translateService,
-      'errors.client.notFound',
+      'ERRORS.CLIENT.NOT_FOUND',
       'warn',
       undefined,
       notifications,
@@ -247,7 +247,7 @@ export function handleError(
     // No message, no errors — fall back to generic
     showToast(
       translateService,
-      'errors.client.badRequest',
+      'ERRORS.CLIENT.BAD_REQUEST',
       'error',
       undefined,
       notifications,
@@ -262,11 +262,14 @@ export function handleError(
       String(REQUEST_CONFIG.DEFAULT_RETRY_AFTER_SECONDS);
     const seconds =
       Number(retryAfter) || REQUEST_CONFIG.DEFAULT_RETRY_AFTER_SECONDS;
-    const msg = translateService.instant('errors.rateLimit.tooManyRequests', {
-      seconds,
-    });
+    const msg = translateService.instant(
+      'ERRORS.RATE_LIMIT.TOO_MANY_REQUESTS',
+      {
+        seconds,
+      },
+    );
     notifications.show('warn', msg, {
-      summary: translateService.instant('errors.titles.warning'),
+      summary: translateService.instant('ERRORS.TITLES.WARNING'),
       life: NOTIFICATION_CONFIG.RATE_LIMIT_LIFE_MS,
     });
     return;
@@ -277,7 +280,7 @@ export function handleError(
     if (httpError.status === HTTP_STATUS.SERVICE_UNAVAILABLE) {
       showToast(
         translateService,
-        'errors.server.serviceUnavailable',
+        'ERRORS.SERVER.SERVICE_UNAVAILABLE',
         'error',
         undefined,
         notifications,
@@ -289,7 +292,7 @@ export function handleError(
     logErrorToMonitoring(httpError);
     showToast(
       translateService,
-      'errors.server.internalError',
+      'ERRORS.SERVER.INTERNAL_ERROR',
       'error',
       undefined,
       notifications,
@@ -304,7 +307,7 @@ export function handleError(
   ) {
     showToast(
       translateService,
-      'errors.client.badRequest',
+      'ERRORS.CLIENT.BAD_REQUEST',
       'error',
       undefined,
       notifications,
@@ -314,7 +317,7 @@ export function handleError(
 
   showToast(
     translateService,
-    'errors.server.unknown',
+    'ERRORS.SERVER.UNKNOWN',
     'error',
     undefined,
     notifications,
@@ -364,10 +367,10 @@ function showToast(
       : translateService.instant(messageKey);
     const titleKey =
       severity === 'error'
-        ? 'errors.titles.error'
+        ? 'ERRORS.TITLES.ERROR'
         : severity === 'warn'
-          ? 'errors.titles.warning'
-          : 'errors.titles.error';
+          ? 'ERRORS.TITLES.WARNING'
+          : 'ERRORS.TITLES.ERROR';
     title = translateService.instant(titleKey);
   } catch {
     msg = (params && (params['detail'] as string)) || messageKey;

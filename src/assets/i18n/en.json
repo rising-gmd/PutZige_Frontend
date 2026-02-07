@@ -1,129 +1,129 @@
 {
-  "common": {
-    "app": {
-      "title": "PutZige",
-      "welcome": "Hello GMD"
+  "COMMON": {
+    "APP": {
+      "TITLE": "PutZige",
+      "WELCOME": "Hello GMD"
     },
-    "or": "OR",
-    "terms": "Terms & Conditions",
-    "buttons": {
-      "register": "Register",
-      "login": "Login",
-      "signin": "Sign In",
-      "toggleDark": "Toggle Dark Mode"
+    "OR": "OR",
+    "TERMS": "Terms & Conditions",
+    "BUTTONS": {
+      "REGISTER": "Register",
+      "LOGIN": "Login",
+      "SIGNIN": "Sign In",
+      "TOGGLE_DARK": "Toggle Dark Mode"
     },
-    "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "agreeTo": "I agree to the"
+    "LABELS": {
+      "USERNAME": "Username",
+      "EMAIL": "Email",
+      "PASSWORD": "Password",
+      "AGREE_TO": "I agree to the"
     }
   },
-  "features": {
-    "register": {
-      "title": "Create Your Account",
-      "googleSignUp": "Sign Up with Google",
-      "already": "Already have an account?"
+  "FEATURES": {
+    "REGISTER": {
+      "TITLE": "Create Your Account",
+      "GOOGLE_SIGN_UP": "Sign Up with Google",
+      "ALREADY": "Already have an account?"
     },
-    "auth": {
-      "login": {
-        "title": "Login",
-        "submit": "Login"
+    "AUTH": {
+      "LOGIN": {
+        "TITLE": "Login",
+        "SUBMIT": "Login"
       }
     }
   },
-  "errors": {
-    "network": {
-      "offline": "No internet connection. Please check your network and try again.",
-      "timeout": "Request timed out. Please try again.",
-      "cors": "Unable to connect to the server. Please contact support.",
-      "unknown": "Network error occurred. Please try again later.",
-      "serverUnavailable": "Server is not available. Please try again later."
+  "ERRORS": {
+    "NETWORK": {
+      "OFFLINE": "No internet connection. Please check your network and try again.",
+      "TIMEOUT": "Request timed out. Please try again.",
+      "CORS": "Unable to connect to the server. Please contact support.",
+      "UNKNOWN": "Network error occurred. Please try again later.",
+      "SERVER_UNAVAILABLE": "Server is not available. Please try again later."
     },
-    "auth": {
-      "unauthorized": "Your session has expired. Please log in again.",
-      "invalidCredentials": "Invalid username or password.",
-      "tokenExpired": "Your session has expired. Redirecting to login...",
-      "forbidden": "You don't have permission to access this resource."
+    "AUTH": {
+      "UNAUTHORIZED": "Your session has expired. Please log in again.",
+      "INVALID_CREDENTIALS": "Invalid username or password.",
+      "TOKEN_EXPIRED": "Your session has expired. Redirecting to login...",
+      "FORBIDDEN": "You don't have permission to access this resource."
     },
-    "client": {
-      "badRequest": "Invalid request. Please check your input.",
-      "notFound": "The requested resource was not found.",
-      "conflict": "This resource already exists.",
-      "validation": "Please correct the errors and try again."
+    "CLIENT": {
+      "BAD_REQUEST": "Invalid request. Please check your input.",
+      "NOT_FOUND": "The requested resource was not found.",
+      "CONFLICT": "This resource already exists.",
+      "VALIDATION": "Please correct the errors and try again."
     },
-    "server": {
-      "internalError": "An unexpected error occurred. Our team has been notified.",
-      "badGateway": "Service temporarily unavailable. Please try again.",
-      "serviceUnavailable": "Service is under maintenance. Please try again later.",
-      "unknown": "Something went wrong. Please try again later."
+    "SERVER": {
+      "INTERNAL_ERROR": "An unexpected error occurred. Our team has been notified.",
+      "BAD_GATEWAY": "Service temporarily unavailable. Please try again.",
+      "SERVICE_UNAVAILABLE": "Service is under maintenance. Please try again later.",
+      "UNKNOWN": "Something went wrong. Please try again later."
     },
-    "rateLimit": {
-      "tooManyRequests": "Too many requests. Please wait {{seconds}} seconds and try again."
+    "RATE_LIMIT": {
+      "TOO_MANY_REQUESTS": "Too many requests. Please wait {{seconds}} seconds and try again."
     },
-    "validation": {
-      "required": "This field is required",
-      "requiredField": "{{field}} is required",
-      "email": "Invalid email format",
-      "minLength": "Must be at least {{count}} characters",
-      "maxLength": "Must be at most {{count}} characters",
-      "password": {
-        "required": "Password is required",
-        "minLength": "Use at least {{count}} characters",
-        "pattern": "Include uppercase, lowercase, number and symbol",
-        "invalid": "Password is invalid"
+    "VALIDATION": {
+      "REQUIRED": "This field is required",
+      "REQUIRED_FIELD": "{{field}} is required",
+      "EMAIL": "Invalid email format",
+      "MIN_LENGTH": "Must be at least {{count}} characters",
+      "MAX_LENGTH": "Must be at most {{count}} characters",
+      "PASSWORD": {
+        "REQUIRED": "Password is required",
+        "MIN_LENGTH": "Use at least {{count}} characters",
+        "PATTERN": "Include uppercase, lowercase, number and symbol",
+        "INVALID": "Password is invalid"
       },
-      "username": {
-        "pattern": "Username must be 3–50 characters and may contain letters, numbers and underscore",
-        "invalidChars": "Username contains invalid characters: {{chars}}. Allowed: letters, numbers and underscore"
+      "USERNAME": {
+        "PATTERN": "Username must be 3–50 characters and may contain letters, numbers and underscore",
+        "INVALID_CHARS": "Username contains invalid characters: {{chars}}. Allowed: letters, numbers and underscore"
       },
-      "terms": {
-        "required": "You must agree to the Terms & Conditions"
+      "TERMS": {
+        "REQUIRED": "You must agree to the Terms & Conditions"
       }
     },
-    "titles": {
-      "error": "Error",
-      "warning": "Warning",
-      "networkError": "Connection Error",
-      "authError": "Authentication Error",
-      "serverError": "Server Error"
+    "TITLES": {
+      "ERROR": "Error",
+      "WARNING": "Warning",
+      "NETWORK_ERROR": "Connection Error",
+      "AUTH_ERROR": "Authentication Error",
+      "SERVER_ERROR": "Server Error"
     }
   },
-  "primeng": {},
-  "pages": {
-    "verifyEmail": {
-      "verifying": {
-        "title": "Verifying Email",
-        "subtitle": "Please wait while we verify your account..."
+  "PRIMENG": {},
+  "PAGES": {
+    "VERIFY_EMAIL": {
+      "VERIFYING": {
+        "TITLE": "Verifying Email",
+        "SUBTITLE": "Please wait while we verify your account..."
       },
-      "success": {
-        "title": "Email Verified!",
-        "message": "Your account is now active",
-        "redirect": "Redirecting to login..."
+      "SUCCESS": {
+        "TITLE": "Email Verified!",
+        "MESSAGE": "Your account is now active",
+        "REDIRECT": "Redirecting to login..."
       },
-      "error": {
-        "title": "Verification Failed"
+      "ERROR": {
+        "TITLE": "Verification Failed"
       },
-      "expired": {
-        "title": "Link Expired"
+      "EXPIRED": {
+        "TITLE": "Link Expired"
       },
-      "errors": {
-        "missingParams": "Invalid verification link. Please check your email.",
-        "expired": "Your verification link has expired. Please request a new one."
+      "ERRORS": {
+        "MISSING_PARAMS": "Invalid verification link. Please check your email.",
+        "EXPIRED": "Your verification link has expired. Please request a new one."
       },
-      "resend": {
-        "button": "Resend Email",
-        "sending": "Sending...",
-        "subtitle": "Sending verification email...",
-        "success": "Verification email sent successfully!",
-        "checkInbox": "Check your inbox for a new verification link",
-        "sendAgain": "Send Again"
+      "RESEND": {
+        "BUTTON": "Resend Email",
+        "SENDING": "Sending...",
+        "SUBTITLE": "Sending verification email...",
+        "SUCCESS": "Verification email sent successfully!",
+        "CHECK_INBOX": "Check your inbox for a new verification link",
+        "SEND_AGAIN": "Send Again"
       },
-      "resent": {
-        "title": "Email Sent"
+      "RESENT": {
+        "TITLE": "Email Sent"
       },
-      "footer": {
-        "help": "Need help? Contact support@putzige.com"
+      "FOOTER": {
+        "HELP": "Need help? Contact support@putzige.com"
       }
     }
   }

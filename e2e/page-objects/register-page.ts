@@ -12,17 +12,17 @@ export class RegisterPage {
   readonly errorMessage: Locator;
 
   constructor(private readonly page: Page) {
-    this.username = page.getByPlaceholder('common.labels.username');
-    this.email = page.getByPlaceholder('common.labels.email');
-    this.password = page.getByPlaceholder('common.labels.password');
+    this.username = page.getByPlaceholder('COMMON.LABELS.USERNAME');
+    this.email = page.getByPlaceholder('COMMON.LABELS.EMAIL');
+    this.password = page.getByPlaceholder('COMMON.LABELS.PASSWORD');
     this.terms = page.getByRole('checkbox');
     this.registerButton = page.getByRole('button', {
-      name: 'common.buttons.register',
+      name: 'COMMON.BUTTONS.REGISTER',
     });
     this.googleButton = page.getByRole('button', {
-      name: 'features.register.googleSignUp',
+      name: 'FEATURES.REGISTER.GOOGLE_SIGN_UP',
     });
-    this.signinLink = page.getByRole('link', { name: 'common.buttons.signin' });
+    this.signinLink = page.getByRole('link', { name: 'COMMON.BUTTONS.SIGNIN' });
     this.errorMessage = page.getByTestId('register-error');
   }
 

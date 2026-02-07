@@ -5,9 +5,9 @@
       <!-- Verifying State -->
       <ng-container *ngIf="state() === VerificationState.VERIFYING">
         <i class="pi pi-spin pi-spinner verify-icon" aria-label="Verifying"></i>
-        <h1>{{ "pages.verifyEmail.verifying.title" | translate }}</h1>
+        <h1>{{ "PAGES.VERIFY_EMAIL.VERIFYING.TITLE" | translate }}</h1>
         <p class="muted">
-          {{ "pages.verifyEmail.verifying.subtitle" | translate }}
+          {{ "PAGES.VERIFY_EMAIL.VERIFYING.SUBTITLE" | translate }}
         </p>
       </ng-container>
 
@@ -17,12 +17,12 @@
           class="pi pi-check-circle verify-icon success-icon"
           aria-hidden="true"
         ></i>
-        <h1>{{ "pages.verifyEmail.success.title" | translate }}</h1>
+        <h1>{{ "PAGES.VERIFY_EMAIL.SUCCESS.TITLE" | translate }}</h1>
         <p class="muted">
-          {{ "pages.verifyEmail.success.message" | translate }}
+          {{ "PAGES.VERIFY_EMAIL.SUCCESS.MESSAGE" | translate }}
         </p>
         <p class="redirect-text">
-          {{ "pages.verifyEmail.success.redirect" | translate }}
+          {{ "PAGES.VERIFY_EMAIL.SUCCESS.REDIRECT" | translate }}
         </p>
       </ng-container>
 
@@ -32,43 +32,43 @@
           class="pi pi-exclamation-triangle verify-icon error-icon"
           aria-hidden="true"
         ></i>
-        <h1>{{ "pages.verifyEmail.error.title" | translate }}</h1>
+        <h1>{{ "PAGES.VERIFY_EMAIL.ERROR.TITLE" | translate }}</h1>
         <p class="error-message">{{ errorMessage() }}</p>
 
         <app-button
           class="cta"
-          [label]="'pages.verifyEmail.resend.button' | translate"
+          [label]="'PAGES.VERIFY_EMAIL.RESEND.BUTTON' | translate"
           (clicked)="resendEmail()"
         ></app-button>
 
         <a routerLink="/auth/login" class="back-link">
-          {{ "common.buttons.login" | translate }}
+          {{ "COMMON.BUTTONS.LOGIN" | translate }}
         </a>
       </ng-container>
 
       <!-- Expired State (token expired) -->
       <ng-container *ngIf="state() === VerificationState.EXPIRED">
         <i class="pi pi-clock verify-icon expired-icon" aria-hidden="true"></i>
-        <h1>{{ "pages.verifyEmail.expired.title" | translate }}</h1>
+        <h1>{{ "PAGES.VERIFY_EMAIL.EXPIRED.TITLE" | translate }}</h1>
         <p class="error-message">{{ errorMessage() }}</p>
 
         <app-button
           class="cta"
-          [label]="'pages.verifyEmail.resend.button' | translate"
+          [label]="'PAGES.VERIFY_EMAIL.RESEND.BUTTON' | translate"
           (clicked)="resendEmail()"
         ></app-button>
 
         <a routerLink="/auth/login" class="back-link">
-          {{ "common.buttons.login" | translate }}
+          {{ "COMMON.BUTTONS.LOGIN" | translate }}
         </a>
       </ng-container>
 
       <!-- Resending State (API call in progress) -->
       <ng-container *ngIf="state() === VerificationState.RESENDING">
         <i class="pi pi-spin pi-spinner verify-icon" aria-label="Sending"></i>
-        <h1>{{ "pages.verifyEmail.resend.sending" | translate }}</h1>
+        <h1>{{ "PAGES.VERIFY_EMAIL.RESEND.SENDING" | translate }}</h1>
         <p class="muted">
-          {{ "pages.verifyEmail.resend.subtitle" | translate }}
+          {{ "PAGES.VERIFY_EMAIL.RESEND.SUBTITLE" | translate }}
         </p>
       </ng-container>
 
@@ -78,23 +78,23 @@
           class="pi pi-envelope verify-icon resent-icon"
           aria-hidden="true"
         ></i>
-        <h1>{{ "pages.verifyEmail.resent.title" | translate }}</h1>
+        <h1>{{ "PAGES.VERIFY_EMAIL.RESENT.TITLE" | translate }}</h1>
         <p class="muted">{{ errorMessage() }}</p>
 
         <app-button
           class="cta"
-          [label]="'pages.verifyEmail.resend.sendAgain' | translate"
+          [label]="'PAGES.VERIFY_EMAIL.RESEND.SEND_AGAIN' | translate"
           (clicked)="resendEmail()"
         ></app-button>
 
         <a routerLink="/auth/login" class="back-link">
-          {{ "common.buttons.login" | translate }}
+          {{ "COMMON.BUTTONS.LOGIN" | translate }}
         </a>
       </ng-container>
 
       <!-- Footer note -->
       <p class="footer-note">
-        {{ "pages.verifyEmail.footer.help" | translate }}
+        {{ "PAGES.VERIFY_EMAIL.FOOTER.HELP" | translate }}
       </p>
     </div>
   </div>

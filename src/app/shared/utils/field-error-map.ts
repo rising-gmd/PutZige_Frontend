@@ -21,92 +21,95 @@ export function getFieldErrorDescriptor(
   if (field === 'username') {
     if (has('required'))
       return {
-        key: 'errors.validation.requiredField',
+        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
         params: { field: label },
       };
     const max = getErr<{ requiredLength?: number }>('maxlength');
     if (max)
       return {
-        key: 'errors.validation.maxLength',
+        key: 'ERRORS.VALIDATION.MAX_LENGTH',
         params: { count: max.requiredLength },
       };
     const min = getErr<{ requiredLength?: number }>('minlength');
     if (min)
       return {
-        key: 'errors.validation.minLength',
+        key: 'ERRORS.VALIDATION.MIN_LENGTH',
         params: { count: min.requiredLength },
       };
     if (has('pattern')) {
       const value = (control && (control.value as string)) || '';
       const len = value.length;
       if (len > 0 && len < 3)
-        return { key: 'errors.validation.minLength', params: { count: 3 } };
+        return { key: 'ERRORS.VALIDATION.MIN_LENGTH', params: { count: 3 } };
       if (len > 50)
-        return { key: 'errors.validation.maxLength', params: { count: 50 } };
+        return { key: 'ERRORS.VALIDATION.MAX_LENGTH', params: { count: 50 } };
       const invalid = value.match(/[^A-Za-z0-9_]/g) || [];
       const unique = Array.from(new Set(invalid));
       const chars = unique.join(', ');
       return {
-        key: 'errors.validation.username.invalidChars',
+        key: 'ERRORS.VALIDATION.USERNAME.INVALID_CHARS',
         params: { chars },
       };
     }
-    return { key: 'errors.validation.invalid' };
+    return { key: 'ERRORS.VALIDATION.INVALID' };
   }
 
   if (field === 'email') {
     if (has('required'))
       return {
-        key: 'errors.validation.requiredField',
+        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
         params: { field: label },
       };
-    if (has('email')) return { key: 'errors.validation.email' };
+    if (has('email')) return { key: 'ERRORS.VALIDATION.EMAIL' };
     const max = getErr<{ requiredLength?: number }>('maxlength');
     if (max)
       return {
-        key: 'errors.validation.maxLength',
+        key: 'ERRORS.VALIDATION.MAX_LENGTH',
         params: { count: max.requiredLength },
       };
-    return { key: 'errors.validation.invalid' };
+    return { key: 'ERRORS.VALIDATION.INVALID' };
   }
 
   if (field === 'password') {
     if (has('required'))
       return {
-        key: 'errors.validation.requiredField',
+        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
         params: { field: label },
       };
     const min = getErr<{ requiredLength?: number }>('minlength');
     if (min)
       return {
-        key: 'errors.validation.password.minLength',
+        key: 'ERRORS.VALIDATION.PASSWORD.MIN_LENGTH',
         params: { count: min.requiredLength },
       };
-    if (has('pattern')) return { key: 'errors.validation.password.pattern' };
-    return { key: 'errors.validation.password.invalid' };
+    if (has('pattern')) return { key: 'ERRORS.VALIDATION.PASSWORD.PATTERN' };
+    return { key: 'ERRORS.VALIDATION.PASSWORD.INVALID' };
   }
 
   if (field === 'terms') {
-    return { key: 'errors.validation.terms.required' };
+    return { key: 'ERRORS.VALIDATION.TERMS.REQUIRED' };
   }
 
   // Generic fallback mapping
   if (has('required'))
-    return { key: 'errors.validation.requiredField', params: { field: label } };
-  if (has('email')) return { key: 'errors.validation.email' };
+    return {
+      key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+      params: { field: label },
+    };
+  if (has('email')) return { key: 'ERRORS.VALIDATION.EMAIL' };
   const maxErr = getErr<{ requiredLength?: number }>('maxlength');
   if (maxErr)
     return {
-      key: 'errors.validation.maxLength',
+      key: 'ERRORS.VALIDATION.MAX_LENGTH',
       params: { count: maxErr.requiredLength },
     };
   const minErr = getErr<{ requiredLength?: number }>('minlength');
   if (minErr)
     return {
-      key: 'errors.validation.minLength',
+      key: 'ERRORS.VALIDATION.MIN_LENGTH',
       params: { count: minErr.requiredLength },
     };
-  if (has('pattern')) return { key: 'errors.validation.invalid' };
+  if (has('pattern')) return { key: 'ERRORS.VALIDATION.INVALID' };
 
-  return { key: 'errors.validation.invalid' };
+  return { key: 'ERRORS.VALIDATION.INVALID' };
 }

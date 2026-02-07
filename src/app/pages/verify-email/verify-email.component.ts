@@ -78,7 +78,7 @@ export class VerifyEmailComponent {
   private handleMissingParams(): void {
     this.state.set(VerificationState.ERROR);
     const message = this.translate.instant(
-      'pages.verifyEmail.errors.missingParams',
+      'PAGES.VERIFY_EMAIL.ERRORS.MISSING_PARAMS',
     );
     this.errorMessage.set(message);
     this.notifications.showError(message);
@@ -122,7 +122,7 @@ export class VerifyEmailComponent {
    */
   private handleVerificationSuccess(message?: string): void {
     const successMessage =
-      message ?? this.translate.instant('pages.verifyEmail.success.message');
+      message ?? this.translate.instant('PAGES.VERIFY_EMAIL.SUCCESS.MESSAGE');
     this.state.set(VerificationState.SUCCESS);
     this.notifications.showSuccess(successMessage);
 
@@ -136,7 +136,7 @@ export class VerifyEmailComponent {
    */
   private handleExpiredToken(message?: string): void {
     const errorMsg =
-      message ?? this.translate.instant('pages.verifyEmail.errors.expired');
+      message ?? this.translate.instant('PAGES.VERIFY_EMAIL.ERRORS.EXPIRED');
     this.state.set(VerificationState.EXPIRED);
     this.errorMessage.set(errorMsg);
     this.notifications.showError(errorMsg);
@@ -146,7 +146,7 @@ export class VerifyEmailComponent {
    * Handle verification error
    */
   private handleVerificationError(message?: string): void {
-    const errorMsg = message ?? this.translate.instant('errors.server.unknown');
+    const errorMsg = message ?? this.translate.instant('ERRORS.SERVER.UNKNOWN');
     this.state.set(VerificationState.ERROR);
     this.errorMessage.set(errorMsg);
     this.notifications.showError(errorMsg);
@@ -191,9 +191,9 @@ export class VerifyEmailComponent {
    */
   private handleResendSuccess(message?: string): void {
     const successMsg =
-      message ?? this.translate.instant('pages.verifyEmail.resend.success');
+      message ?? this.translate.instant('PAGES.VERIFY_EMAIL.RESEND.SUCCESS');
     const checkInboxMsg = this.translate.instant(
-      'pages.verifyEmail.resend.checkInbox',
+      'PAGES.VERIFY_EMAIL.RESEND.CHECK_INBOX',
     );
     this.state.set(VerificationState.RESENT);
     this.errorMessage.set(checkInboxMsg);
@@ -204,7 +204,7 @@ export class VerifyEmailComponent {
    * Handle resend error
    */
   private handleResendError(message?: string): void {
-    const errorMsg = message ?? this.translate.instant('errors.server.unknown');
+    const errorMsg = message ?? this.translate.instant('ERRORS.SERVER.UNKNOWN');
     this.state.set(VerificationState.ERROR);
     this.errorMessage.set(errorMsg);
     this.notifications.showError(errorMsg);

@@ -100,7 +100,7 @@ export class LoginComponent {
         next: (res: ApiResponse<LoginResponse>) => {
           if (res && res.success) {
             const msg =
-              res.message ?? this.translate.instant('messages.loginSuccess');
+              res.message ?? this.translate.instant('MESSAGES.LOGIN_SUCCESS');
             this.notifications.showSuccess(msg);
             // Navigate to chat on successful login
             this.router.navigateByUrl('/chat');
@@ -109,7 +109,7 @@ export class LoginComponent {
 
           if (res && !res.success) {
             const errMsg =
-              res.message ?? this.translate.instant('errors.server.unknown');
+              res.message ?? this.translate.instant('ERRORS.SERVER.UNKNOWN');
             this.notifications.showError(errMsg);
           }
         },
@@ -132,7 +132,7 @@ export class LoginComponent {
   private getLabel(labelKey?: string): string {
     return labelKey
       ? this.translate.instant(labelKey)
-      : this.translate.instant('common.labels.field');
+      : this.translate.instant('COMMON.LABELS.FIELD');
   }
 
   private getField(control: AbstractControl | null): FieldKind {
