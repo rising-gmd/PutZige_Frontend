@@ -128,9 +128,13 @@ export class RegisterComponent {
       .subscribe({
         next: (res: ApiResponse<RegisterResponse>) => {
           if (res && res.success) {
-            const msg =
-              res.message ??
-              this.translate.instant('MESSAGES.REGISTRATION_SUCCESS');
+            const code = res?.responseCode;
+            const msg = code
+              ? this.translate.instant(
+                  `RESPONSES.CODES.${code}`,
+                  res?.metadata as Record<string, unknown> | undefined,
+                )
+              : this.translate.instant('MESSAGES.REGISTRATION_SUCCESS');
             this.notifications.showSuccess(msg);
             this.router.navigateByUrl(
               `/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`,
@@ -140,8 +144,13 @@ export class RegisterComponent {
 
           // Non-success response from API: show error message if provided
           if (res && !res.success) {
-            const errMsg =
-              res.message ?? this.translate.instant('ERRORS.SERVER.UNKNOWN');
+            const code = res?.responseCode;
+            const errMsg = code
+              ? this.translate.instant(
+                  `RESPONSES.CODES.${code}`,
+                  res?.metadata as Record<string, unknown> | undefined,
+                )
+              : this.translate.instant('ERRORS.SERVER.UNKNOWN');
             this.notifications.showError(errMsg);
           }
         },

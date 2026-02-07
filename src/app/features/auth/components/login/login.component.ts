@@ -99,8 +99,13 @@ export class LoginComponent {
       .subscribe({
         next: (res: ApiResponse<LoginResponse>) => {
           if (res && res.success) {
-            const msg =
-              res.message ?? this.translate.instant('MESSAGES.LOGIN_SUCCESS');
+            const code = res?.responseCode;
+            const msg = code
+              ? this.translate.instant(
+                  `RESPONSES.CODES.${code}`,
+                  res?.metadata as Record<string, unknown> | undefined,
+                )
+              : this.translate.instant('MESSAGES.LOGIN_SUCCESS');
             this.notifications.showSuccess(msg);
             // Navigate to chat on successful login
             this.router.navigateByUrl('/chat');
@@ -108,8 +113,13 @@ export class LoginComponent {
           }
 
           if (res && !res.success) {
-            const errMsg =
-              res.message ?? this.translate.instant('ERRORS.SERVER.UNKNOWN');
+            const code = res?.responseCode;
+            const errMsg = code
+              ? this.translate.instant(
+                  `RESPONSES.CODES.${code}`,
+                  res?.metadata as Record<string, unknown> | undefined,
+                )
+              : this.translate.instant('ERRORS.SERVER.UNKNOWN');
             this.notifications.showError(errMsg);
           }
         },

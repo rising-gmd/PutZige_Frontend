@@ -106,14 +106,29 @@ export class VerifyEmailComponent {
 
   private handleVerificationResponse(response: ApiResponse<null>): void {
     if (response?.success) {
-      this.handleVerificationSuccess(response.message);
+      const code = response?.responseCode;
+      const msg = code
+        ? this.translate.instant(
+            `RESPONSES.CODES.${code}`,
+            response?.metadata as Record<string, unknown> | undefined,
+          )
+        : this.translate.instant('PAGES.VERIFY_EMAIL.SUCCESS.MESSAGE');
+      this.handleVerificationSuccess(msg);
       return;
     }
 
+    const code = response?.responseCode;
+    const translated = code
+      ? this.translate.instant(
+          `RESPONSES.CODES.${code}`,
+          response?.metadata as Record<string, unknown> | undefined,
+        )
+      : undefined;
+
     if (response?.statusCode === 400) {
-      this.handleExpiredToken(response.message);
+      this.handleExpiredToken(translated);
     } else {
-      this.handleVerificationError(response?.message);
+      this.handleVerificationError(translated);
     }
   }
 
@@ -179,10 +194,18 @@ export class VerifyEmailComponent {
    * Handle resend verification response
    */
   private handleResendResponse(response: ApiResponse<null>): void {
+    const code = response?.responseCode;
+    const translated = code
+      ? this.translate.instant(
+          `RESPONSES.CODES.${code}`,
+          response?.metadata as Record<string, unknown> | undefined,
+        )
+      : undefined;
+
     if (response?.success) {
-      this.handleResendSuccess(response.message);
+      this.handleResendSuccess(translated);
     } else {
-      this.handleResendError(response?.message);
+      this.handleResendError(translated);
     }
   }
 
