@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ReactiveFormsModule,
   FormControl,
@@ -30,6 +31,7 @@ import { getFieldErrorDescriptor } from '../../../../shared/utils/field-error-ma
 import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { AbstractControl } from '@angular/forms';
+import { mapResponseCode } from '../../../../core/i18n/response-code-map';
 
 @Component({
   selector: 'app-login',
@@ -97,33 +99,27 @@ export class LoginComponent {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (res: ApiResponse<LoginResponse>) => {
-          if (res && res.success) {
-            const code = res?.responseCode;
-            const msg = code
-              ? this.translate.instant(
-                  `RESPONSES.CODES.${code}`,
-                  res?.metadata as Record<string, unknown> | undefined,
-                )
-              : this.translate.instant('MESSAGES.LOGIN_SUCCESS');
-            this.notifications.showSuccess(msg);
-            // Navigate to chat on successful login
-            this.router.navigateByUrl('/chat');
-            return;
-          }
-
-          if (res && !res.success) {
-            const code = res?.responseCode;
-            const errMsg = code
-              ? this.translate.instant(
-                  `RESPONSES.CODES.${code}`,
-                  res?.metadata as Record<string, unknown> | undefined,
-                )
-              : this.translate.instant('ERRORS.SERVER.UNKNOWN');
-            this.notifications.showError(errMsg);
-          }
-        },
+        next: (res: ApiResponse<LoginResponse>) =>
+          this.handleLoginResponse(res),
+        error: (err: HttpErrorResponse) => this.handleLoginError(err),
       });
+  }
+
+  private handleLoginResponse(res: ApiResponse<LoginResponse>): void {
+    const key = mapResponseCode(res?.responseCode);
+    const msg = this.translate.instant(key);
+    if (res?.success) {
+      this.notifications.showSuccess(msg);
+      this.router.navigateByUrl('/chat');
+    } else {
+      this.notifications.showError(msg);
+    }
+  }
+
+  private handleLoginError(error: HttpErrorResponse): void {
+    const key = mapResponseCode(error?.error?.responseCode);
+    const msg = this.translate.instant(key);
+    this.notifications.showError(msg);
   }
 
   errorMessage(
@@ -142,7 +138,7 @@ export class LoginComponent {
   private getLabel(labelKey?: string): string {
     return labelKey
       ? this.translate.instant(labelKey)
-      : this.translate.instant('COMMON.LABELS.FIELD');
+      : this.translate.instant('form.required_field');
   }
 
   private getField(control: AbstractControl | null): FieldKind {

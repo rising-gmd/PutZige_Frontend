@@ -13,7 +13,7 @@ describe('getFieldErrorDescriptor', () => {
         errors: { required: true },
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'User', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+        key: 'form.required_field',
         params: { field: 'User' },
       });
     });
@@ -23,7 +23,7 @@ describe('getFieldErrorDescriptor', () => {
         errors: { maxlength: { requiredLength: 20 } },
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'User', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.MAX_LENGTH',
+        key: 'form.max_length',
         params: { count: 20 },
       });
     });
@@ -33,7 +33,7 @@ describe('getFieldErrorDescriptor', () => {
         errors: { minlength: { requiredLength: 3 } },
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'User', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.MIN_LENGTH',
+        key: 'form.min_length',
         params: { count: 3 },
       });
     });
@@ -44,7 +44,7 @@ describe('getFieldErrorDescriptor', () => {
         value: 'ab',
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'User', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.MIN_LENGTH',
+        key: 'form.min_length',
         params: { count: 3 },
       });
     });
@@ -56,7 +56,7 @@ describe('getFieldErrorDescriptor', () => {
         value: long,
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'User', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.MAX_LENGTH',
+        key: 'form.max_length',
         params: { count: 50 },
       });
     });
@@ -67,7 +67,7 @@ describe('getFieldErrorDescriptor', () => {
         value: 'bob!@#',
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'User', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.USERNAME.INVALID_CHARS',
+        key: 'form.username_invalid_chars',
         params: { chars: '!, @, #' },
       });
     });
@@ -79,7 +79,7 @@ describe('getFieldErrorDescriptor', () => {
         errors: { required: true },
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'Email', 'email')).toEqual({
-        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+        key: 'form.required_field',
         params: { field: 'Email' },
       });
     });
@@ -87,7 +87,7 @@ describe('getFieldErrorDescriptor', () => {
     it('when email invalid, then returns email key', () => {
       const control = { errors: { email: true } } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'Email', 'email')).toEqual({
-        key: 'ERRORS.VALIDATION.EMAIL',
+        key: 'form.email_invalid',
       });
     });
   });
@@ -98,7 +98,7 @@ describe('getFieldErrorDescriptor', () => {
         errors: { minlength: { requiredLength: 8 } },
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'Password', 'password')).toEqual({
-        key: 'ERRORS.VALIDATION.PASSWORD.MIN_LENGTH',
+        key: 'form.password_min',
         params: { count: 8 },
       });
     });
@@ -108,7 +108,7 @@ describe('getFieldErrorDescriptor', () => {
         errors: { pattern: true },
       } as unknown as AbstractControl;
       expect(getFieldErrorDescriptor(control, 'Password', 'password')).toEqual({
-        key: 'ERRORS.VALIDATION.PASSWORD.PATTERN',
+        key: 'form.password_pattern',
       });
     });
   });
@@ -118,7 +118,7 @@ describe('getFieldErrorDescriptor', () => {
       errors: { required: true },
     } as unknown as AbstractControl;
     expect(getFieldErrorDescriptor(control, 'Terms', 'terms')).toEqual({
-      key: 'ERRORS.VALIDATION.TERMS.REQUIRED',
+      key: 'form.terms_required',
     });
   });
 
@@ -127,7 +127,7 @@ describe('getFieldErrorDescriptor', () => {
       errors: { required: true },
     } as unknown as AbstractControl;
     expect(getFieldErrorDescriptor(control, 'Field')).toEqual({
-      key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+      key: 'form.required_field',
       params: { field: 'Field' },
     });
   });

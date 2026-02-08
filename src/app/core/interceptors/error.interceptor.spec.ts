@@ -108,7 +108,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.NETWORK.TIMEOUT',
+      'network.timeout',
       expect.any(Object),
     );
   });
@@ -126,7 +126,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.NETWORK.OFFLINE',
+      'network.offline',
       expect.any(Object),
     );
   });
@@ -144,7 +144,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.NETWORK.SERVER_UNAVAILABLE',
+      'network.server_unavailable',
       expect.any(Object),
     );
   });
@@ -162,7 +162,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.NETWORK.CORS',
+      'network.cors',
       expect.any(Object),
     );
   });
@@ -180,7 +180,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.NETWORK.UNKNOWN',
+      'network.unknown',
       expect.any(Object),
     );
   });
@@ -203,7 +203,7 @@ describe('handleError()', () => {
     expect(removeSpy).toHaveBeenCalled();
     expect(notifier.show).toHaveBeenCalledWith(
       'warn',
-      'ERRORS.AUTH.TOKEN_EXPIRED',
+      'auth.token_expired_redirect',
       expect.any(Object),
     );
 
@@ -227,7 +227,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.AUTH.FORBIDDEN',
+      'auth.forbidden',
       expect.any(Object),
     );
   });
@@ -244,7 +244,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'warn',
-      'ERRORS.CLIENT.NOT_FOUND',
+      'http.not_found',
       expect.any(Object),
     );
   });
@@ -304,7 +304,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.CLIENT.BAD_REQUEST',
+      'http.bad_request',
       expect.any(Object),
     );
   });
@@ -315,9 +315,8 @@ describe('handleError()', () => {
     const headers = new HttpHeaders({ 'Retry-After': '2' });
     const notifier = makeNotifier();
     const translate = makeTranslate((k, p) => {
-      if (k === 'ERRORS.RATE_LIMIT.TOO_MANY_REQUESTS')
-        return `wait ${p.seconds}`;
-      if (k === 'ERRORS.TITLES.WARNING') return 'Warning';
+      if (k === 'http.rate_limit') return `wait ${p.seconds}`;
+      if (k === 'global.warning') return 'Warning';
       return k;
     });
 
@@ -358,7 +357,7 @@ describe('handleError()', () => {
 
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.SERVER.SERVICE_UNAVAILABLE',
+      'http.service_unavailable',
       expect.any(Object),
     );
     expect(router.navigate).toHaveBeenCalled();
@@ -380,7 +379,7 @@ describe('handleError()', () => {
     expect(consoleSpy).toHaveBeenCalled();
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.SERVER.INTERNAL_ERROR',
+      'http.internal_error',
       expect.any(Object),
     );
     consoleSpy.mockRestore();
@@ -403,7 +402,7 @@ describe('handleError()', () => {
 
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'ERRORS.SERVER.INTERNAL_ERROR',
+      'http.internal_error',
       expect.objectContaining({
         summary: 'Error',
         life: NOTIFICATION_CONFIG.ERROR_LIFE_MS,

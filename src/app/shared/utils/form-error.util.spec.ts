@@ -12,7 +12,7 @@ describe('getFormError', () => {
         errors: { required: true },
       } as unknown as AbstractControl;
       expect(getFormError(control, 'Pwd', 'password')).toEqual({
-        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+        key: 'form.required_field',
         params: { field: 'Pwd' },
       });
     });
@@ -22,7 +22,7 @@ describe('getFormError', () => {
         errors: { minlength: { requiredLength: 6 } },
       } as unknown as AbstractControl;
       expect(getFormError(control, 'Pwd', 'password')).toEqual({
-        key: 'ERRORS.VALIDATION.PASSWORD.MIN_LENGTH',
+        key: 'form.password_min',
         params: { count: 6 },
       });
     });
@@ -32,7 +32,7 @@ describe('getFormError', () => {
         errors: { pattern: true },
       } as unknown as AbstractControl;
       expect(getFormError(control, 'Pwd', 'password')).toEqual({
-        key: 'ERRORS.VALIDATION.PASSWORD.PATTERN',
+        key: 'form.password_pattern',
       });
     });
   });
@@ -42,7 +42,7 @@ describe('getFormError', () => {
       errors: { required: true },
     } as unknown as AbstractControl;
     expect(getFormError(control, 'T', 'terms')).toEqual({
-      key: 'ERRORS.VALIDATION.TERMS.REQUIRED',
+      key: 'form.terms_required',
     });
   });
 
@@ -52,7 +52,7 @@ describe('getFormError', () => {
         errors: { required: true },
       } as unknown as AbstractControl;
       expect(getFormError(control, 'U', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+        key: 'form.required_field',
         params: { field: 'U' },
       });
     });
@@ -62,7 +62,7 @@ describe('getFormError', () => {
         errors: { maxlength: { requiredLength: 30 } },
       } as unknown as AbstractControl;
       expect(getFormError(control, 'U', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.MAX_LENGTH',
+        key: 'form.max_length',
         params: { count: 30 },
       });
     });
@@ -73,7 +73,7 @@ describe('getFormError', () => {
         value: 'ab',
       } as unknown as AbstractControl;
       expect(getFormError(control, 'U', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.MIN_LENGTH',
+        key: 'form.min_length',
         params: { count: 3 },
       });
     });
@@ -84,7 +84,7 @@ describe('getFormError', () => {
         value: 'x$y',
       } as unknown as AbstractControl;
       expect(getFormError(control, 'U', 'username')).toEqual({
-        key: 'ERRORS.VALIDATION.USERNAME.INVALID_CHARS',
+        key: 'form.username_invalid_chars',
         params: { chars: '$' },
       });
     });
@@ -96,7 +96,7 @@ describe('getFormError', () => {
         errors: { required: true },
       } as unknown as AbstractControl;
       expect(getFormError(control, 'Label')).toEqual({
-        key: 'ERRORS.VALIDATION.REQUIRED_FIELD',
+        key: 'form.required_field',
         params: { field: 'Label' },
       });
     });
@@ -104,7 +104,7 @@ describe('getFormError', () => {
     it('when email then email', () => {
       const control = { errors: { email: true } } as unknown as AbstractControl;
       expect(getFormError(control, 'Label')).toEqual({
-        key: 'ERRORS.VALIDATION.EMAIL',
+        key: 'form.email_invalid',
       });
     });
 
@@ -114,7 +114,7 @@ describe('getFormError', () => {
         value: 'abc_123',
       } as unknown as AbstractControl;
       expect(getFormError(control, 'Label')).toEqual({
-        key: 'ERRORS.VALIDATION.USERNAME.PATTERN',
+        key: 'form.username_pattern',
       });
     });
 
@@ -124,7 +124,7 @@ describe('getFormError', () => {
         value: 'a$b',
       } as unknown as AbstractControl;
       expect(getFormError(control, 'Label')).toEqual({
-        key: 'ERRORS.VALIDATION.PASSWORD.PATTERN',
+        key: 'form.password_pattern',
       });
     });
   });
