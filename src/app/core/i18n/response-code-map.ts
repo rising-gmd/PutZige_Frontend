@@ -9,7 +9,7 @@ export const ResponseCodeToI18n: Record<string, string> = {
   INVALID_CREDENTIALS: 'auth.login_invalid_credentials',
   EMAIL_NOT_VERIFIED: 'auth.email_not_verified',
   ACCOUNT_LOCKED: 'auth.account_locked',
-  TOKEN_EXPIRED: 'auth.token_expired',
+  TOKEN_EXPIRED: 'auth.verify_email_token_expired',
   TOKEN_INVALID: 'auth.verify_email_token_invalid',
   EMAIL_ALREADY_EXISTS: 'auth.register_email_exists',
   USERNAME_TAKEN: 'auth.register_username_taken',

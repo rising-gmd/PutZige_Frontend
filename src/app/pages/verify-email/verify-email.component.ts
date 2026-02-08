@@ -47,7 +47,6 @@ export class VerifyEmailComponent {
   message = signal<string>('');
 
   private readonly redirectDelayMs = 3000;
-  private email = '';
   private token = '';
 
   constructor() {
@@ -56,14 +55,11 @@ export class VerifyEmailComponent {
 
   private initializeVerification(): void {
     const params = this.route.snapshot.queryParamMap;
-    this.email = params.get('email') || '';
     this.token = params.get('token') || '';
 
-    if (!this.email || !this.token) {
+    if (!this.token) {
       this.state.set(VerificationState.ERROR);
-      const msg = !this.email
-        ? this.translate.instant('auth.verify_email_missing_email')
-        : this.translate.instant('auth.verify_email_missing_token');
+      const msg = this.translate.instant('auth.verify_email_missing_token');
       this.message.set(msg);
       this.notifications.showError(msg);
       return;
@@ -76,7 +72,7 @@ export class VerifyEmailComponent {
     this.state.set(VerificationState.VERIFYING);
 
     this.authApi
-      .verifyEmail(this.email, this.token)
+      .verifyEmail(this.token)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => this.handleVerificationResponse(response),
@@ -120,12 +116,12 @@ export class VerifyEmailComponent {
   }
 
   resendEmail(): void {
-    if (!this.email) return;
+    if (!this.token) return;
 
     this.state.set(VerificationState.RESENDING);
 
     this.authApi
-      .resendVerification(this.email)
+      .resendVerification(this.token)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => this.handleResendResponse(response),

@@ -9,10 +9,10 @@ export class AuthApiService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Verify email using token from query params
+   * Verify using token from query params
    */
-  verifyEmail(email: string, token: string): Observable<ApiResponse<null>> {
-    const payload = { email, token } as const;
+  verifyEmail(token: string): Observable<ApiResponse<null>> {
+    const payload = { token } as const;
     return this.http.post<ApiResponse<null>>(
       API_ENDPOINTS.AUTH.VERIFY_EMAIL,
       payload,
@@ -20,10 +20,10 @@ export class AuthApiService {
   }
 
   /**
-   * Resend verification email to the given address
+   * Resend verification using token (token-only flow)
    */
-  resendVerification(email: string): Observable<ApiResponse<null>> {
-    const payload = { email } as const;
+  resendVerification(token: string): Observable<ApiResponse<null>> {
+    const payload = { token } as const;
     return this.http.post<ApiResponse<null>>(
       API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
       payload,
