@@ -1,130 +1,127 @@
 {
-  "common": {
-    "app": {
-      "title": "PutZige",
-      "welcome": "Hello GMD"
-    },
-    "or": "OR",
+  "auth": {
+    "login_title": "Sign in",
+    "login_submit": "Continue",
+    "login_invalid_credentials": "Wrong email or password. Try again or click Forgot password to reset it.",
+    "login_success": "Welcome back",
+
+    "register_title": "Create your account",
+    "register_google": "Continue with Google",
+    "register_already_member": "Already have an account?",
+    "register_success": "Welcome! We sent a verification email to your inbox.",
+    "register_email_exists": "An account with this email already exists",
+    "register_username_taken": "This username isn't available. Try another.",
+
+    "verify_email_title": "Verifying your email",
+    "verify_email_wait": "This will only take a moment...",
+    "verify_email_success": "Your email is verified",
+    "verify_email_active": "You're all set! You can now sign in.",
+    "verify_email_redirect": "Taking you to sign in...",
+    "verify_email_failed": "Verification failed",
+    "verify_email_expired": "This link has expired",
+    "verify_email_invalid_link": "This verification link isn't valid. Check your email for the correct link.",
+    "verify_email_link_expired": "This link expired. Request a new verification email.",
+    "verify_email_already_verified": "This email is already verified. You can sign in now.",
+    "verify_email_token_invalid": "This verification link isn't valid. Request a new one.",
+    "verify_email_token_expired": "This verification link expired. Request a new one.",
+    "verify_email_missing_email": "Email address is required",
+    "verify_email_missing_token": "Verification code is required",
+    "verify_email_resend": "Resend verification email",
+    "verify_email_sending": "Sending...",
+    "verify_email_resend_success": "Verification email sent",
+    "verify_email_check_inbox": "Check your inbox and spam folder",
+    "verify_email_send_again": "Send again",
+    "verify_email_sent": "Email sent",
+    "verify_email_help": "Need help? Contact support@putzige.com",
+    "verify_email_too_many_attempts": "Too many attempts. Wait a few minutes before trying again.",
+    "verify_email_verification_sent": "Check your email to verify your account",
+
+    "session_expired": "Your session expired. Please sign in again.",
+    "token_expired_redirect": "Your session expired. Redirecting to sign in...",
+    "forbidden": "You don't have access to this",
+    "unauthorized": "Sign in to continue",
+    "account_locked": "Your account has been locked. Contact support for help.",
+    "account_inactive": "Your account is inactive. Contact support to reactivate it.",
+    "email_not_verified": "Verify your email address to continue"
+  },
+
+  "messaging": {
+    "send_success": "Message sent",
+    "message_too_long": "Your message is too long. Keep it under 1,000 characters.",
+    "message_not_found": "Message not found",
+    "sender_required": "Sender information is missing",
+    "receiver_required": "Recipient is required",
+    "message_text_required": "Can't send an empty message"
+  },
+
+  "global": {
+    "app_title": "PutZige",
+    "app_welcome": "Hello GMD",
     "terms": "Terms & Conditions",
-    "buttons": {
-      "register": "Register",
-      "login": "Login",
-      "signin": "Sign In",
-      "toggleDark": "Toggle Dark Mode"
-    },
-    "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "agreeTo": "I agree to the"
-    }
+    "or": "or",
+    "btn_register": "Sign up",
+    "btn_login": "Sign in",
+    "btn_sign_in": "Continue",
+    "btn_toggle_dark": "Toggle dark mode",
+    "label_username": "Username",
+    "label_email": "Email",
+    "label_password": "Password",
+    "label_agree": "I agree to the",
+    "error": "Error",
+    "warning": "Warning",
+    "network_error": "Connection problem",
+    "auth_error": "Authentication error",
+    "server_error": "Server error"
   },
-  "features": {
-    "register": {
-      "title": "Create Your Account",
-      "googleSignUp": "Sign Up with Google",
-      "already": "Already have an account?"
-    },
-    "auth": {
-      "login": {
-        "title": "Login",
-        "submit": "Login"
-      }
-    }
+
+  "network": {
+    "offline": "No internet connection. Check your network and try again.",
+    "timeout": "This is taking longer than usual. Check your connection and try again.",
+    "cors": "Can't connect to server. Contact support if this continues.",
+    "unknown": "Something went wrong with your connection. Try again.",
+    "server_unavailable": "Can't reach the server right now. Try again in a few minutes."
   },
-  "errors": {
-    "network": {
-      "offline": "No internet connection. Please check your network and try again.",
-      "timeout": "Request timed out. Please try again.",
-      "cors": "Unable to connect to the server. Please contact support.",
-      "unknown": "Network error occurred. Please try again later.",
-      "serverUnavailable": "Server is not available. Please try again later."
-    },
-    "auth": {
-      "unauthorized": "Your session has expired. Please log in again.",
-      "invalidCredentials": "Invalid username or password.",
-      "tokenExpired": "Your session has expired. Redirecting to login...",
-      "forbidden": "You don't have permission to access this resource."
-    },
-    "client": {
-      "badRequest": "Invalid request. Please check your input.",
-      "notFound": "The requested resource was not found.",
-      "conflict": "This resource already exists.",
-      "validation": "Please correct the errors and try again."
-    },
-    "server": {
-      "internalError": "An unexpected error occurred. Our team has been notified.",
-      "badGateway": "Service temporarily unavailable. Please try again.",
-      "serviceUnavailable": "Service is under maintenance. Please try again later.",
-      "unknown": "Something went wrong. Please try again later."
-    },
-    "rateLimit": {
-      "tooManyRequests": "Too many requests. Please wait {{seconds}} seconds and try again."
-    },
-    "validation": {
-      "required": "This field is required",
-      "requiredField": "{{field}} is required",
-      "email": "Invalid email format",
-      "minLength": "Must be at least {{count}} characters",
-      "maxLength": "Must be at most {{count}} characters",
-      "password": {
-        "required": "Password is required",
-        "minLength": "Use at least {{count}} characters",
-        "pattern": "Include uppercase, lowercase, number and symbol",
-        "invalid": "Password is invalid"
-      },
-      "username": {
-        "pattern": "Username must be 3–50 characters and may contain letters, numbers and underscore",
-        "invalidChars": "Username contains invalid characters: {{chars}}. Allowed: letters, numbers and underscore"
-      },
-      "terms": {
-        "required": "You must agree to the Terms & Conditions"
-      }
-    },
-    "titles": {
-      "error": "Error",
-      "warning": "Warning",
-      "networkError": "Connection Error",
-      "authError": "Authentication Error",
-      "serverError": "Server Error"
-    }
+
+  "http": {
+    "bad_request": "Something's not right with your request. Check your info and try again.",
+    "not_found": "We couldn't find what you're looking for",
+    "conflict": "This already exists",
+    "validation_error": "Fix the errors above and try again",
+    "validation_failed": "Check your information and try again",
+    "internal_error": "Something went wrong on our end. We're looking into it.",
+    "bad_gateway": "Service temporarily unavailable. Try again in a moment.",
+    "service_unavailable": "We're updating the service. Check back soon.",
+    "unknown": "Something went wrong. Try again.",
+    "rate_limit": "Slow down. Wait {{seconds}} seconds before trying again."
   },
-  "primeng": {},
-  "pages": {
-    "verifyEmail": {
-      "verifying": {
-        "title": "Verifying Email",
-        "subtitle": "Please wait while we verify your account..."
-      },
-      "success": {
-        "title": "Email Verified!",
-        "message": "Your account is now active",
-        "redirect": "Redirecting to login..."
-      },
-      "error": {
-        "title": "Verification Failed"
-      },
-      "expired": {
-        "title": "Link Expired"
-      },
-      "errors": {
-        "missingParams": "Invalid verification link. Please check your email.",
-        "expired": "Your verification link has expired. Please request a new one."
-      },
-      "resend": {
-        "button": "Resend Email",
-        "sending": "Sending...",
-        "subtitle": "Sending verification email...",
-        "success": "Verification email sent successfully!",
-        "checkInbox": "Check your inbox for a new verification link",
-        "sendAgain": "Send Again"
-      },
-      "resent": {
-        "title": "Email Sent"
-      },
-      "footer": {
-        "help": "Need help? Contact support@putzige.com"
-      }
-    }
+
+  "form": {
+    "required": "Required",
+    "required_field": "{{field}} is required",
+    "email_invalid": "Enter a valid email",
+    "email_required": "Email is required",
+    "min_length": "Use {{count}} characters or more",
+    "max_length": "Use {{count}} characters or less",
+    "password_required": "Enter your password",
+    "password_min": "Use {{count}} characters or more",
+    "password_pattern": "Use a mix of letters, numbers, and symbols",
+    "password_invalid": "Password doesn't meet requirements",
+    "username_required": "Choose a username",
+    "username_pattern": "Use 3-50 characters. Letters, numbers, and underscores only.",
+    "username_invalid_chars": "Remove these characters: {{chars}}. Use only letters, numbers, and underscores.",
+    "terms_required": "Agree to the Terms & Conditions to continue",
+    "token_required": "Verification code is required",
+    "identifier_required": "ID is required",
+    "refresh_token_required": "Session token is required"
+  },
+
+  "system": {
+    "jwt_secret_missing": "Configuration error. Contact support.",
+    "jwt_secret_invalid": "Configuration error. Contact support.",
+    "plaintext_required": "Text is required",
+    "hash_required": "Hash is required",
+    "salt_required": "Salt is required",
+    "page_number_invalid": "Page number is invalid",
+    "page_size_invalid": "Page size is invalid"
   }
 }

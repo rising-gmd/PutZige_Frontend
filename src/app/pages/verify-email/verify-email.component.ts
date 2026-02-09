@@ -6,22 +6,23 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthApiService } from '../../features/auth/services/auth-api.service';
-import { NotificationService } from '../../shared/services/notification.service';
-import type { ApiResponse } from '../../core/models/api.model';
 import { ROUTE_PATHS } from '../../core/constants/route.constants';
+import type { ApiResponse } from '../../core/models/api.model';
+import { AuthApiService } from '../../features/auth/services/auth-api.service';
+import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
+import { NotificationService } from '../../shared/services/notification.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { mapResponseCode } from '../../core/i18n/response-code-map';
 
 enum VerificationState {
   VERIFYING = 'verifying',
   SUCCESS = 'success',
   ERROR = 'error',
-  EXPIRED = 'expired',
   RESENDING = 'resending',
-  RESENT = 'resent', // After successful resend
+  RESENT = 'resent',
 }
 
 @Component({
@@ -40,14 +41,12 @@ export class VerifyEmailComponent {
   private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Expose enum to template
   readonly VerificationState = VerificationState;
 
   state = signal<VerificationState>(VerificationState.VERIFYING);
-  errorMessage = signal<string>('');
+  message = signal<string>('');
 
   private readonly redirectDelayMs = 3000;
-  private email = '';
   private token = '';
 
   constructor() {
@@ -55,158 +54,108 @@ export class VerifyEmailComponent {
   }
 
   private initializeVerification(): void {
-    const queryParams = this.route.snapshot.queryParamMap;
-    const email = queryParams.get('email');
-    const token = queryParams.get('token');
+    const params = this.route.snapshot.queryParamMap;
+    this.token = params.get('token') || '';
 
-    // Validate query params
-    if (!email || !token) {
-      this.handleMissingParams();
+    if (!this.token) {
+      this.state.set(VerificationState.ERROR);
+      const msg = this.translate.instant('auth.verify_email_missing_token');
+      this.message.set(msg);
+      this.notifications.showError(msg);
       return;
     }
 
-    this.email = email;
-    this.token = token;
-
-    // Auto-verify on page load
     this.verifyEmail();
   }
 
-  /**
-   * Handle missing email or token in query params
-   */
-  private handleMissingParams(): void {
-    this.state.set(VerificationState.ERROR);
-    const message = this.translate.instant(
-      'pages.verifyEmail.errors.missingParams',
-    );
-    this.errorMessage.set(message);
-    this.notifications.showError(message);
-  }
-
-  /**
-   * Call verify email API
-   */
   private verifyEmail(): void {
     this.state.set(VerificationState.VERIFYING);
 
     this.authApi
-      .verifyEmail(this.email, this.token)
+      .verifyEmail(this.token)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: ApiResponse<null>) => {
-          this.handleVerificationResponse(response);
-        },
-
-        error: () => {
-          this.handleVerificationError();
-        },
+        next: (response) => this.handleVerificationResponse(response),
+        error: (error) => this.handleVerificationError(error),
       });
   }
 
   private handleVerificationResponse(response: ApiResponse<null>): void {
-    if (response?.success) {
-      this.handleVerificationSuccess(response.message);
-      return;
-    }
+    const code = response.responseCode;
+    const key = mapResponseCode(code);
+    const msg = this.translate.instant(key);
 
-    if (response?.statusCode === 400) {
-      this.handleExpiredToken(response.message);
+    if (response.success) {
+      this.state.set(VerificationState.SUCCESS);
+      this.message.set(msg);
+      this.notifications.showSuccess(msg);
+      setTimeout(
+        () =>
+          this.router.navigate([`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`]),
+        this.redirectDelayMs,
+      );
     } else {
-      this.handleVerificationError(response?.message);
+      this.state.set(VerificationState.ERROR);
+      this.message.set(msg);
+      this.notifications.showError(msg);
     }
   }
 
-  /**
-   * Handle successful verification
-   */
-  private handleVerificationSuccess(message?: string): void {
-    const successMessage =
-      message ?? this.translate.instant('pages.verifyEmail.success.message');
-    this.state.set(VerificationState.SUCCESS);
-    this.notifications.showSuccess(successMessage);
+  private handleVerificationError(error: HttpErrorResponse): void {
+    const responseCode = error?.error?.responseCode;
 
-    setTimeout(() => {
-      void this.router.navigate([`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`]);
-    }, this.redirectDelayMs);
+    if (responseCode) {
+      const key = mapResponseCode(responseCode);
+      const msg = this.translate.instant(key);
+      this.state.set(VerificationState.ERROR);
+      this.message.set(msg);
+      this.notifications.showError(msg);
+    } else {
+      this.state.set(VerificationState.ERROR);
+    }
   }
 
-  /**
-   * Handle expired token
-   */
-  private handleExpiredToken(message?: string): void {
-    const errorMsg =
-      message ?? this.translate.instant('pages.verifyEmail.errors.expired');
-    this.state.set(VerificationState.EXPIRED);
-    this.errorMessage.set(errorMsg);
-    this.notifications.showError(errorMsg);
-  }
-
-  /**
-   * Handle verification error
-   */
-  private handleVerificationError(message?: string): void {
-    const errorMsg = message ?? this.translate.instant('errors.server.unknown');
-    this.state.set(VerificationState.ERROR);
-    this.errorMessage.set(errorMsg);
-    this.notifications.showError(errorMsg);
-  }
-
-  /**
-   * Resend verification email (public method called from template)
-   */
   resendEmail(): void {
-    if (!this.email) {
-      return;
-    }
+    if (!this.token) return;
 
     this.state.set(VerificationState.RESENDING);
 
     this.authApi
-      .resendVerification(this.email)
+      .resendVerification(this.token)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: ApiResponse<null>) => {
-          this.handleResendResponse(response);
-        },
-        error: () => {
-          this.handleResendError();
-        },
+        next: (response) => this.handleResendResponse(response),
+        error: (error) => this.handleResendError(error),
       });
   }
 
-  /**
-   * Handle resend verification response
-   */
   private handleResendResponse(response: ApiResponse<null>): void {
-    if (response?.success) {
-      this.handleResendSuccess(response.message);
+    const code = response.responseCode;
+    const key = mapResponseCode(code);
+    const msg = this.translate.instant(key);
+
+    if (response.success) {
+      this.state.set(VerificationState.RESENT);
+      this.message.set(msg);
+      this.notifications.showSuccess(msg);
     } else {
-      this.handleResendError(response?.message);
+      this.state.set(VerificationState.ERROR);
+      this.message.set(msg);
+      this.notifications.showError(msg);
     }
   }
 
-  /**
-   * Handle successful resend
-   */
-  private handleResendSuccess(message?: string): void {
-    const successMsg =
-      message ?? this.translate.instant('pages.verifyEmail.resend.success');
-    const checkInboxMsg = this.translate.instant(
-      'pages.verifyEmail.resend.checkInbox',
-    );
-    this.state.set(VerificationState.RESENT);
-    this.errorMessage.set(checkInboxMsg);
-    this.notifications.showSuccess(successMsg);
-  }
+  private handleResendError(error: HttpErrorResponse): void {
+    const responseCode = error?.error?.responseCode;
 
-  /**
-   * Handle resend error
-   */
-  private handleResendError(message?: string): void {
-    const errorMsg = message ?? this.translate.instant('errors.server.unknown');
-    this.state.set(VerificationState.ERROR);
-    this.errorMessage.set(errorMsg);
-    this.notifications.showError(errorMsg);
+    if (responseCode) {
+      const key = mapResponseCode(responseCode);
+      const msg = this.translate.instant(key);
+      this.state.set(VerificationState.ERROR);
+      this.message.set(msg);
+      this.notifications.showError(msg);
+    } else {
+      this.state.set(VerificationState.ERROR);
+    }
   }
 }

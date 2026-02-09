@@ -23,7 +23,10 @@ describe('RegisterComponent', () => {
     instant: jest.fn((k: string) => k),
   } as unknown as TranslateService;
 
-  const mockRouter = { navigate: jest.fn(), navigateByUrl: jest.fn() } as unknown as Router;
+  const mockRouter = {
+    navigate: jest.fn(),
+    navigateByUrl: jest.fn(),
+  } as unknown as Router;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -36,21 +39,21 @@ describe('RegisterComponent', () => {
       set: {
         template: `
           <form>
-            <input placeholder="common.labels.username" [formControl]="username" />
-            <div *ngIf="errorMessage(username, 'common.labels.username')">{{ errorMessage(username, 'common.labels.username') }}</div>
+            <input placeholder="global.label_username" [formControl]="username" />
+            <div *ngIf="errorMessage(username, 'global.label_username')">{{ errorMessage(username, 'global.label_username') }}</div>
 
-            <input placeholder="common.labels.email" [formControl]="email" />
-            <div *ngIf="errorMessage(email, 'common.labels.email')">{{ errorMessage(email, 'common.labels.email') }}</div>
+            <input placeholder="global.label_email" [formControl]="email" />
+            <div *ngIf="errorMessage(email, 'global.label_email')">{{ errorMessage(email, 'global.label_email') }}</div>
 
-            <input placeholder="common.labels.password" [formControl]="password" />
-            <div *ngIf="errorMessage(password, 'common.labels.password')">{{ errorMessage(password, 'common.labels.password') }}</div>
+            <input placeholder="global.label_password" [formControl]="password" />
+            <div *ngIf="errorMessage(password, 'global.label_password')">{{ errorMessage(password, 'global.label_password') }}</div>
 
             <input type="checkbox" role="checkbox" [formControl]="terms" />
             <div *ngIf="errorMessage(terms)">{{ errorMessage(terms) }}</div>
 
-            <a role="link" href="/login">common.buttons.signin</a>
-            <button type="button" [attr.aria-busy]="loading()" (click)="onSubmit()">common.buttons.register</button>
-            <button type="button">features.register.googleSignUp</button>
+            <a role="link" href="/login">global.btn_sign_in</a>
+            <button type="button" [attr.aria-busy]="loading()" (click)="onSubmit()">global.btn_register</button>
+            <button type="button">auth.register_google</button>
           </form>
         `,
       },
@@ -71,15 +74,21 @@ describe('RegisterComponent', () => {
   it('when valid credentials are submitted, then register is called and success is shown and navigates to login', async () => {
     mockRegister.register = jest
       .fn()
-      .mockReturnValue(of({ success: true, message: 'ok' }));
+      .mockReturnValue(
+        of({
+          success: true,
+          responseCode: 'REGISTRATION_SUCCESS',
+          message: 'ok',
+        }),
+      );
 
     await setup();
 
-    const username = screen.getByPlaceholderText('common.labels.username');
-    const email = screen.getByPlaceholderText('common.labels.email');
-    const password = screen.getByPlaceholderText('common.labels.password');
+    const username = screen.getByPlaceholderText('global.label_username');
+    const email = screen.getByPlaceholderText('global.label_email');
+    const password = screen.getByPlaceholderText('global.label_password');
     const registerBtn = screen.getByRole('button', {
-      name: 'common.buttons.register',
+      name: 'global.btn_register',
     });
     const terms = screen.getByRole('checkbox') as HTMLInputElement;
 
@@ -90,7 +99,9 @@ describe('RegisterComponent', () => {
     await userEvent.click(registerBtn);
 
     expect(mockRegister.register).toHaveBeenCalled();
-    expect(mockNotifications.showSuccess).toHaveBeenCalledWith('ok');
+    expect(mockNotifications.showSuccess).toHaveBeenCalledWith(
+      'auth.register_success',
+    );
     expect(mockRouter.navigateByUrl).toHaveBeenCalled();
   });
 
@@ -98,7 +109,7 @@ describe('RegisterComponent', () => {
     await setup();
 
     const googleBtn = screen.getByRole('button', {
-      name: 'features.register.googleSignUp',
+      name: 'auth.register_google',
     });
     expect(googleBtn).toBeInTheDocument();
   });
@@ -108,82 +119,72 @@ describe('RegisterComponent', () => {
       await setup();
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.requiredField'))[0],
+        (await screen.findAllByText('form.required_field'))[0],
       ).toBeVisible();
     });
 
     it('when username less than 3 characters, then minLength error is shown', async () => {
       await setup();
 
-      const username = screen.getByPlaceholderText('common.labels.username');
+      const username = screen.getByPlaceholderText('global.label_username');
       await userEvent.type(username, 'ab');
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
-      expect(
-        (await screen.findAllByText('errors.validation.minLength'))[0],
-      ).toBeVisible();
+      expect((await screen.findAllByText('form.min_length'))[0]).toBeVisible();
     });
 
     it('when username exceeds 50 characters, then maxLength error is shown', async () => {
       await setup();
 
-      const username = screen.getByPlaceholderText('common.labels.username');
+      const username = screen.getByPlaceholderText('global.label_username');
       await userEvent.type(username, 'a'.repeat(51));
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
-      expect(
-        (
-          await screen.findAllByText(/errors\.validation\.(email|maxLength)/)
-        )[0],
-      ).toBeVisible();
+      expect((await screen.findAllByText('form.max_length'))[0]).toBeVisible();
     });
 
     it('when username contains invalid characters, then invalidChars error is shown', async () => {
       await setup();
 
-      const username = screen.getByPlaceholderText('common.labels.username');
+      const username = screen.getByPlaceholderText('global.label_username');
       await userEvent.type(username, 'bad!name');
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (
-          await screen.findAllByText('errors.validation.username.invalidChars')
-        )[0],
+        (await screen.findAllByText('form.username_invalid_chars'))[0],
       ).toBeVisible();
     });
 
     it('when username contains letters, numbers and underscore, then no username error is shown', async () => {
       await setup();
 
-      const username = screen.getByPlaceholderText('common.labels.username');
+      const username = screen.getByPlaceholderText('global.label_username');
       await userEvent.type(username, 'user_123');
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       // username-specific error should not be present (email/password/terms may still block submission)
-      expect(
-        screen.queryByText('errors.validation.username.invalidChars'),
-      ).toBeNull();
+      expect(screen.queryByText('form.username_invalid_chars')).toBeNull();
     });
   });
 
@@ -192,46 +193,46 @@ describe('RegisterComponent', () => {
       await setup();
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.requiredField'))[0],
+        (await screen.findAllByText('form.required_field'))[0],
       ).toBeVisible();
     });
 
     it('when email format is invalid, then email error is shown', async () => {
       await setup();
 
-      const email = screen.getByPlaceholderText('common.labels.email');
+      const email = screen.getByPlaceholderText('global.label_email');
       await userEvent.type(email, 'not-an-email');
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.email'))[0],
+        (await screen.findAllByText('form.email_invalid'))[0],
       ).toBeVisible();
     });
 
     it('when email exceeds 255 characters, then maxLength or email error is shown', async () => {
       await setup();
 
-      const email = screen.getByPlaceholderText('common.labels.email');
+      const email = screen.getByPlaceholderText('global.label_email');
       const long = 'a'.repeat(256) + '@d.com';
       fireEvent.input(email, { target: { value: long } });
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       // Validator may report either email format or maxlength depending on internal validation order
       const err = await screen.findByText((content: string) =>
-        /errors\.validation\.(email|maxLength)/.test(content),
+        /form\.email_invalid|form\.max_length/.test(content),
       );
       expect(err).toBeVisible();
     });
@@ -242,44 +243,44 @@ describe('RegisterComponent', () => {
       await setup();
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.requiredField'))[0],
+        (await screen.findAllByText('form.required_field'))[0],
       ).toBeVisible();
     });
 
     it('when password less than 8 chars, then minLength error is shown', async () => {
       await setup();
 
-      const password = screen.getByPlaceholderText('common.labels.password');
+      const password = screen.getByPlaceholderText('global.label_password');
       await userEvent.type(password, 'Ab1!');
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.password.minLength'))[0],
+        (await screen.findAllByText('form.password_min'))[0],
       ).toBeVisible();
     });
 
     it('when password does not match pattern, then pattern error is shown', async () => {
       await setup();
 
-      const password = screen.getByPlaceholderText('common.labels.password');
+      const password = screen.getByPlaceholderText('global.label_password');
       await userEvent.type(password, 'alllowercase1');
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.password.pattern'))[0],
+        (await screen.findAllByText('form.password_pattern'))[0],
       ).toBeVisible();
     });
   });
@@ -289,12 +290,12 @@ describe('RegisterComponent', () => {
       await setup();
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
       await userEvent.click(registerBtn);
 
       expect(
-        (await screen.findAllByText('errors.validation.terms.required'))[0],
+        (await screen.findAllByText('form.terms_required'))[0],
       ).toBeVisible();
     });
 
@@ -302,7 +303,7 @@ describe('RegisterComponent', () => {
       await setup();
 
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       }) as HTMLButtonElement;
 
       const terms = screen.getByRole('checkbox') as HTMLInputElement;
@@ -316,7 +317,7 @@ describe('RegisterComponent', () => {
       await setup();
 
       const signIn = screen.getByRole('link', {
-        name: 'common.buttons.signin',
+        name: 'global.btn_sign_in',
       }) as HTMLAnchorElement;
       expect(signIn.getAttribute('href')).toContain('/login');
     });
@@ -326,16 +327,22 @@ describe('RegisterComponent', () => {
     it('when API returns failure with message, then shows error notification', async () => {
       mockRegister.register = jest
         .fn()
-        .mockReturnValue(of({ success: false, message: 'duplicate username' }));
+        .mockReturnValue(
+          of({
+            success: false,
+            responseCode: 'USERNAME_TAKEN',
+            message: 'duplicate username',
+          }),
+        );
 
       await setup();
 
-      const username = screen.getByPlaceholderText('common.labels.username');
-      const email = screen.getByPlaceholderText('common.labels.email');
-      const password = screen.getByPlaceholderText('common.labels.password');
+      const username = screen.getByPlaceholderText('global.label_username');
+      const email = screen.getByPlaceholderText('global.label_email');
+      const password = screen.getByPlaceholderText('global.label_password');
       const terms = screen.getByRole('checkbox') as HTMLInputElement;
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
 
       await userEvent.type(username, 'tester');
@@ -345,7 +352,7 @@ describe('RegisterComponent', () => {
       await userEvent.click(registerBtn);
 
       expect(mockNotifications.showError).toHaveBeenCalledWith(
-        'duplicate username',
+        'auth.register_username_taken',
       );
     });
 
@@ -355,12 +362,12 @@ describe('RegisterComponent', () => {
 
       await setup();
 
-      const username = screen.getByPlaceholderText('common.labels.username');
-      const email = screen.getByPlaceholderText('common.labels.email');
-      const password = screen.getByPlaceholderText('common.labels.password');
+      const username = screen.getByPlaceholderText('global.label_username');
+      const email = screen.getByPlaceholderText('global.label_email');
+      const password = screen.getByPlaceholderText('global.label_password');
       const terms = screen.getByRole('checkbox') as HTMLInputElement;
       const registerBtn = screen.getByRole('button', {
-        name: 'common.buttons.register',
+        name: 'global.btn_register',
       });
 
       await userEvent.type(username, 'tester');

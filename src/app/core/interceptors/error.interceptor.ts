@@ -4,53 +4,49 @@ import {
   HttpContextToken,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { NotificationService } from '../../shared/services/notification.service';
 import { Router } from '@angular/router';
-import { catchError, throwError, timeout, retry, timer } from 'rxjs';
-
+import { TranslateService } from '@ngx-translate/core';
+import { catchError, retry, throwError, timeout, timer } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   HTTP_STATUS,
-  RETRY_CONFIG,
-  REQUEST_CONFIG,
   NOTIFICATION_CONFIG,
+  REQUEST_CONFIG,
+  RETRY_CONFIG,
 } from '../constants/http-status.constants';
 import { ROUTE_PATHS } from '../constants/route.constants';
-import { ApiErrorResponse } from '../models/error-response.model';
 import { STORAGE_KEYS } from '../constants/storage-keys.constants';
-import { environment } from '../../../environments/environment';
+import { ApiErrorResponse } from '../models/error-response.model';
+import { NotificationService } from '../../shared/services/notification.service';
+import { mapResponseCode } from '../i18n/response-code-map';
 
-// Allow callers to opt-out of global error handling
 export const SUPPRESS_ERROR_HANDLER = new HttpContextToken<boolean>(
   () => false,
 );
 
-const DEFAULT_TIMEOUT_MS = REQUEST_CONFIG.TIMEOUT_MS;
+// ─────────────────────────────────────────────────────────────────────────────
+// Interceptor
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const suppress = req.context.get(SUPPRESS_ERROR_HANDLER);
-  if (suppress) {
-    return next(req);
-  }
+  if (req.context.get(SUPPRESS_ERROR_HANDLER)) return next(req);
 
-  const translateService = inject(TranslateService);
+  const translate = inject(TranslateService);
   const notifications = inject(NotificationService);
-  const routerService = inject(Router);
+  const router = inject(Router);
 
   return next(req).pipe(
-    timeout(DEFAULT_TIMEOUT_MS),
+    timeout(REQUEST_CONFIG.TIMEOUT_MS),
     retry({
       count: RETRY_CONFIG.MAX_RETRIES,
       delay: (error, retryCount) => {
-        if (shouldRetry(error, retryCount)) {
+        if (shouldRetry(error, retryCount))
           return timer(RETRY_CONFIG.RETRY_DELAY_MS * retryCount);
-        }
         throw error;
       },
     }),
     catchError((err: unknown) => {
-      // Normalize non-HttpErrorResponse errors (fetch/CORS/TypeError from browsers)
-      const normalizedError =
+      const normalized =
         err instanceof HttpErrorResponse
           ? err
           : new HttpErrorResponse({
@@ -59,381 +55,304 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               statusText: String(err ?? ''),
             });
 
-      handleError(
-        normalizedError,
-        translateService,
-        notifications,
-        routerService,
-      );
-      return throwError(() => normalizedError);
+      handleError(normalized, translate, notifications, router);
+      return throwError(() => normalized);
     }),
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Error Handler
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function handleError(
-  httpError: HttpErrorResponse,
-  translateService: TranslateService,
+  error: HttpErrorResponse,
+  translate: TranslateService,
   notifications: NotificationService,
-  routerService: Router,
+  router: Router,
 ): void {
-  // Timeout
-  if ((httpError as unknown as { name?: string })?.name === 'TimeoutError') {
-    showToast(
-      translateService,
-      'errors.network.timeout',
-      'error',
-      undefined,
-      notifications,
-    );
-    return;
-  }
+  // Infrastructure errors - handle globally
+  if (isTimeout(error))
+    return showToast(translate, 'network.timeout', 'error', notifications);
+  if (isNetworkError(error))
+    return handleNetworkError(error, translate, notifications);
+  if (error.status === HTTP_STATUS.UNAUTHORIZED)
+    return handleUnauthorized(translate, notifications, router);
+  if (error.status === HTTP_STATUS.FORBIDDEN)
+    return showToast(translate, 'auth.forbidden', 'error', notifications);
+  if (error.status === HTTP_STATUS.NOT_FOUND)
+    return showToast(translate, 'http.not_found', 'warn', notifications);
+  if (error.status === HTTP_STATUS.TOO_MANY_REQUESTS)
+    return handleRateLimit(error, translate, notifications);
+  if (isServerError(error))
+    return handleServerError(error, translate, notifications, router);
 
-  // Network errors (status 0 or missing)
-  if (httpError.status === HTTP_STATUS.NETWORK_ERROR || !httpError.status) {
-    if (!navigator.onLine) {
-      showToast(
-        translateService,
-        'errors.network.offline',
-        'error',
-        undefined,
-        notifications,
-      );
+  // Business logic errors - let component handle if it has responseCode
+  if (isValidationError(error)) {
+    const apiError = error.error as ApiErrorResponse;
+    const hasResponseCode =
+      apiError &&
+      typeof (apiError as unknown as { responseCode: string }).responseCode ===
+        'string';
+
+    if (hasResponseCode) {
+      const responseCode = (apiError as unknown as { responseCode: string })
+        .responseCode;
+      const key = mapResponseCode(responseCode);
+      showToast(translate, key, 'error', notifications);
       return;
     }
 
-    const msgParts = [
-      httpError.message ?? '',
-      String(httpError.statusText ?? ''),
-      getErrorMessage(httpError.error) ?? '',
-      String(httpError),
-      (() => {
-        try {
-          return JSON.stringify(httpError);
-        } catch {
-          return '';
-        }
-      })(),
-    ];
-    const msg = msgParts.join(' ').toLowerCase();
-    // (debugging removed)
+    // Otherwise, handle field validation errors globally
+    if (hasFieldErrors(apiError)) return;
 
-    // Backend not running — must check BEFORE CORS because Chrome fires
-    // "failed to fetch" on both connection refused and actual CORS failures
-    if (isConnectionRefused(msg)) {
-      showToast(
-        translateService,
-        'errors.network.serverUnavailable',
-        'error',
-        undefined,
-        notifications,
-      );
-      return;
-    }
-
-    // Broaden detection for common browser network/CORS messages (incl. Firefox wording)
-    if (
-      msg.includes('cors') ||
-      msg.includes('failed to fetch') ||
-      msg.includes('networkerror') ||
-      msg.includes('net::err_failed') ||
-      msg.includes('blocked') ||
-      msg.includes('options') ||
-      msg.includes('response body is not available') ||
-      msg.includes('missing allow origin') ||
-      msg.includes('cors missing allow origin')
-    ) {
-      showToast(
-        translateService,
-        'errors.network.cors',
-        'error',
-        { detail: httpError.message ?? httpError.statusText },
-        notifications,
-      );
-      return;
-    }
-
-    showToast(
-      translateService,
-      'errors.network.unknown',
-      'error',
-      { detail: httpError.message ?? httpError.statusText },
-      notifications,
-    );
-    return;
+    // Fallback for unknown validation errors
+    return showToast(translate, 'http.bad_request', 'error', notifications);
   }
 
-  // Authentication
-  if (httpError.status === HTTP_STATUS.UNAUTHORIZED) {
-    try {
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-    } catch (err) {
-      if (!environment.production) {
-        console.warn('Failed to remove auth token from localStorage', err);
-      }
-    }
+  // Generic client errors
+  if (isClientError(error))
+    return showToast(translate, 'http.bad_request', 'error', notifications);
 
-    showToast(
-      translateService,
-      'errors.auth.tokenExpired',
-      'warn',
-      undefined,
-      notifications,
-    );
-
-    setTimeout(() => {
-      routerService.navigate([ROUTE_PATHS.AUTH, ROUTE_PATHS.LOGIN], {
-        queryParams: { returnUrl: routerService.url },
-      });
-    }, REQUEST_CONFIG.AUTH_REDIRECT_DELAY_MS);
-
-    return;
-  }
-
-  // Authorization
-  if (httpError.status === HTTP_STATUS.FORBIDDEN) {
-    showToast(
-      translateService,
-      'errors.auth.forbidden',
-      'error',
-      undefined,
-      notifications,
-    );
-    return;
-  }
-
-  // Not found
-  if (httpError.status === HTTP_STATUS.NOT_FOUND) {
-    showToast(
-      translateService,
-      'errors.client.notFound',
-      'warn',
-      undefined,
-      notifications,
-    );
-    return;
-  }
-
-  // Validation errors (400 / 422)
-  if (
-    httpError.status === HTTP_STATUS.BAD_REQUEST ||
-    httpError.status === HTTP_STATUS.UNPROCESSABLE_ENTITY
-  ) {
-    const apiError = (httpError.error ?? {}) as ApiErrorResponse;
-
-    const apiObj = apiError as unknown as Record<string, unknown>;
-    const errs = apiObj['errors'] as Record<string, unknown> | undefined;
-    const details = apiObj['details'] as Record<string, unknown> | undefined;
-
-    const hasFieldErrors =
-      (errs && Object.keys(errs).length > 0) ||
-      (details && Object.keys(details).length > 0);
-
-    if (hasFieldErrors) {
-      return;
-    }
-
-    // Backend sent a specific message — show it directly
-    if (apiError?.message) {
-      showToast(
-        translateService,
-        apiError.message,
-        'error',
-        undefined,
-        notifications,
-      );
-      return;
-    }
-
-    // No message, no errors — fall back to generic
-    showToast(
-      translateService,
-      'errors.client.badRequest',
-      'error',
-      undefined,
-      notifications,
-    );
-    return;
-  }
-
-  // Rate limiting
-  if (httpError.status === HTTP_STATUS.TOO_MANY_REQUESTS) {
-    const retryAfter =
-      httpError.headers?.get?.('Retry-After') ??
-      String(REQUEST_CONFIG.DEFAULT_RETRY_AFTER_SECONDS);
-    const seconds =
-      Number(retryAfter) || REQUEST_CONFIG.DEFAULT_RETRY_AFTER_SECONDS;
-    const msg = translateService.instant('errors.rateLimit.tooManyRequests', {
-      seconds,
-    });
-    notifications.show('warn', msg, {
-      summary: translateService.instant('errors.titles.warning'),
-      life: NOTIFICATION_CONFIG.RATE_LIMIT_LIFE_MS,
-    });
-    return;
-  }
-
-  // Server errors
-  if (httpError.status >= HTTP_STATUS.SERVER_ERROR_MIN) {
-    if (httpError.status === HTTP_STATUS.SERVICE_UNAVAILABLE) {
-      showToast(
-        translateService,
-        'errors.server.serviceUnavailable',
-        'error',
-        undefined,
-        notifications,
-      );
-      routerService.navigate([ROUTE_PATHS.MAINTENANCE]);
-      return;
-    }
-
-    logErrorToMonitoring(httpError);
-    showToast(
-      translateService,
-      'errors.server.internalError',
-      'error',
-      undefined,
-      notifications,
-    );
-    return;
-  }
-
-  // Fallback: use generic client/server messages if available
-  if (
-    httpError.status >= HTTP_STATUS.CLIENT_ERROR_MIN &&
-    httpError.status < HTTP_STATUS.SERVER_ERROR_MIN
-  ) {
-    showToast(
-      translateService,
-      'errors.client.badRequest',
-      'error',
-      undefined,
-      notifications,
-    );
-    return;
-  }
-
-  showToast(
-    translateService,
-    'errors.server.unknown',
-    'error',
-    undefined,
-    notifications,
-  );
+  // Final fallback
+  showToast(translate, 'http.unknown', 'error', notifications);
 }
 
-// Chrome: "net::ERR_CONNECTION_REFUSED" | Firefox: "econnrefused" | generic fallback
-function isConnectionRefused(msg: string): boolean {
-  if (!msg) return false;
-  const m = msg.toLowerCase();
+// ─────────────────────────────────────────────────────────────────────────────
+// Specialized Handlers
+// ─────────────────────────────────────────────────────────────────────────────
+
+function handleNetworkError(
+  error: HttpErrorResponse,
+  translate: TranslateService,
+  notifications: NotificationService,
+): void {
+  if (!navigator.onLine)
+    return showToast(translate, 'network.offline', 'error', notifications);
+
+  const message = buildErrorMessage(error);
+
+  if (isConnectionRefused(message))
+    return showToast(
+      translate,
+      'network.server_unavailable',
+      'error',
+      notifications,
+    );
+  if (isCorsError(message))
+    return showToast(translate, 'network.cors', 'error', notifications, {
+      detail: error.message ?? error.statusText,
+    });
+
+  showToast(translate, 'network.unknown', 'error', notifications, {
+    detail: error.message ?? error.statusText,
+  });
+}
+
+function handleUnauthorized(
+  translate: TranslateService,
+  notifications: NotificationService,
+  router: Router,
+): void {
+  clearAuthToken();
+  showToast(translate, 'auth.token_expired_redirect', 'warn', notifications);
+
+  setTimeout(() => {
+    router.navigate([ROUTE_PATHS.AUTH, ROUTE_PATHS.LOGIN], {
+      queryParams: { returnUrl: router.url },
+    });
+  }, REQUEST_CONFIG.AUTH_REDIRECT_DELAY_MS);
+}
+
+function handleRateLimit(
+  error: HttpErrorResponse,
+  translate: TranslateService,
+  notifications: NotificationService,
+): void {
+  const retryAfter =
+    error.headers?.get?.('Retry-After') ??
+    String(REQUEST_CONFIG.DEFAULT_RETRY_AFTER_SECONDS);
+  const seconds =
+    Number(retryAfter) || REQUEST_CONFIG.DEFAULT_RETRY_AFTER_SECONDS;
+  const message = translate.instant('http.rate_limit', { seconds });
+
+  notifications.show('warn', message, {
+    summary: translate.instant('global.warning'),
+    life: NOTIFICATION_CONFIG.RATE_LIMIT_LIFE_MS,
+  });
+}
+
+function handleServerError(
+  error: HttpErrorResponse,
+  translate: TranslateService,
+  notifications: NotificationService,
+  router: Router,
+): void {
+  if (error.status === HTTP_STATUS.SERVICE_UNAVAILABLE) {
+    showToast(translate, 'http.service_unavailable', 'error', notifications);
+    router.navigate([ROUTE_PATHS.MAINTENANCE]);
+    return;
+  }
+
+  logErrorToMonitoring(error);
+  showToast(translate, 'http.internal_error', 'error', notifications);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Type Guards & Checks
+// ─────────────────────────────────────────────────────────────────────────────
+
+function isTimeout(error: HttpErrorResponse): boolean {
+  return (error as unknown as { name?: string })?.name === 'TimeoutError';
+}
+
+function isNetworkError(error: HttpErrorResponse): boolean {
+  return error.status === HTTP_STATUS.NETWORK_ERROR || !error.status;
+}
+
+function isValidationError(error: HttpErrorResponse): boolean {
   return (
-    m.includes('connection refused') ||
-    m.includes('err_connection_refused') ||
-    m.includes('econnrefused') ||
-    m.includes('net::err_connection_refused') ||
-    m.includes('net::err_failed') ||
-    m.includes('connectionrefused') ||
-    m.includes('refused')
+    error.status === HTTP_STATUS.BAD_REQUEST ||
+    error.status === HTTP_STATUS.UNPROCESSABLE_ENTITY
   );
 }
 
-function getErrorMessage(e: unknown): string | undefined {
-  if (typeof e === 'string') return e;
-  if (e && typeof e === 'object') {
-    const val = (e as Record<string, unknown>)['message'];
+function isServerError(error: HttpErrorResponse): boolean {
+  return error.status >= HTTP_STATUS.SERVER_ERROR_MIN;
+}
+
+function isClientError(error: HttpErrorResponse): boolean {
+  return (
+    error.status >= HTTP_STATUS.CLIENT_ERROR_MIN &&
+    error.status < HTTP_STATUS.SERVER_ERROR_MIN
+  );
+}
+
+function hasFieldErrors(apiError: ApiErrorResponse): boolean {
+  const obj = apiError as unknown as Record<string, unknown>;
+  const errors = obj['errors'] as Record<string, unknown> | undefined;
+  const details = obj['details'] as Record<string, unknown> | undefined;
+  return !!(
+    (errors && Object.keys(errors).length > 0) ||
+    (details && Object.keys(details).length > 0)
+  );
+}
+
+function isConnectionRefused(message: string): boolean {
+  if (!message) return false;
+  const indicators = [
+    'connection refused',
+    'err_connection_refused',
+    'econnrefused',
+    'net::err_connection_refused',
+    'net::err_failed',
+    'connectionrefused',
+    'refused',
+  ];
+  return indicators.some((indicator) => message.includes(indicator));
+}
+
+function isCorsError(message: string): boolean {
+  const indicators = [
+    'cors',
+    'failed to fetch',
+    'networkerror',
+    'net::err_failed',
+    'blocked',
+    'options',
+    'response body is not available',
+    'missing allow origin',
+  ];
+  return indicators.some((indicator) => message.includes(indicator));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildErrorMessage(error: HttpErrorResponse): string {
+  const parts = [
+    error.message ?? '',
+    String(error.statusText ?? ''),
+    extractErrorMessage(error.error) ?? '',
+    String(error),
+  ];
+
+  try {
+    parts.push(JSON.stringify(error));
+  } catch {
+    // Ignore serialization errors
+  }
+
+  return parts.join(' ').toLowerCase();
+}
+
+function extractErrorMessage(error: unknown): string | undefined {
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object') {
+    const val = (error as Record<string, unknown>)['message'];
     if (typeof val === 'string') return val;
     if (val != null) return String(val);
   }
   return undefined;
 }
 
+function clearAuthToken(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+  } catch (err) {
+    if (!environment.production)
+      console.warn('Failed to remove auth token', err);
+  }
+}
+
 function showToast(
-  translateService: TranslateService,
+  translate: TranslateService,
   messageKey: string,
   severity: 'success' | 'info' | 'warn' | 'error',
+  notifications: NotificationService,
   params?: Record<string, unknown>,
-  notifications?: NotificationService,
 ): void {
-  const notifierSvc = notifications ?? inject(NotificationService);
-
-  // Guard translation calls so toast still appears if translation lookup fails
-  let msg: string;
+  let message: string;
   let title: string;
+
   try {
-    msg = params
-      ? translateService.instant(messageKey, params)
-      : translateService.instant(messageKey);
-    const titleKey =
-      severity === 'error'
-        ? 'errors.titles.error'
-        : severity === 'warn'
-          ? 'errors.titles.warning'
-          : 'errors.titles.error';
-    title = translateService.instant(titleKey);
+    message = params
+      ? translate.instant(messageKey, params)
+      : translate.instant(messageKey);
+    const titleKey = severity === 'warn' ? 'global.warning' : 'global.error';
+    title = translate.instant(titleKey);
   } catch {
-    msg = (params && (params['detail'] as string)) || messageKey;
-    title =
-      severity === 'error'
-        ? 'Error'
-        : severity === 'warn'
-          ? 'Warning'
-          : 'Notice';
+    message = (params?.['detail'] as string) || messageKey;
+    title = severity === 'warn' ? 'Warning' : 'Error';
   }
 
   const life =
     severity === 'error'
       ? NOTIFICATION_CONFIG.ERROR_LIFE_MS
       : NOTIFICATION_CONFIG.DEFAULT_LIFE_MS;
-  notifierSvc.show(severity, msg, { summary: title, life });
+  notifications.show(severity, message, { summary: title, life });
 }
 
-// Only retry status 0 when user is online and it's not a hard connection refused —
-// retrying offline or against a downed server just delays the error toast
 export function shouldRetry(error: unknown, retryCount: number): boolean {
-  if (retryCount >= RETRY_CONFIG.MAX_RETRIES) {
-    return false;
+  if (retryCount >= RETRY_CONFIG.MAX_RETRIES) return false;
+  if (!(error instanceof HttpErrorResponse)) return false;
+
+  if (error.status === HTTP_STATUS.NETWORK_ERROR) {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return false;
+
+    const message = buildErrorMessage(error);
+    if (isConnectionRefused(message)) return false;
+
+    return true;
   }
 
-  if (error instanceof HttpErrorResponse) {
-    if (error.status === HTTP_STATUS.NETWORK_ERROR) {
-      // If the browser is offline, don't retry.
-      if (typeof navigator !== 'undefined' && !navigator.onLine) return false;
-
-      // Treat status 0 as a transient network error and retry unless the
-      // message indicates a hard connection refusal.
-      const msgParts = [
-        error.message ?? '',
-        String(error.statusText ?? ''),
-        getErrorMessage((error as HttpErrorResponse).error) ?? '',
-        String(error),
-        (() => {
-          try {
-            return JSON.stringify(error);
-          } catch {
-            return '';
-          }
-        })(),
-      ];
-      const msg = msgParts.join(' ').toLowerCase();
-      // (debugging removed)
-      if (isConnectionRefused(msg)) return false;
-      return true;
-    }
-
-    // `RETRY_STATUS_CODES` is a readonly tuple; narrow to number[] for includes safely
-    const retryCodes = RETRY_CONFIG.RETRY_STATUS_CODES as readonly number[];
-    return retryCodes.includes(error.status as number);
-  }
-
-  return false;
+  const retryCodes = RETRY_CONFIG.RETRY_STATUS_CODES as readonly number[];
+  return retryCodes.includes(error.status as number);
 }
-
-// Note: `getErrorMessage` above handles extracting a human-friendly message
-// from various error body shapes. Keep helper utilities minimal to avoid
-// unused-symbol lint failures.
 
 export function logErrorToMonitoring(error: HttpErrorResponse): void {
   if (!environment.production) {
-    // During dev show sanitized console output
     console.error('Server error:', {
       status: error.status,
       message: error.message,
@@ -443,12 +362,10 @@ export function logErrorToMonitoring(error: HttpErrorResponse): void {
     return;
   }
 
-  // Production: integrate with Sentry/other monitoring here
   try {
-    // Example placeholder: Sentry.captureException(error);
+    // Production monitoring integration (Sentry, DataDog, etc.)
   } catch (err) {
-    if (!environment.production) {
+    if (!environment.production)
       console.error('Monitoring integration failed', err);
-    }
   }
 }
