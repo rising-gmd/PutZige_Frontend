@@ -9,7 +9,7 @@
   </div>
 
   <div class="register-card">
-    <h2>{{ "features.register.title" | translate }}</h2>
+    <h2>{{ "auth.register_title" | translate }}</h2>
 
     <button class="google-btn" type="button" (click)="(0)">
       <span class="google-icon" aria-hidden="true">
@@ -40,20 +40,20 @@
           />
         </svg>
       </span>
-      {{ "features.register.googleSignUp" | translate }}
+      {{ "auth.register_google" | translate }}
     </button>
 
     <div class="divider">
-      <span>{{ "common.or" | translate }}</span>
+      <span>{{ "global.or" | translate }}</span>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <app-input
         formControlName="username"
-        [placeholder]="'common.labels.username' | translate"
+        [placeholder]="'global.label_username' | translate"
         [error]="
           submitted() || username.touched
-            ? errorMessage(username, 'common.labels.username')
+            ? errorMessage(username, 'global.label_username')
             : null
         "
       ></app-input>
@@ -61,30 +61,30 @@
       <app-input
         formControlName="email"
         type="email"
-        [placeholder]="'common.labels.email' | translate"
+        [placeholder]="'global.label_email' | translate"
         [error]="
           submitted() || email.touched
-            ? errorMessage(email, 'common.labels.email')
+            ? errorMessage(email, 'global.label_email')
             : null
         "
       ></app-input>
 
       <app-password
         formControlName="password"
-        [placeholder]="'common.labels.password' | translate"
+        [placeholder]="'global.label_password' | translate"
         [showToggle]="true"
         [strength]="true"
         [error]="
           submitted() || password.touched
-            ? errorMessage(password, 'common.labels.password')
+            ? errorMessage(password, 'global.label_password')
             : null
         "
       ></app-password>
 
       <label class="terms">
         <input type="checkbox" formControlName="terms" />
-        {{ "common.labels.agreeTo" | translate }}
-        <a href="#">{{ "common.terms" | translate }}</a>
+        {{ "global.label_agree" | translate }}
+        <a href="#">{{ "global.terms" | translate }}</a>
         @if (submitted() || terms.touched) {
           <p-message severity="error" variant="simple" size="small">{{
             errorMessage(terms)
@@ -95,16 +95,14 @@
       <app-button
         class="btn-full"
         type="submit"
-        [label]="'common.buttons.register' | translate"
+        [label]="'global.btn_register' | translate"
         [loading]="loading()"
         [disabled]="loading() || form.invalid"
       ></app-button>
 
       <div class="signin">
-        {{ "features.register.already" | translate }}
-        <a routerLink="/auth/login">{{
-          "common.buttons.signin" | translate
-        }}</a>
+        {{ "auth.register_already_member" | translate }}
+        <a routerLink="/auth/login">{{ "global.btn_sign_in" | translate }}</a>
       </div>
     </form>
   </div>

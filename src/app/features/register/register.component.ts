@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   FormControl,
   FormGroup,
@@ -34,6 +35,7 @@ import { NotificationService } from '../../shared/services/notification.service'
 import { Router } from '@angular/router';
 import { AbstractControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { mapResponseCode } from '../../core/i18n/response-code-map';
 
 @Component({
   selector: 'app-register',
@@ -126,23 +128,27 @@ export class RegisterComponent {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (res: ApiResponse<RegisterResponse>) => {
-          if (res && res.success) {
-            const msg =
-              res.message ??
-              this.translate.instant('messages.registrationSuccess');
-            this.notifications.showSuccess(msg);
-            this.router.navigateByUrl(`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`);
-            return;
-          }
-
-          // Non-success response from API: show error message if provided
-          if (res && !res.success) {
-            const errMsg = res.message ?? this.translate.instant('errors.server.unknown');
-            this.notifications.showError(errMsg);
-          }
-        }
+        next: (res: ApiResponse<RegisterResponse>) =>
+          this.handleRegisterResponse(res),
+        error: (err: HttpErrorResponse) => this.handleRegisterError(err),
       });
+  }
+
+  private handleRegisterResponse(res: ApiResponse<RegisterResponse>): void {
+    const key = mapResponseCode(res?.responseCode);
+    const msg = this.translate.instant(key);
+    if (res?.success) {
+      this.notifications.showSuccess(msg);
+      this.router.navigateByUrl(`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`);
+    } else {
+      this.notifications.showError(msg);
+    }
+  }
+
+  private handleRegisterError(error: HttpErrorResponse): void {
+    const key = mapResponseCode(error?.error?.responseCode);
+    const msg = this.translate.instant(key);
+    this.notifications.showError(msg);
   }
 
   errorMessage(
@@ -161,7 +167,7 @@ export class RegisterComponent {
   private getLabel(labelKey?: string): string {
     return labelKey
       ? this.translate.instant(labelKey)
-      : this.translate.instant('common.labels.field');
+      : this.translate.instant('form.required_field');
   }
 
   private getField(control: AbstractControl | null): FieldKind {

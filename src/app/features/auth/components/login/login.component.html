@@ -8,7 +8,7 @@
   </div>
 
   <div class="login-card">
-    <h2>{{ "features.auth.login.title" | translate }}</h2>
+    <h2>{{ "auth.login_title" | translate }}</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <app-input
@@ -27,7 +27,7 @@
         [showToggle]="true"
         [error]="
           submitted() || password.touched
-            ? errorMessage(password, 'common.labels.password')
+            ? errorMessage(password, 'global.label_password')
             : null
         "
       ></app-password>
@@ -39,7 +39,7 @@
       <app-button
         class="btn-full"
         type="submit"
-        [label]="'common.buttons.login' | translate"
+        [label]="'global.btn_login' | translate"
         [loading]="loading()"
         [disabled]="loading() || form.invalid"
       ></app-button>
@@ -78,9 +78,7 @@
 
       <div class="signin">
         Don't have an account?
-        <a routerLink="/register">{{
-          "common.buttons.register" | translate
-        }}</a>
+        <a routerLink="/register">{{ "global.btn_register" | translate }}</a>
       </div>
     </form>
   </div>
