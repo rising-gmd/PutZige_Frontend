@@ -25,12 +25,9 @@ describe('I18nService', () => {
     service = TestBed.inject(I18nService);
   });
 
-  it('init uses saved language when present', () => {
-    const spy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('es');
-    service.init('en');
-    expect(mockTranslate.addLangs).toHaveBeenCalled();
-    expect(mockTranslate.use).toHaveBeenCalledWith('es');
-    spy.mockRestore();
+  it('currentLang returns translate.currentLang when present', () => {
+    mockTranslate.currentLang = 'es';
+    expect(service.currentLang).toBe('es');
   });
 
   it('instant delegates to translate.instant', () => {

@@ -12,14 +12,15 @@ export class AuthPage {
     // Robust locators with fallbacks for different markup patterns
     // Inputs inside wrapper components (app-input / app-password) or plain inputs
     this.emailInput = page.locator(
-      'app-input[formcontrolname="email"] input, input[type="email"], input[name="email"], input[name="username"], [data-testid="email"]',
+      'app-input[formcontrolname="email"] input, input[type="email"], input[name="email"], input[name="username"], [data-testid="email"], input[placeholder*="email" i], input[aria-label*="email" i], input[formcontrolname="identifier"]',
     );
     this.passwordInput = page.locator(
-      'app-password[formcontrolname="password"] input, app-input[formcontrolname="password"] input, input[type="password"], input[name="password"], [data-testid="password"]',
+      'app-password[formcontrolname="password"] input, app-input[formcontrolname="password"] input, input[type="password"], input[name="password"], [data-testid="password"], input[placeholder*="password" i], input[aria-label*="password" i]',
     );
-    this.submitButton = page.getByRole('button', {
-      name: /sign in|register|submit|create account/i,
-    });
+    // Prefer the real form submit button when present to avoid matching social buttons
+    this.submitButton = page.locator(
+      'form button[type="submit"], form [type="submit"]',
+    );
     this.errorMessage = page.getByTestId('auth-error');
   }
 

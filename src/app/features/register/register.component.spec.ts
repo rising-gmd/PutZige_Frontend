@@ -74,7 +74,13 @@ describe('RegisterComponent', () => {
   it('when valid credentials are submitted, then register is called and success is shown and navigates to login', async () => {
     mockRegister.register = jest
       .fn()
-      .mockReturnValue(of({ success: true, message: 'ok' }));
+      .mockReturnValue(
+        of({
+          success: true,
+          responseCode: 'REGISTRATION_SUCCESS',
+          message: 'ok',
+        }),
+      );
 
     await setup();
 
@@ -93,7 +99,9 @@ describe('RegisterComponent', () => {
     await userEvent.click(registerBtn);
 
     expect(mockRegister.register).toHaveBeenCalled();
-    expect(mockNotifications.showSuccess).toHaveBeenCalledWith('ok');
+    expect(mockNotifications.showSuccess).toHaveBeenCalledWith(
+      'auth.register_success',
+    );
     expect(mockRouter.navigateByUrl).toHaveBeenCalled();
   });
 
@@ -145,13 +153,7 @@ describe('RegisterComponent', () => {
       });
       await userEvent.click(registerBtn);
 
-      expect(
-        (
-          await screen.findAllByText(
-            /errors\.validation\.(email|max[_]?length)/i,
-          )
-        )[0],
-      ).toBeVisible();
+      expect((await screen.findAllByText('form.max_length'))[0]).toBeVisible();
     });
 
     it('when username contains invalid characters, then invalidChars error is shown', async () => {
@@ -230,7 +232,7 @@ describe('RegisterComponent', () => {
 
       // Validator may report either email format or maxlength depending on internal validation order
       const err = await screen.findByText((content: string) =>
-        /errors\.validation\.(email|max[_]?length)/i.test(content),
+        /form\.email_invalid|form\.max_length/.test(content),
       );
       expect(err).toBeVisible();
     });
@@ -325,7 +327,13 @@ describe('RegisterComponent', () => {
     it('when API returns failure with message, then shows error notification', async () => {
       mockRegister.register = jest
         .fn()
-        .mockReturnValue(of({ success: false, message: 'duplicate username' }));
+        .mockReturnValue(
+          of({
+            success: false,
+            responseCode: 'USERNAME_TAKEN',
+            message: 'duplicate username',
+          }),
+        );
 
       await setup();
 
@@ -344,7 +352,7 @@ describe('RegisterComponent', () => {
       await userEvent.click(registerBtn);
 
       expect(mockNotifications.showError).toHaveBeenCalledWith(
-        'duplicate username',
+        'auth.register_username_taken',
       );
     });
 

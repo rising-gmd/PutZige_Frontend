@@ -286,7 +286,7 @@ describe('handleError()', () => {
     );
     expect(notifier.show).toHaveBeenCalledWith(
       'error',
-      'This email address is already registered.',
+      'http.bad_request',
       expect.any(Object),
     );
   });

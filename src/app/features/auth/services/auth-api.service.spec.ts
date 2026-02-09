@@ -1,27 +1,37 @@
+import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { AuthApiService } from './auth-api.service';
+import { HttpClient } from '@angular/common/http';
 
 describe('AuthApiService', () => {
   let svc: AuthApiService;
+  const mockHttp = { post: jest.fn() } as unknown as HttpClient;
 
   beforeEach(() => {
-    svc = new AuthApiService();
+    (mockHttp.post as jest.Mock).mockReturnValue(of({ success: true }));
+    TestBed.configureTestingModule({
+      providers: [{ provide: HttpClient, useValue: mockHttp }, AuthApiService],
+    });
+    svc = TestBed.inject(AuthApiService);
   });
 
-  it('login resolves success true', async () => {
-    const res = await svc.login('u', 'p');
-    expect(res).toEqual({ success: true });
+  it('verifyEmail calls http.post and returns success true', (done) => {
+    svc.verifyEmail('tok').subscribe((res) => {
+      expect(res).toEqual({ success: true });
+      expect(mockHttp.post).toHaveBeenCalled();
+      done();
+    });
   });
 
-  it('register resolves success true', async () => {
-    const res = await svc.register('u', 'p');
-    expect(res).toEqual({ success: true });
-  });
-
-  it('forgotPassword resolves success true', async () => {
-    const res = await svc.forgotPassword('a@b.com');
-    expect(res).toEqual({ success: true });
+  it('resendVerification calls http.post and returns success true', (done) => {
+    svc.resendVerification('tok').subscribe((res) => {
+      expect(res).toEqual({ success: true });
+      expect(mockHttp.post).toHaveBeenCalled();
+      done();
+    });
   });
 });
+
 import * as s from './auth-api.service';
 
 describe('auth-api.service', () => {
