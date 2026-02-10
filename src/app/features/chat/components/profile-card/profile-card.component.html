@@ -1,0 +1,26 @@
+@if (currentUser(); as user) {
+  <div class="profile-card">
+    <div class="profile-info">
+      @if (user.profilePictureUrl) {
+        <img
+          [src]="user.profilePictureUrl"
+          [alt]="user.displayName"
+          class="avatar"
+        />
+      } @else {
+        <div class="avatar-fallback">{{ avatarText }}</div>
+      }
+
+      <div class="user-details">
+        <h4>{{ user.displayName }}</h4>
+        @if (user.jobTitle) {
+          <p>{{ user.jobTitle }}</p>
+        }
+      </div>
+    </div>
+
+    <button class="settings-btn" (click)="openSettings()" aria-label="Settings">
+      <i class="pi pi-cog"></i>
+    </button>
+  </div>
+}

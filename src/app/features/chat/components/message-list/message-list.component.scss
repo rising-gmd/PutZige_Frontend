@@ -1,1 +1,37 @@
-/* message list styles */
+.message-list-viewport {
+  height: 100%;
+  width: 100%;
+}
+
+.message-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+
+  span {
+    padding: 4px 12px;
+    background: var(--p-surface-100);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--p-text-secondary-color);
+    font-weight: 500;
+  }
+}
+
+.message-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &.own-group {
+    align-items: flex-end;
+  }
+}

@@ -1,0 +1,20 @@
+<div
+  class="message-bubble"
+  [class.own-message]="isOwnMessage"
+  [class.other-message]="!isOwnMessage"
+  [class.optimistic]="message.isOptimistic"
+>
+  <div class="message-content">
+    <p class="message-text">{{ message.messageText }}</p>
+
+    @if (showTimestamp) {
+      <div class="message-footer">
+        <span class="timestamp">{{ formattedTime }}</span>
+        <i
+          class="pi {{ statusIcon }} status-icon {{ statusClass }}"
+          aria-hidden="true"
+        ></i>
+      </div>
+    }
+  </div>
+</div>

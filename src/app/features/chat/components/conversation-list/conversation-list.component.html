@@ -1,0 +1,65 @@
+<div class="conversation-list">
+  <div class="list-header"><h2>Messages</h2></div>
+
+  <div class="search-container">
+    <span class="p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        placeholder="Search conversations or users..."
+        [value]="searchQuery()"
+        (input)="onSearch($any($event.target).value)"
+        class="search-input"
+      />
+    </span>
+  </div>
+
+  @if (searchQuery() && searchResults().length > 0) {
+    <div class="search-results">
+      <p class="section-title">Search Results</p>
+      @for (user of searchResults(); track user.id) {
+        <div
+          class="search-result-item"
+          role="button"
+          tabindex="0"
+          (click)="onSelectUser(user)"
+          (keydown.enter)="onSelectUser(user)"
+        >
+          <div class="avatar-fallback">
+            {{ user.displayName.substring(0, 2).toUpperCase() }}
+          </div>
+          <div class="user-details">
+            <h4>{{ user.displayName }}</h4>
+            <p>{{ user.jobTitle || user.email }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="conversations-container">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>Loading conversations...</p>
+        </div>
+      } @else if (!isLoading() && conversations().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-inbox"></i>
+          <p>No conversations yet</p>
+          <span>Search for users to start chatting</span>
+        </div>
+      } @else {
+        @if (conversations().length > 0) {
+          @for (conversation of conversations(); track conversation.id) {
+            <app-conversation-item
+              [conversation]="conversation"
+              [isActive]="conversation.id === activeConversationId()"
+              (selected)="onSelectConversation($event)"
+            ></app-conversation-item>
+          }
+        }
+      }
+    </div>
+  }
+</div>

@@ -1,7 +1,11 @@
 export function decodeJwt(token: string): unknown {
-  // Dummy decode for placeholder
+  if (!token || typeof token !== 'string') {
+    return null;
+  }
+
   try {
     const payload = token.split('.')[1];
+    if (!payload) return null;
     return JSON.parse(atob(payload));
   } catch {
     return null;

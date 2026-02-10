@@ -1,1 +1,29 @@
-/* chat container styles */
+.chat-container {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: 100vh;
+  background: var(--p-surface-0);
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-right: 1px solid var(--p-surface-200);
+}
+
+.main-area {
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+}

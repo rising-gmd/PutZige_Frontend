@@ -17,7 +17,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
+    REFRESH: '/auth/refresh-token',
     REGISTER: '/auth/register',
     VERIFY: '/auth/verify',
     VERIFY_EMAIL: '/auth/verify-email',
@@ -36,6 +36,14 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string | number) => `/products/${id}`,
     SEARCH: '/products/search',
     CATEGORIES: '/products/categories',
+  },
+  CHAT: {
+    CONVERSATIONS: '/conversations',
+    CONVERSATION_MESSAGES: (id: string | number) =>
+      `/conversations/${id}/messages`,
+    MESSAGES: '/messages',
+    USERS_SEARCH: '/users/search',
+    ME: '/users/me',
   },
 } as const;
 

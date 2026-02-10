@@ -1,0 +1,20 @@
+.message-input-container {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  align-items: flex-end;
+  border-top: 1px solid var(--app-border);
+  background: var(--p-surface-50);
+}
+.message-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  resize: none;
+  max-height: 120px;
+  font-size: 0.95rem;
+}
+.send-button {
+  --p-button-padding: 10px 14px;
+}

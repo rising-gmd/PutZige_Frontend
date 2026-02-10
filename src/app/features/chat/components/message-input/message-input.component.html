@@ -1,0 +1,19 @@
+<div class="message-input-container">
+  <textarea
+    class="message-input"
+    [value]="messageText()"
+    (input)="onInput($any($event.target).value)"
+    (keydown)="onKeyDown($event)"
+    placeholder="Type your message..."
+    rows="1"
+    [disabled]="isSending()"
+  ></textarea>
+
+  <p-button
+    icon="pi pi-send"
+    [disabled]="!messageText().trim() || isSending()"
+    [loading]="isSending()"
+    (onClick)="onSend()"
+    styleClass="send-button"
+  ></p-button>
+</div>

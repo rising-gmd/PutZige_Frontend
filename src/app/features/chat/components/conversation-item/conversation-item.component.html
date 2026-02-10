@@ -1,0 +1,43 @@
+<div
+  class="conversation-item"
+  [class.active]="isActive"
+  (click)="onSelect()"
+  role="button"
+  tabindex="0"
+  (keydown.enter)="onSelect()"
+>
+  <div class="avatar-container">
+    @if (conversation.otherUser.profilePictureUrl) {
+      <img
+        [src]="conversation.otherUser.profilePictureUrl"
+        [alt]="conversation.otherUser.displayName"
+        class="avatar-img"
+      />
+    } @else {
+      <div class="avatar-fallback">{{ avatarText }}</div>
+    }
+
+    @if (conversation.otherUser.isOnline) {
+      <div class="status-dot online" aria-hidden="true"></div>
+    }
+  </div>
+
+  <div class="conversation-details">
+    <div class="header-row">
+      <h4 class="user-name">{{ conversation.otherUser.displayName }}</h4>
+      <span class="timestamp">{{ relativeTime }}</span>
+    </div>
+
+    <div class="preview-row">
+      @if (!conversation.isTyping) {
+        <p class="message-preview">{{ lastMessagePreview }}</p>
+      } @else {
+        <span class="typing-indicator">typing...</span>
+      }
+
+      @if (conversation.unreadCount > 0) {
+        <div class="unread-badge">{{ conversation.unreadCount }}</div>
+      }
+    </div>
+  </div>
+</div>

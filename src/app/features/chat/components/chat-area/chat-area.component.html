@@ -1,0 +1,56 @@
+<div class="chat-area">
+  @if (activeConversation(); as conversation) {
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="user-info">
+        <h3>{{ conversation.otherUser.displayName }}</h3>
+        @if (conversation.otherUser.isOnline) {
+          <span class="status online">Active now</span>
+        } @else {
+          <span class="status offline">Offline</span>
+        }
+      </div>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="messages-container">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>Loading messages...</p>
+        </div>
+      } @else if (activeMessages().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-comments"></i>
+          <h4>Start the conversation</h4>
+          <p>Send a message to {{ conversation.otherUser.displayName }}</p>
+        </div>
+      } @else {
+        <app-message-list
+          [messages]="activeMessages()"
+          [currentUserId]="currentUser()?.id ?? ''"
+        ></app-message-list>
+      }
+    </div>
+
+    <!-- Typing Indicator -->
+    @if (conversation.isTyping) {
+      <app-typing-indicator
+        [name]="conversation.otherUser.displayName"
+      ></app-typing-indicator>
+    }
+
+    <!-- Input Area -->
+    <app-message-input
+      (messageSent)="onSendMessage($event)"
+      (typingStarted)="onTypingStarted()"
+      (typingStopped)="onTypingStopped()"
+    ></app-message-input>
+  } @else {
+    <div class="no-conversation-state">
+      <i class="pi pi-comments"></i>
+      <h3>Welcome to PutZige Chat</h3>
+      <p>Select a conversation to start messaging</p>
+    </div>
+  }
+</div>

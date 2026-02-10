@@ -27,12 +27,18 @@ import { environment } from '../environments/environment';
 import { API_CONFIG } from './core/config/api.config';
 import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { MessageService } from 'primeng/api';
+import { AuthService } from './core/services/auth/auth.service';
 
 export function initializeApp(
   translate: TranslateService,
+  authService: AuthService,
 ): () => Promise<void> {
-  return () => {
+  return async () => {
+    // Initialize auth state from stored tokens
+    await authService.initializeAuthState();
+
     const savedLang = localStorage.getItem('preferredLanguage') || 'en';
 
     translate.setFallbackLang('en');
@@ -58,7 +64,11 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([apiBaseUrlInterceptor, errorInterceptor]),
+      withInterceptors([
+        apiBaseUrlInterceptor,
+        authInterceptor,
+        errorInterceptor,
+      ]),
     ),
     providePrimeNG({
       theme: {
@@ -83,11 +93,11 @@ export const appConfig: ApplicationConfig = {
         },
       }),
     ),
-    // APP_INITIALIZER - Preload translations before app starts
+    // APP_INITIALIZER - Preload translations and restore auth state before app starts
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      deps: [TranslateService],
+      deps: [TranslateService, AuthService],
       multi: true,
     },
     {

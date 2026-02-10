@@ -1,0 +1,66 @@
+.message-bubble {
+  display: flex;
+  margin-bottom: 6px;
+  animation: slideUp 0.15s ease-out;
+}
+
+.message-bubble.own-message {
+  justify-content: flex-end;
+}
+
+.message-bubble.other-message {
+  justify-content: flex-start;
+}
+
+.message-content {
+  max-width: 68%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--p-surface-100);
+  color: var(--p-text-primary);
+  word-break: break-word;
+}
+
+.message-bubble.own-message .message-content {
+  background: linear-gradient(
+    135deg,
+    var(--p-primary-500),
+    var(--p-primary-600)
+  );
+  color: #fff;
+  border-radius: 12px 12px 4px 12px;
+}
+
+.message-bubble.other-message .message-content {
+  border-radius: 12px 12px 12px 4px;
+}
+
+.message-footer {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+  opacity: 0.85;
+  font-size: 0.75rem;
+}
+
+.status-icon.read {
+  color: var(--p-primary-300);
+}
+.status-icon.delivered {
+  opacity: 0.85;
+}
+.status-icon.sent {
+  opacity: 0.65;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
