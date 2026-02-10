@@ -17,7 +17,12 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh-token',
+    // Legacy refresh endpoint (if present)
+    REFRESH_TOKEN: '/auth/refresh-token',
+    // Standardized refresh endpoint used by frontend refresh flow
+    REFRESH: '/auth/refresh',
+    // Endpoint to verify current session via cookie
+    ME: '/auth/me',
     REGISTER: '/auth/register',
     VERIFY: '/auth/verify',
     VERIFY_EMAIL: '/auth/verify-email',
@@ -44,6 +49,10 @@ export const API_ENDPOINTS = {
     MESSAGES: '/messages',
     USERS_SEARCH: '/users/search',
     ME: '/users/me',
+  },
+  SIGNALR: {
+    NEGOTIATE: '/signalr/negotiate',
+    HUB: '/hub/chat',
   },
 } as const;
 

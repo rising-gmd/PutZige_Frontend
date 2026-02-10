@@ -5,7 +5,12 @@ import {
   distinctUntilChanged,
   takeUntil,
   firstValueFrom,
+  switchMap,
+  of,
+  catchError,
 } from 'rxjs';
+import { UI_CONSTANTS } from '../../../core/constants/ui.constants';
+const { SEARCH_DEBOUNCE_MS, CONVERSATION_PAGE_SIZE } = UI_CONSTANTS;
 import { ChatApiService } from './chat-api.service';
 import { SignalRService } from './signalr.service';
 import {
@@ -77,15 +82,14 @@ export class ChatStateService implements OnDestroy {
   // ==================== PUBLIC METHODS ====================
   /**
    * Initialize chat state and start SignalR connection.
-   * @param getAccessToken - async factory that returns fresh access token when needed
    */
-  async initialize(getAccessToken: () => Promise<string>): Promise<void> {
+  async initialize(): Promise<void> {
     this.error.set(null);
     try {
       const user = await firstValueFrom(this.api.getCurrentUser());
       this.currentUser.set(user);
       await this.loadConversations();
-      await this.signalR.startConnection(getAccessToken);
+      await this.signalR.startConnection();
     } catch (err: unknown) {
       const msg = extractErrorMessage(err);
       this.error.set(msg);
@@ -120,29 +124,40 @@ export class ChatStateService implements OnDestroy {
   async loadMessages(conversationId: string, pageNumber = 1): Promise<void> {
     this.isLoadingMessages.set(true);
     this.error.set(null);
-    this.api.getConversationHistory(conversationId, pageNumber, 50).subscribe({
-      next: (response: ConversationHistoryResponse) => {
-        const mapped = (response.messages ?? []).map(
-          (m: MessageDto) =>
-            ({
-              id: m.id,
-              senderId: m.senderId,
-              receiverId: m.receiverId,
-              messageText: m.messageText,
-              sentAt: new Date(m.sentAt),
-              deliveredAt: m.deliveredAt ? new Date(m.deliveredAt) : undefined,
-              readAt: m.readAt ? new Date(m.readAt) : undefined,
-            }) as Message,
-        );
+    this.api
+      .getConversationHistory(
+        conversationId,
+        pageNumber,
+        CONVERSATION_PAGE_SIZE,
+      )
+      .subscribe({
+        next: (response: ConversationHistoryResponse) => {
+          const mapped = (response.messages ?? []).map(
+            (m: MessageDto) =>
+              ({
+                id: m.id,
+                senderId: m.senderId,
+                receiverId: m.receiverId,
+                messageText: m.messageText,
+                sentAt: new Date(m.sentAt),
+                deliveredAt: m.deliveredAt
+                  ? new Date(m.deliveredAt)
+                  : undefined,
+                readAt: m.readAt ? new Date(m.readAt) : undefined,
+              }) as Message,
+          );
 
-        this.messages.update((msgs) => ({ ...msgs, [conversationId]: mapped }));
-        this.isLoadingMessages.set(false);
-      },
-      error: (err: unknown) => {
-        this.isLoadingMessages.set(false);
-        this.error.set(extractErrorMessage(err));
-      },
-    });
+          this.messages.update((msgs) => ({
+            ...msgs,
+            [conversationId]: mapped,
+          }));
+          this.isLoadingMessages.set(false);
+        },
+        error: (err: unknown) => {
+          this.isLoadingMessages.set(false);
+          this.error.set(extractErrorMessage(err));
+        },
+      });
   }
 
   async sendMessage(receiverId: string, messageText: string): Promise<void> {
@@ -287,20 +302,16 @@ export class ChatStateService implements OnDestroy {
 
   private setupSearchDebounce(): void {
     this.searchQuery$
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe((q) => {
-        if (!q || q.trim().length === 0) {
-          this.searchResults.set([]);
-          return;
-        }
-
-        this.api
-          .searchUsers(q)
-          .subscribe({
-            next: (users: User[]) => this.searchResults.set(users),
-            error: () => this.searchResults.set([]),
-          });
-      });
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+        switchMap((q) => {
+          if (!q || q.trim().length === 0) return of([] as User[]);
+          return this.api.searchUsers(q).pipe(catchError(() => of([])));
+        }),
+      )
+      .subscribe((users: User[]) => this.searchResults.set(users));
   }
 
   private addMessageToConversation(

@@ -4,7 +4,7 @@
       @if (user.profilePictureUrl) {
         <img
           [src]="user.profilePictureUrl"
-          [alt]="user.displayName"
+          [alt]="user.displayName || user.username"
           class="avatar"
         />
       } @else {
@@ -12,15 +12,24 @@
       }
 
       <div class="user-details">
-        <h4>{{ user.displayName }}</h4>
+        <h4>{{ user.displayName || user.username || user.email }}</h4>
         @if (user.jobTitle) {
           <p>{{ user.jobTitle }}</p>
         }
       </div>
     </div>
 
-    <button class="settings-btn" (click)="openSettings()" aria-label="Settings">
-      <i class="pi pi-cog"></i>
-    </button>
+    <div class="profile-actions">
+      <button
+        class="settings-btn"
+        (click)="openSettings()"
+        aria-label="Settings"
+      >
+        <i class="pi pi-cog"></i>
+      </button>
+      <button class="logout-btn" (click)="logout()" aria-label="Logout">
+        Logout
+      </button>
+    </div>
   </div>
 }

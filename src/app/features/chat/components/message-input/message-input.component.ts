@@ -8,11 +8,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { UI_CONSTANTS } from '../../../../core/constants/ui.constants';
 
 /** Delay before emitting typing stopped event (milliseconds) */
-const TYPING_DEBOUNCE_MS = 2000;
+const TYPING_DEBOUNCE_MS = UI_CONSTANTS.TYPING_DEBOUNCE_MS;
 /** Delay before resetting sending state (milliseconds) */
-const SEND_RESET_DELAY_MS = 400;
+const SEND_RESET_DELAY_MS = UI_CONSTANTS.SEND_RESET_DELAY_MS;
 
 @Component({
   selector: 'app-message-input',

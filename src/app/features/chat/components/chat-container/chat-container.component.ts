@@ -29,8 +29,6 @@ export class ChatContainerComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   async ngOnInit(): Promise<void> {
-    const tokenFactory = async () =>
-      Promise.resolve(this.authService.getAccessToken() ?? '');
-    await this.chatState.initialize(tokenFactory);
+    await this.chatState.initialize();
   }
 }

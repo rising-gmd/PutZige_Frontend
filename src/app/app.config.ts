@@ -36,8 +36,8 @@ export function initializeApp(
   authService: AuthService,
 ): () => Promise<void> {
   return async () => {
-    // Initialize auth state from stored tokens
-    await authService.initializeAuthState();
+    // Initialize auth state by asking the backend (/auth/me)
+    await firstValueFrom(authService.checkAuthStatus());
 
     const savedLang = localStorage.getItem('preferredLanguage') || 'en';
 

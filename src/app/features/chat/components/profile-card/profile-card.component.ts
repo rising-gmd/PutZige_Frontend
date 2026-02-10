@@ -1,6 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatStateService } from '../../services/chat-state.service';
+import { AuthService } from '../../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-profile-card',
@@ -13,13 +14,22 @@ import { ChatStateService } from '../../services/chat-state.service';
 export class ProfileCardComponent {
   private readonly chatState = inject(ChatStateService);
   readonly currentUser = this.chatState.currentUser;
+  private readonly auth = inject(AuthService);
+
+  logout(): void {
+    this.auth.logout();
+  }
 
   get avatarText(): string {
     const user = this.currentUser();
     if (!user) return '';
-    return user.displayName
-      .split(' ')
-      .map((n) => n[0])
+    const name = (user.displayName ?? user.username ?? user.email ?? '')
+      .toString()
+      .trim();
+    if (!name) return '';
+    return name
+      .split(/\s+/)
+      .map((n) => n.charAt(0))
       .join('')
       .slice(0, 2)
       .toUpperCase();

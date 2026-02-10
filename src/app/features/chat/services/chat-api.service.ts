@@ -3,6 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, retry, shareReplay } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../core/config/api.config';
+import { UI_CONSTANTS } from '../../../core/constants/ui.constants';
+
+const { CONVERSATION_PAGE_SIZE } = UI_CONSTANTS;
 import {
   Conversation,
   User,
@@ -49,7 +52,7 @@ export class ChatApiService {
   getConversationHistory(
     conversationId: string,
     pageNumber = 1,
-    pageSize = 50,
+    pageSize = CONVERSATION_PAGE_SIZE,
   ): Observable<ConversationHistoryResponse> {
     const params = new HttpParams()
       .set('pageNumber', String(pageNumber))

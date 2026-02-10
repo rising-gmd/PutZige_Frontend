@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ROUTE_PATHS } from '../../core/constants/route.constants';
+import { UI_CONSTANTS } from '../../core/constants/ui.constants';
 import type { ApiResponse } from '../../core/models/api.model';
 import { AuthApiService } from '../../features/auth/services/auth-api.service';
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
@@ -46,7 +47,7 @@ export class VerifyEmailComponent {
   state = signal<VerificationState>(VerificationState.VERIFYING);
   message = signal<string>('');
 
-  private readonly redirectDelayMs = 3000;
+  private readonly redirectDelayMs = UI_CONSTANTS.VERIFY_REDIRECT_DELAY_MS;
   private token = '';
 
   constructor() {

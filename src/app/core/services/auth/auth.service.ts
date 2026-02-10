@@ -1,28 +1,26 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, throwError, timer, EMPTY } from 'rxjs';
-import { catchError, switchMap, tap, shareReplay } from 'rxjs/operators';
-import { TokenStorageService } from '../token-storage.service';
-import { STORAGE_KEYS } from '../../constants/storage-keys.constants';
+import { Observable, BehaviorSubject, Subject, of } from 'rxjs';
+import { catchError, first, tap, map } from 'rxjs/operators';
 import { authState } from './auth.state';
 import { AuthApiService } from '../../../features/auth/services/auth-api.service';
-import type {
-  LoginRequest,
-  LoginResponse,
-  RefreshTokenResponse,
-  AuthUser,
-  TokenPayload,
-} from '../../models/auth.model';
+import type { LoginRequest, AuthUser } from '../../models/auth.model';
 
-const TOKEN_REFRESH_BUFFER_MS = 60_000; // refresh 1min before expiry
-
+/**
+ * Cookie-based AuthService.
+ * - No tokens are stored on the client
+ * - Uses HttpOnly cookies set by the backend
+ * - Provides `checkAuthStatus()` to query `/auth/me`
+ * - Provides a single-flight `refreshAccessToken()` used by the interceptor
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly tokenStorage = inject(TokenStorageService);
   private readonly router = inject(Router);
   private readonly api = inject(AuthApiService);
 
-  private readonly refreshInProgress$ = new BehaviorSubject<boolean>(false);
+  // Single-flight refresh control
+  private refreshInProgress = false;
+  private refreshResult$?: Subject<boolean>;
 
   // Public observables
   readonly user$ = new BehaviorSubject<AuthUser | null>(authState.getUser());
@@ -30,193 +28,119 @@ export class AuthService {
     authState.isLoggedIn(),
   );
 
-  /** Initialize auth state on app startup (call from APP_INITIALIZER) */
-  initializeAuthState(): void {
-    const token = this.getAccessToken();
-    if (!token) {
-      this.clearAuthState();
-      return;
-    }
-
-    try {
-      const payload = this.decodeToken(token);
-      if (this.isTokenExpired(payload)) {
-        void this.attemptTokenRefresh();
-        return;
-      }
-
-      this.restoreUserFromToken(payload);
-      this.scheduleTokenRefresh(payload.exp);
-    } catch {
-      this.clearAuthState();
-    }
-  }
-
-  /** Login user with credentials */
-  login(credentials: LoginRequest): Observable<LoginResponse> {
+  /** Check server auth status by calling `/auth/me`. Returns user or null. */
+  checkAuthStatus(): Observable<AuthUser | null> {
     authState.isLoading.set(true);
     authState.error.set(null);
 
-    return this.api.login(credentials).pipe(
-      tap((response) => {
-        this.handleLoginSuccess(response);
-      }),
-      catchError((err: unknown) => {
-        const message = this.extractErrorMessage(err);
-        authState.error.set(message);
+    return this.api.me().pipe(
+      tap((user) => {
+        authState.user.set(user);
+        this.user$.next(user);
+        this.isAuthenticated$.next(true);
         authState.isLoading.set(false);
-        return throwError(() => new Error(message));
-      }),
-      shareReplay({ bufferSize: 1, refCount: true }),
-    );
-  }
-
-  /** Logout user and clear all auth state */
-  logout(): void {
-    this.clearAuthState();
-    void this.router.navigate(['/auth/login']);
-  }
-
-  /** Get current access token from storage */
-  getAccessToken(): string | null {
-    return this.tokenStorage.getToken(STORAGE_KEYS.AUTH_TOKEN);
-  }
-
-  /** Get refresh token from storage */
-  getRefreshToken(): string | null {
-    return this.tokenStorage.getToken(STORAGE_KEYS.REFRESH_TOKEN);
-  }
-
-  /** Refresh access token using refresh token */
-  refreshAccessToken(): Observable<RefreshTokenResponse> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.logout();
-      return EMPTY;
-    }
-
-    if (this.refreshInProgress$.value) {
-      return EMPTY;
-    }
-
-    this.refreshInProgress$.next(true);
-
-    return this.api.refreshToken({ refreshToken }).pipe(
-      tap((response) => {
-        this.handleTokenRefreshSuccess(response);
-        this.refreshInProgress$.next(false);
       }),
       catchError(() => {
-        this.refreshInProgress$.next(false);
-        this.logout();
-        return EMPTY;
+        authState.user.set(null);
+        this.user$.next(null);
+        this.isAuthenticated$.next(false);
+        authState.isLoading.set(false);
+        return of(null);
       }),
     );
   }
 
-  /** Check if user is authenticated */
+  /** Login — backend will set HttpOnly cookies; server returns user DTO. */
+  login(credentials: LoginRequest): Observable<AuthUser> {
+    authState.isLoading.set(true);
+    authState.error.set(null);
+    return this.api.login(credentials).pipe(
+      map((resp) => {
+        const user: AuthUser = {
+          id: resp.userId,
+          email: resp.email,
+          displayName: resp.displayName ?? resp.username,
+          username: resp.username,
+        };
+        return user;
+      }),
+      tap((user) => {
+        authState.user.set(user);
+        this.user$.next(user);
+        this.isAuthenticated$.next(true);
+        authState.isLoading.set(false);
+      }),
+      catchError((err: unknown) => {
+        const msg = this.extractErrorMessage(err);
+        authState.error.set(msg);
+        authState.isLoading.set(false);
+        throw err;
+      }),
+    );
+  }
+
+  /** Logout — call server to clear cookies and clear local state */
+  logout(): void {
+    // best-effort remote logout (fire-and-forget)
+    this.api
+      .logout()
+      .pipe(catchError(() => of(undefined)))
+      .subscribe({
+        complete: () => {
+          this.clearAuthState();
+          void this.router.navigate(['/auth/login']);
+        },
+      });
+  }
+
+  /**
+   * Silent refresh using server-side rotation. Returns Observable<boolean>
+   * indicating success. Ensures only one refresh is in-flight and other
+   * callers wait for the same result.
+   */
+  refreshAccessToken(): Observable<boolean> {
+    if (this.refreshInProgress && this.refreshResult$) {
+      return this.refreshResult$.asObservable();
+    }
+
+    this.refreshInProgress = true;
+    this.refreshResult$ = new Subject<boolean>();
+
+    this.api
+      .refresh()
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          this.refreshInProgress = false;
+          this.refreshResult$?.next(true);
+          this.refreshResult$?.complete();
+        },
+        error: () => {
+          this.refreshInProgress = false;
+          this.refreshResult$?.next(false);
+          this.refreshResult$?.complete();
+          this.clearAuthState();
+        },
+      });
+
+    return this.refreshResult$.asObservable();
+  }
+
+  /** Simple accessor */
   isAuthenticated(): boolean {
-    return authState.isLoggedIn();
+    return this.isAuthenticated$.value;
   }
 
-  /** Get current user */
   getCurrentUser(): AuthUser | null {
-    return authState.getUser();
-  }
-
-  // ==================== PRIVATE HELPERS ====================
-
-  private handleLoginSuccess(response: LoginResponse): void {
-    this.tokenStorage.setToken(STORAGE_KEYS.AUTH_TOKEN, response.accessToken);
-    this.tokenStorage.setToken(
-      STORAGE_KEYS.REFRESH_TOKEN,
-      response.refreshToken,
-    );
-
-    const payload = this.decodeToken(response.accessToken);
-    const user: AuthUser = {
-      id: response.userId,
-      email: response.email,
-      displayName: response.displayName ?? response.username,
-    };
-
-    authState.user.set(user);
-    authState.isLoading.set(false);
-    this.user$.next(user);
-    this.isAuthenticated$.next(true);
-
-    this.scheduleTokenRefresh(payload.exp);
-  }
-
-  private handleTokenRefreshSuccess(response: RefreshTokenResponse): void {
-    this.tokenStorage.setToken(STORAGE_KEYS.AUTH_TOKEN, response.accessToken);
-    this.tokenStorage.setToken(
-      STORAGE_KEYS.REFRESH_TOKEN,
-      response.refreshToken,
-    );
-
-    const payload = this.decodeToken(response.accessToken);
-    this.scheduleTokenRefresh(payload.exp);
-  }
-
-  private restoreUserFromToken(payload: TokenPayload): void {
-    const user: AuthUser = {
-      id: payload.sub,
-      email: payload.email,
-      displayName: payload.email.split('@')[0] ?? 'User',
-    };
-
-    authState.user.set(user);
-    this.user$.next(user);
-    this.isAuthenticated$.next(true);
+    return this.user$.value;
   }
 
   private clearAuthState(): void {
-    this.tokenStorage.removeToken(STORAGE_KEYS.AUTH_TOKEN);
-    this.tokenStorage.removeToken(STORAGE_KEYS.REFRESH_TOKEN);
     authState.user.set(null);
     authState.error.set(null);
     authState.isLoading.set(false);
     this.user$.next(null);
     this.isAuthenticated$.next(false);
-  }
-
-  private scheduleTokenRefresh(expiresAt: number): void {
-    const now = Date.now();
-    const expiresAtMs = expiresAt * 1000;
-    const refreshAt = expiresAtMs - TOKEN_REFRESH_BUFFER_MS;
-    const delay = Math.max(0, refreshAt - now);
-
-    timer(delay)
-      .pipe(switchMap(() => this.refreshAccessToken()))
-      .subscribe();
-  }
-
-  private async attemptTokenRefresh(): Promise<void> {
-    try {
-      await this.refreshAccessToken().toPromise();
-    } catch {
-      this.clearAuthState();
-    }
-  }
-
-  private decodeToken(token: string): TokenPayload {
-    if (!token || typeof token !== 'string') {
-      throw new Error('Invalid token: token is required and must be a string');
-    }
-
-    const parts = token.split('.');
-    if (parts.length !== 3) throw new Error('Invalid token format');
-
-    const payload = parts[1];
-    if (!payload) throw new Error('Missing token payload');
-
-    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(decoded) as TokenPayload;
-  }
-
-  private isTokenExpired(payload: TokenPayload): boolean {
-    return Date.now() >= payload.exp * 1000;
   }
 
   private extractErrorMessage(err: unknown): string {

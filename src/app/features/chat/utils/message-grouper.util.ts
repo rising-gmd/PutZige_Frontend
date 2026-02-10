@@ -1,7 +1,8 @@
 import { Message, MessageGroup } from '../models/message.model';
+import { UI_CONSTANTS } from '../../../core/constants/ui.constants';
 
 /** Maximum time gap between messages in same group (2 minutes) */
-const MESSAGE_GROUP_THRESHOLD_MS = 2 * 60 * 1000;
+const MESSAGE_GROUP_THRESHOLD_MS = UI_CONSTANTS.MESSAGE_GROUP_THRESHOLD_MS;
 
 /**
  * Group consecutive messages from same sender within 2 minutes

@@ -62,8 +62,9 @@ export class SignalRService {
   readonly onUserTyping = this.userTyping$.asObservable();
   readonly onUserStoppedTyping = this.userStoppedTyping$.asObservable();
 
-  /** Start SignalR connection with a token factory used for refresh on reconnect */
-  async startConnection(tokenFactory: () => Promise<string>): Promise<void> {
+  /** Start SignalR connection with an optional token factory used for refresh on reconnect */
+  async startConnection(tokenFactory?: () => Promise<string>): Promise<void> {
+    // accept optional tokenFactory for callers that don't have one
     this.accessTokenFactory = tokenFactory;
 
     if (this.hubConnection?.state === HubConnectionState.Connected) return;
