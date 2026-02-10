@@ -19,6 +19,7 @@ import { STORAGE_KEYS } from '../constants/storage-keys.constants';
 import { ApiErrorResponse } from '../models/error-response.model';
 import { NotificationService } from '../../shared/services/notification.service';
 import { mapResponseCode } from '../i18n/response-code-map';
+import { API_ENDPOINTS } from '../config/api.config';
 
 export const SUPPRESS_ERROR_HANDLER = new HttpContextToken<boolean>(
   () => false,
@@ -28,8 +29,19 @@ export const SUPPRESS_ERROR_HANDLER = new HttpContextToken<boolean>(
 // Interceptor
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Endpoints whose errors are handled by the caller, not globally. */
+const SILENT_ERROR_ENDPOINTS = [
+  API_ENDPOINTS.AUTH.ME,
+  API_ENDPOINTS.AUTH.VERIFY_EMAIL,
+  API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
+];
+
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.context.get(SUPPRESS_ERROR_HANDLER)) return next(req);
+
+  // Skip global error handling for endpoints that manage their own errors
+  const isSilent = SILENT_ERROR_ENDPOINTS.some((ep) => req.url.includes(ep));
+  if (isSilent) return next(req);
 
   const translate = inject(TranslateService);
   const notifications = inject(NotificationService);

@@ -1,34 +1,49 @@
-import { Injectable, inject, computed, signal, OnDestroy } from '@angular/core';
+import {
+  Injectable,
+  inject,
+  computed,
+  signal,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Subject,
   debounceTime,
   distinctUntilChanged,
-  takeUntil,
   firstValueFrom,
   switchMap,
   of,
   catchError,
+  EMPTY,
 } from 'rxjs';
 import { UI_CONSTANTS } from '../../../core/constants/ui.constants';
-const { SEARCH_DEBOUNCE_MS, CONVERSATION_PAGE_SIZE } = UI_CONSTANTS;
+import { extractErrorMessage } from '../../../core/utils/error.util';
 import { ChatApiService } from './chat-api.service';
 import { SignalRService } from './signalr.service';
-import {
-  Conversation,
-  Message,
-  User,
-  ConversationHistoryResponse,
-  MessageDto,
-} from '../models';
+import { Conversation, Message, User, MessageDto } from '../models';
 import { NotificationService } from '../../../shared/services/notification.service';
 
+/**
+ * Central chat state manager.
+ *
+ * Owns all reactive state (signals) consumed by chat UI components and
+ * orchestrates API calls, SignalR event processing, optimistic updates,
+ * and user search.
+ *
+ * Design decisions:
+ * - Signals over BehaviorSubjects for synchronous, glitch-free reads.
+ * - `DestroyRef` + `takeUntilDestroyed` for automatic subscription cleanup.
+ * - `firstValueFrom` for all async methods so callers can properly `await`.
+ * - Optimistic messaging with reconciliation on server ack.
+ */
 @Injectable({ providedIn: 'root' })
-export class ChatStateService implements OnDestroy {
+export class ChatStateService {
   private readonly api = inject(ChatApiService);
   private readonly signalR = inject(SignalRService);
   private readonly notification = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  // ==================== STATE SIGNALS ====================
+  // ── State signals ───────────────────────────────────────────────────
   readonly currentUser = signal<User | null>(null);
   readonly conversations = signal<Conversation[]>([]);
   readonly activeConversationId = signal<string | null>(null);
@@ -40,13 +55,10 @@ export class ChatStateService implements OnDestroy {
 
   readonly error = signal<string | null>(null);
 
-  // search
   private readonly searchQuery$ = new Subject<string>();
   readonly searchResults = signal<User[]>([]);
-  // lifecycle
-  private readonly destroy$ = new Subject<void>();
 
-  // ==================== COMPUTED ====================
+  // ── Computed (derived, memoized) ────────────────────────────────────
   readonly activeConversation = computed(() => {
     const id = this.activeConversationId();
     return id ? (this.conversations().find((c) => c.id === id) ?? null) : null;
@@ -58,31 +70,24 @@ export class ChatStateService implements OnDestroy {
   });
 
   readonly totalUnreadCount = computed(() =>
-    this.conversations().reduce((s, c) => s + c.unreadCount, 0),
+    this.conversations().reduce((sum, c) => sum + c.unreadCount, 0),
   );
 
-  readonly sortedConversations = computed(() => {
-    return [...this.conversations()].sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
+  readonly sortedConversations = computed(() =>
+    [...this.conversations()].sort((a, b) => {
+      if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
       return b.lastActivity.getTime() - a.lastActivity.getTime();
-    });
-  });
+    }),
+  );
 
   constructor() {
     this.setupSignalRListeners();
     this.setupSearchDebounce();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  // ── Public API ──────────────────────────────────────────────────────
 
-  // ==================== PUBLIC METHODS ====================
-  /**
-   * Initialize chat state and start SignalR connection.
-   */
+  /** Bootstrap chat: load user, conversations, and open the SignalR channel. */
   async initialize(): Promise<void> {
     this.error.set(null);
     try {
@@ -98,21 +103,21 @@ export class ChatStateService implements OnDestroy {
     }
   }
 
+  /** Fetch conversations from API. Properly awaitable unlike subscribe-based patterns. */
   async loadConversations(refresh = false): Promise<void> {
     this.isLoadingConversations.set(true);
     this.error.set(null);
-    this.api.getConversations(refresh).subscribe({
-      next: (convs: Conversation[]) => {
-        this.conversations.set(convs);
-        this.isLoadingConversations.set(false);
-      },
-      error: (err: unknown) => {
-        this.isLoadingConversations.set(false);
-        this.error.set(extractErrorMessage(err));
-      },
-    });
+    try {
+      const convs = await firstValueFrom(this.api.getConversations(refresh));
+      this.conversations.set(convs);
+    } catch (err: unknown) {
+      this.error.set(extractErrorMessage(err));
+    } finally {
+      this.isLoadingConversations.set(false);
+    }
   }
 
+  /** Activate a conversation, loading its messages if not already cached. */
   async setActiveConversation(conversationId: string): Promise<void> {
     this.activeConversationId.set(conversationId);
     if (!this.messages()[conversationId]) {
@@ -121,51 +126,41 @@ export class ChatStateService implements OnDestroy {
     await this.markConversationAsRead(conversationId);
   }
 
+  /** Load paginated message history for a conversation. */
   async loadMessages(conversationId: string, pageNumber = 1): Promise<void> {
     this.isLoadingMessages.set(true);
     this.error.set(null);
-    this.api
-      .getConversationHistory(
-        conversationId,
-        pageNumber,
-        CONVERSATION_PAGE_SIZE,
-      )
-      .subscribe({
-        next: (response: ConversationHistoryResponse) => {
-          const mapped = (response.messages ?? []).map(
-            (m: MessageDto) =>
-              ({
-                id: m.id,
-                senderId: m.senderId,
-                receiverId: m.receiverId,
-                messageText: m.messageText,
-                sentAt: new Date(m.sentAt),
-                deliveredAt: m.deliveredAt
-                  ? new Date(m.deliveredAt)
-                  : undefined,
-                readAt: m.readAt ? new Date(m.readAt) : undefined,
-              }) as Message,
-          );
-
-          this.messages.update((msgs) => ({
-            ...msgs,
-            [conversationId]: mapped,
-          }));
-          this.isLoadingMessages.set(false);
-        },
-        error: (err: unknown) => {
-          this.isLoadingMessages.set(false);
-          this.error.set(extractErrorMessage(err));
-        },
-      });
+    try {
+      const response = await firstValueFrom(
+        this.api.getConversationHistory(
+          conversationId,
+          pageNumber,
+          UI_CONSTANTS.CONVERSATION_PAGE_SIZE,
+        ),
+      );
+      const mapped = (response.messages ?? []).map((m) => mapDtoToMessage(m));
+      this.messages.update((msgs) => ({ ...msgs, [conversationId]: mapped }));
+    } catch (err: unknown) {
+      this.error.set(extractErrorMessage(err));
+    } finally {
+      this.isLoadingMessages.set(false);
+    }
   }
 
+  /**
+   * Send a message with optimistic UI.
+   *
+   * Strategy:
+   * 1. Insert an optimistic message immediately.
+   * 2. Attempt delivery via SignalR (preferred, real-time).
+   * 3. Fall back to REST on SignalR failure.
+   * 4. Reconcile or rollback the optimistic entry.
+   */
   async sendMessage(receiverId: string, messageText: string): Promise<void> {
-    const tempId = `temp-${Date.now()}`;
     const user = this.currentUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Resolve conversation id for the given participant id (receiverId is otherUser.id in callers)
+    const tempId = `temp-${Date.now()}`;
     const conversationId = this.getOrCreateConversationIdForUser(receiverId);
 
     const optimisticMessage: Message = {
@@ -182,30 +177,22 @@ export class ChatStateService implements OnDestroy {
     this.isSendingMessage.set(true);
 
     try {
-      // preferred: SignalR
       await this.signalR.sendMessage(receiverId, messageText);
     } catch {
-      // fallback to REST
+      // SignalR unavailable — fall back to REST
       try {
-        const realDto = await firstValueFrom(
+        const dto = await firstValueFrom(
           this.api.sendMessage({ receiverId, messageText }),
         );
-        // Map DTO to runtime Message model
-        const mapped: Message = {
-          id: realDto.messageId,
-          senderId: realDto.senderId,
-          receiverId: realDto.receiverId,
-          messageText: realDto.messageText,
-          sentAt: new Date(realDto.sentAt),
-          deliveredAt: undefined,
-          readAt: undefined,
-          // keep conversation id as the resolved one when backend doesn't provide it
-          conversationId:
-            (realDto as { conversationId?: string }).conversationId ??
-            conversationId,
+        const realMessage: Message = {
+          id: dto.messageId,
+          senderId: dto.senderId,
+          receiverId: dto.receiverId,
+          messageText: dto.messageText,
+          sentAt: new Date(dto.sentAt),
+          conversationId,
         };
-
-        this.replaceOptimisticMessage(conversationId, tempId, mapped);
+        this.replaceOptimisticMessage(conversationId, tempId, realMessage);
       } catch (apiErr: unknown) {
         this.removeOptimisticMessage(conversationId, tempId);
         const msg = extractErrorMessage(apiErr);
@@ -217,10 +204,12 @@ export class ChatStateService implements OnDestroy {
     }
   }
 
+  /** Emit a search query (debounced internally). */
   searchUsers(query: string): void {
     this.searchQuery$.next(query);
   }
 
+  /** Open or create a conversation with the given user. */
   startConversation(user: User): void {
     const existing = this.conversations().find(
       (c) => c.otherUser.id === user.id,
@@ -230,101 +219,92 @@ export class ChatStateService implements OnDestroy {
       return;
     }
 
-    const conversationId = generateUuid();
-
-    const newConversation: Conversation = {
-      id: conversationId,
-      otherUser: user,
-      lastMessage: undefined,
-      unreadCount: 0,
-      isPinned: false,
-      lastActivity: new Date(),
-      isTyping: false,
-    };
-
+    const newConversation = this.createPlaceholderConversation(user);
     this.conversations.update((convs) => [newConversation, ...convs]);
     void this.setActiveConversation(newConversation.id);
   }
 
-  // ==================== PRIVATE HELPERS ====================
+  // ── SignalR event wiring ────────────────────────────────────────────
+
   private setupSignalRListeners(): void {
     this.signalR.onMessageReceived
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((message) => {
-        // Determine conversation id: prefer server-provided conversationId
-        const convId =
-          message.conversationId ?? this.findConversationIdForMessage(message);
-
-        // Try to reconcile optimistic message if present
-        const existing = this.messages()[convId] ?? [];
-        const optimistic = existing.find(
-          (m) =>
-            m.isOptimistic &&
-            m.messageText === message.messageText &&
-            m.senderId === message.senderId,
-        );
-
-        if (optimistic) {
-          this.replaceOptimisticMessage(convId, optimistic.id, message);
-        } else {
-          this.addMessageToConversation(convId, message);
-        }
-
-        this.updateConversationLastMessage(convId, message);
-      });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((message) => this.handleIncomingMessage(message));
 
     this.signalR.onMessageDelivered
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(({ messageId, deliveredAt }) => {
-        this.updateMessageStatus(messageId, 'delivered', deliveredAt);
-      });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ messageId, deliveredAt }) =>
+        this.updateMessageStatus(messageId, 'delivered', deliveredAt),
+      );
 
     this.signalR.onMessageRead
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(({ messageId, readAt }) => {
-        this.updateMessageStatus(messageId, 'read', readAt);
-      });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ messageId, readAt }) =>
+        this.updateMessageStatus(messageId, 'read', readAt),
+      );
 
     this.signalR.onUserOnline
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((status) => this.updateUserStatus(status.userId, true));
+
     this.signalR.onUserOffline
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((status) => this.updateUserStatus(status.userId, false));
 
     this.signalR.onUserTyping
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ userId }) => this.setTypingIndicator(userId, true));
+
     this.signalR.onUserStoppedTyping
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ userId }) => this.setTypingIndicator(userId, false));
   }
 
   private setupSearchDebounce(): void {
     this.searchQuery$
       .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
+        debounceTime(UI_CONSTANTS.SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
-        takeUntil(this.destroy$),
-        switchMap((q) => {
-          if (!q || q.trim().length === 0) return of([] as User[]);
-          return this.api.searchUsers(q).pipe(catchError(() => of([])));
-        }),
+        switchMap((q) =>
+          q.trim().length === 0
+            ? of([])
+            : this.api.searchUsers(q).pipe(catchError(() => EMPTY)),
+        ),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((users: User[]) => this.searchResults.set(users));
+      .subscribe((users) => this.searchResults.set(users));
+  }
+
+  // ── Message signal helpers ──────────────────────────────────────────
+
+  private handleIncomingMessage(message: Message): void {
+    const convId =
+      message.conversationId ?? this.findConversationIdForMessage(message);
+
+    const existing = this.messages()[convId] ?? [];
+    const optimistic = existing.find(
+      (m) =>
+        m.isOptimistic &&
+        m.messageText === message.messageText &&
+        m.senderId === message.senderId,
+    );
+
+    if (optimistic) {
+      this.replaceOptimisticMessage(convId, optimistic.id, message);
+    } else {
+      this.addMessageToConversation(convId, message);
+    }
+    this.updateConversationLastMessage(convId, message);
   }
 
   private addMessageToConversation(
     conversationId: string,
     message: Message,
   ): void {
-    this.messages.update((msgs) => {
-      const copy = { ...msgs };
-      const list = copy[conversationId] ? [...copy[conversationId]] : [];
-      list.push(message);
-      copy[conversationId] = list;
-      return copy;
-    });
+    this.messages.update((msgs) => ({
+      ...msgs,
+      [conversationId]: [...(msgs[conversationId] ?? []), message],
+    }));
   }
 
   private replaceOptimisticMessage(
@@ -332,27 +312,24 @@ export class ChatStateService implements OnDestroy {
     tempId: string,
     realMessage: Message,
   ): void {
-    this.messages.update((msgs) => {
-      const copy = { ...msgs };
-      const list = (copy[conversationId] ?? []).map((m) =>
+    this.messages.update((msgs) => ({
+      ...msgs,
+      [conversationId]: (msgs[conversationId] ?? []).map((m) =>
         m.id === tempId ? realMessage : m,
-      );
-      copy[conversationId] = list;
-      return copy;
-    });
+      ),
+    }));
   }
 
   private removeOptimisticMessage(
     conversationId: string,
     tempId: string,
   ): void {
-    this.messages.update((msgs) => {
-      const copy = { ...msgs };
-      copy[conversationId] = (copy[conversationId] ?? []).filter(
+    this.messages.update((msgs) => ({
+      ...msgs,
+      [conversationId]: (msgs[conversationId] ?? []).filter(
         (m) => m.id !== tempId,
-      );
-      return copy;
-    });
+      ),
+    }));
   }
 
   private updateMessageStatus(
@@ -361,19 +338,20 @@ export class ChatStateService implements OnDestroy {
     timestamp: Date,
   ): void {
     this.messages.update((msgs) => {
-      const updated = { ...msgs };
-      for (const convId of Object.keys(updated)) {
-        updated[convId] = updated[convId].map((m) => {
-          if (m.id === messageId) {
-            if (status === 'delivered') return { ...m, deliveredAt: timestamp };
-            return { ...m, readAt: timestamp };
-          }
-          return m;
+      const updated: Record<string, Message[]> = {};
+      for (const convId of Object.keys(msgs)) {
+        updated[convId] = msgs[convId].map((m) => {
+          if (m.id !== messageId) return m;
+          return status === 'delivered'
+            ? { ...m, deliveredAt: timestamp }
+            : { ...m, readAt: timestamp };
         });
       }
       return updated;
     });
   }
+
+  // ── Conversation signal helpers ─────────────────────────────────────
 
   private updateConversationLastMessage(
     conversationId: string,
@@ -405,15 +383,19 @@ export class ChatStateService implements OnDestroy {
   }
 
   private async markConversationAsRead(conversationId: string): Promise<void> {
-    const msgs = this.messages()[conversationId] ?? [];
-    const unread = msgs.filter(
-      (m) => !m.readAt && m.receiverId === this.currentUser()?.id,
-    );
+    const currentUserId = this.currentUser()?.id;
+    if (!currentUserId) return;
 
-    const promises = unread.map((m) =>
-      firstValueFrom(this.api.markMessageAsRead(m.id)).catch(() => undefined),
+    const unread = (this.messages()[conversationId] ?? []).filter(
+      (m) => !m.readAt && m.receiverId === currentUserId,
     );
-    await Promise.allSettled(promises);
+    if (unread.length === 0) return;
+
+    await Promise.allSettled(
+      unread.map((m) =>
+        firstValueFrom(this.api.markMessageAsRead(m.id)).catch(() => undefined),
+      ),
+    );
 
     this.conversations.update((convs) =>
       convs.map((c) =>
@@ -422,12 +404,13 @@ export class ChatStateService implements OnDestroy {
     );
   }
 
+  // ── Conversation resolution ─────────────────────────────────────────
+
   /**
-   * Find an existing conversation id for an incoming message.
-   * If none exists, create a lightweight conversation placeholder and return its id.
+   * Resolve the conversation id for an inbound message, creating a
+   * placeholder conversation if one doesn't exist yet.
    */
   private findConversationIdForMessage(message: Message): string {
-    // Prefer conversations where the other participant matches sender or receiver
     const conv = this.conversations().find(
       (c) =>
         c.otherUser.id === message.senderId ||
@@ -435,34 +418,18 @@ export class ChatStateService implements OnDestroy {
     );
     if (conv) return conv.id;
 
-    // Create a minimal conversation placeholder
-    const currentUser = this.currentUser();
+    const currentUserId = this.currentUser()?.id;
     const otherUserId =
-      currentUser && currentUser.id === message.senderId
+      currentUserId === message.senderId
         ? message.receiverId
         : message.senderId;
 
-    const placeholderUser: User = {
-      id: otherUserId,
-      username: otherUserId,
-      email: '',
-      displayName: otherUserId,
-      isOnline: false,
-    };
-
-    const conversationId = generateUuid();
-
-    const newConversation: Conversation = {
-      id: conversationId,
-      otherUser: placeholderUser,
-      lastMessage: message,
-      unreadCount: 0,
-      isPinned: false,
-      lastActivity: message.sentAt,
-    };
-
-    this.conversations.update((convs) => [newConversation, ...convs]);
-    return conversationId;
+    const placeholder = this.createPlaceholderConversation(
+      createPlaceholderUser(otherUserId),
+      message,
+    );
+    this.conversations.update((convs) => [placeholder, ...convs]);
+    return placeholder.id;
   }
 
   private getOrCreateConversationIdForUser(userId: string): string {
@@ -471,49 +438,63 @@ export class ChatStateService implements OnDestroy {
     );
     if (existing) return existing.id;
 
-    // create placeholder conversation
-    const placeholderUser: User = {
-      id: userId,
-      username: userId,
-      email: '',
-      displayName: userId,
-      isOnline: false,
-    };
+    const placeholder = this.createPlaceholderConversation(
+      createPlaceholderUser(userId),
+    );
+    this.conversations.update((convs) => [placeholder, ...convs]);
+    return placeholder.id;
+  }
 
-    const conversationId = generateUuid();
-
-    const newConversation: Conversation = {
-      id: conversationId,
-      otherUser: placeholderUser,
-      lastMessage: undefined,
+  /** Build a temporary conversation before the server assigns a real one. */
+  private createPlaceholderConversation(
+    otherUser: User,
+    lastMessage?: Message,
+  ): Conversation {
+    return {
+      id: generateUuid(),
+      otherUser,
+      lastMessage,
       unreadCount: 0,
       isPinned: false,
-      lastActivity: new Date(),
+      lastActivity: lastMessage?.sentAt ?? new Date(),
+      isTyping: false,
     };
-
-    this.conversations.update((convs) => [newConversation, ...convs]);
-    return conversationId;
   }
 }
 
-function extractErrorMessage(err: unknown): string {
-  if (!err) return 'Unknown error';
-  if (typeof err === 'string') return err;
-  if (typeof err === 'object') {
-    const e = err as Record<string, unknown>;
-    if (typeof e['message'] === 'string') return e['message'];
-  }
-  try {
-    return String(err);
-  } catch {
-    return 'Unknown error';
-  }
+// ── Pure helpers (module-private) ───────────────────────────────────────
+
+/** Map a wire-format DTO to the runtime Message model. */
+function mapDtoToMessage(dto: MessageDto): Message {
+  return {
+    id: dto.id,
+    senderId: dto.senderId,
+    receiverId: dto.receiverId,
+    messageText: dto.messageText,
+    sentAt: new Date(dto.sentAt),
+    deliveredAt: dto.deliveredAt ? new Date(dto.deliveredAt) : undefined,
+    readAt: dto.readAt ? new Date(dto.readAt) : undefined,
+  };
 }
 
+/** Create a minimal placeholder user when only the id is known. */
+function createPlaceholderUser(userId: string): User {
+  return {
+    id: userId,
+    username: userId,
+    email: '',
+    displayName: userId,
+    isOnline: false,
+  };
+}
+
+/** Generate a UUID, using the native API when available. */
 function generateUuid(): string {
-  const g = globalThis as unknown as { crypto?: { randomUUID?: unknown } };
-  if (g.crypto && typeof g.crypto.randomUUID === 'function') {
-    return (g.crypto.randomUUID as () => string)();
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID();
   }
   return `conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
