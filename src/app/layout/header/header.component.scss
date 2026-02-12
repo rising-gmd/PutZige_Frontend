@@ -1,1 +1,16 @@
 /* header styles */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--p-surface-50);
+  border-bottom: 1px solid var(--app-border);
+}
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--p-text-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+}

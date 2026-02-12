@@ -77,7 +77,16 @@
   --app-primary-end: var(--p-primary-600);
 
   /* Page-specific theme tokens (used by pages/components) */
-  --app-bg: #050505;
+  /* Chat specific tokens */
+  --chat-bg: var(--app-bg);
+  --chat-sidebar-bg: var(--app-bg);
+  --chat-message-bg: var(--p-surface-100);
+  --chat-own-message-text: #ffffff;
+  --chat-avatar-text: #ffffff;
+  --chat-item-hover-bg: rgba(255, 255, 255, 0.03);
+  --chat-item-active-bg: rgba(59, 130, 246, 0.08);
+  --chat-status-online: #10b981;
+  --chat-badge-text: #ffffff;
   --app-card-bg-start: rgba(255, 255, 255, 0.02);
   --app-card-bg-end: rgba(255, 255, 255, 0.01);
   --app-card-border: rgba(255, 255, 255, 0.06);
@@ -88,6 +97,13 @@
   --app-success: #4ade80;
   --app-danger: #fb7185;
   --app-cta-border: rgba(255, 255, 255, 0.06);
+
+  /* Semantic status colors */
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-expired: #f97316;
+  --status-info: var(--p-primary-500);
+  --app-on-primary: #ffffff;
 
   /* Auth card light theme tokens (for login/register pages) */
   --auth-card-surface-default: #ffffff;
@@ -100,6 +116,59 @@
   --google-green: #34a853;
   --google-yellow: #fbbc05;
   --google-red: #ea4335;
+}
+
+/* Light theme (add data attribute or class) */
+[data-theme="light"] {
+  /* Primitive palette overrides for light theme */
+  --p-primary-50: #eff6ff;
+  --p-primary-100: #dbeafe;
+  --p-primary-200: #bfdbfe;
+  --p-primary-300: #93c5fd;
+  --p-primary-400: #60a5fa;
+  --p-primary-500: #3b82f6;
+  --p-primary-600: #2563eb;
+  --p-primary-700: #1d4ed8;
+  --p-primary-800: #1e40af;
+  --p-primary-900: #172554;
+
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f9fafb;
+  --p-surface-100: #f3f4f6;
+  --p-surface-200: #e5e7eb;
+
+  --p-text-primary: #111827;
+  --p-text-secondary: #6b7280;
+  --p-text-500: #9ca3af;
+
+  /* App mappings */
+  --app-surface: var(--p-surface-0);
+  --app-bg: #ffffff;
+  --app-card-bg-start: rgba(0, 0, 0, 0.03);
+  --app-card-bg-end: rgba(0, 0, 0, 0.015);
+  --app-card-border: rgba(0, 0, 0, 0.06);
+  --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --app-text: #111827;
+  --app-text-muted: rgba(17, 24, 39, 0.7);
+  --app-text-muted-weak: rgba(17, 24, 39, 0.55);
+
+  /* Chat specific overrides for light theme */
+  --chat-bg: var(--app-bg);
+  --chat-sidebar-bg: var(--p-surface-50);
+  --chat-message-bg: var(--p-surface-100);
+  --chat-own-message-text: #ffffff; /* gradient on own message keeps white text */
+  --chat-avatar-text: #ffffff; /* avatars remain white text on gradient */
+  --chat-item-hover-bg: rgba(0, 0, 0, 0.04);
+  --chat-item-active-bg: rgba(59, 130, 246, 0.12);
+  --chat-status-online: #059669;
+  --chat-badge-text: #ffffff;
+  /* semantic for auth pages */
+  --auth-viewport-bg: var(--p-surface-100);
+  --auth-card-bg: var(--auth-card-surface-default);
+  --auth-card-shadow: var(--app-card-shadow);
+  --auth-cta-bg: var(--p-primary-500);
+  --auth-cta-bg-hover: var(--p-primary-600);
+  --auth-cta-text: var(--app-on-primary);
 }
 
 // Base

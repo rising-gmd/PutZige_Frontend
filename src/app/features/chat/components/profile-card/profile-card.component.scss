@@ -4,7 +4,7 @@
   justify-content: space-between;
   padding: 12px 16px;
   border-top: 1px solid var(--app-border);
-  background: var(--p-surface-100);
+  background: var(--chat-sidebar-bg);
 }
 .profile-info {
   display: flex;
@@ -26,7 +26,7 @@
     var(--p-primary-500),
     var(--p-primary-600)
   );
-  color: #fff;
+  color: var(--chat-avatar-text);
   font-weight: 600;
 }
 .user-details h4 {

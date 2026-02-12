@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 340px 1fr;
   height: 100vh;
-  background: var(--p-surface-0);
+  background: var(--chat-bg);
   overflow: hidden;
 }
 
@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-right: 1px solid var(--p-surface-200);
+  border-right: 1px solid var(--app-border);
 }
 
 .main-area {

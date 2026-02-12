@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--p-surface-50);
+  background: var(--app-bg);
   border-right: 1px solid var(--app-border);
 }
 .list-header {
@@ -57,7 +57,7 @@
     var(--p-primary-500),
     var(--p-primary-600)
   );
-  color: #fff;
+  color: var(--chat-avatar-text);
   display: flex;
   align-items: center;
   justify-content: center;

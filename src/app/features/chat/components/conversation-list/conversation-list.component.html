@@ -2,17 +2,13 @@
   <div class="list-header"><h2>Messages</h2></div>
 
   <div class="search-container">
-    <span class="p-input-icon-left">
-      <i class="pi pi-search"></i>
-      <input
-        pInputText
-        type="text"
-        placeholder="Search conversations or users..."
-        [value]="searchQuery()"
-        (input)="onSearch($any($event.target).value)"
-        class="search-input"
-      />
-    </span>
+    <app-icon-field
+      [value]="searchQuery()"
+      (valueChange)="onSearch($event)"
+      [placeholder]="'Search conversations or users...'"
+      [iconClass]="'pi pi-search'"
+      iconPosition="left"
+    ></app-icon-field>
   </div>
 
   @if (searchQuery() && searchResults().length > 0) {

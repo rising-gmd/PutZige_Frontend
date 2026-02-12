@@ -27,7 +27,7 @@
     var(--p-primary-500),
     var(--p-primary-600)
   );
-  color: #fff;
+  color: var(--chat-own-message-text);
   border-radius: 12px 12px 4px 12px;
 }
 

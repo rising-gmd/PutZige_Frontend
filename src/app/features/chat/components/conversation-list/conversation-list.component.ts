@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ConversationItemComponent } from '../conversation-item/conversation-item.component';
+import { AppIconFieldComponent } from '../../../../shared/components/icon-field/app-icon-field.component';
 import { ChatStateService } from '../../services/chat-state.service';
 import { User } from '../../models/user.model';
 
@@ -21,6 +22,7 @@ import { User } from '../../models/user.model';
     InputTextModule,
     ButtonModule,
     ConversationItemComponent,
+    AppIconFieldComponent,
   ],
   templateUrl: './conversation-list.component.html',
   styleUrls: ['./conversation-list.component.scss'],

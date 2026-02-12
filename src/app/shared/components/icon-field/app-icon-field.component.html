@@ -1,0 +1,15 @@
+<p-iconfield [iconPosition]="iconPosition">
+  <p-inputicon [class]="iconClass"></p-inputicon>
+  <input
+    pInputText
+    type="text"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [value]="value"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+    class="app-icon-field__input"
+    [class.icon-left]="iconPosition === 'left'"
+    [class.icon-right]="iconPosition === 'right'"
+  />
+</p-iconfield>

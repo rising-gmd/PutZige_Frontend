@@ -1,0 +1,70 @@
+.app-icon-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-icon-field__input {
+  width: 100%;
+  height: 44px;
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  background: var(--auth-card-surface-default);
+  color: var(--auth-card-text-default);
+  border: 1px solid var(--auth-card-border-default);
+  transition: border-color var(--transition-fast);
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--p-primary-500);
+  }
+
+  &::placeholder {
+    color: var(--auth-card-placeholder-default);
+  }
+}
+
+/* Target PrimeNG rendered input when present */
+input.app-icon-field__input.p-inputtext,
+input.p-inputtext.app-icon-field__input {
+  background: var(--auth-card-surface-default);
+  color: var(--auth-card-text-default);
+  border: 1px solid var(--auth-card-border-default);
+
+  &::placeholder {
+    color: var(--auth-card-placeholder-default);
+  }
+
+  &:focus {
+    border-color: var(--p-primary-500);
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+/* Ensure wrapper/p-iconfield doesn't show a browser/PrimeNG focus ring */
+p-iconfield:focus-within,
+.p-input-icon:focus-within,
+.p-inputfield:focus-within {
+  outline: none;
+  box-shadow: none;
+}
+
+/* explicit input focus selectors to override stronger PrimeNG rules */
+input.app-icon-field__input:focus,
+input.app-icon-field__input.p-inputtext:focus,
+.app-icon-field__input:focus,
+.app-icon-field__input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: var(--p-primary-500) !important;
+}
+
+/* Provide extra padding when icon is present so icon doesn't overlap text */
+.app-icon-field__input.icon-left {
+  padding-left: 2.25rem; /* room for left icon */
+}
+
+.app-icon-field__input.icon-right {
+  padding-right: 2.25rem; /* room for right icon */
+}

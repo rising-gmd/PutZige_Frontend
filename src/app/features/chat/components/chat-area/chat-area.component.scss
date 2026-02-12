@@ -18,7 +18,7 @@
 }
 
 .status.online {
-  color: #10b981;
+  color: var(--chat-status-online);
 }
 .status.offline {
   color: var(--p-text-secondary);
