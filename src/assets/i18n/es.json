@@ -95,6 +95,7 @@
         "btn_sign_in": "Continue",
         "btn_toggle_dark": "Toggle dark mode",
         "label_username": "Username",
+        "label_identifier": "Nombre de usuario o correo electrónico",
         "label_email": "Email",
         "label_password": "Password",
         "label_agree": "I agree to the",

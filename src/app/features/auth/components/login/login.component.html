@@ -16,7 +16,7 @@
         [placeholder]="'Enter your username or email'"
         [error]="
           submitted() || identifier.touched
-            ? errorMessage(identifier, undefined)
+            ? errorMessage(identifier, 'global.label_identifier')
             : null
         "
       ></app-input>
