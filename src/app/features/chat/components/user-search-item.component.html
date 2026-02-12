@@ -1,0 +1,33 @@
+<div
+  class="user-search-item"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="'Start chat with ' + (user.displayName || user.username)"
+  (click)="onSelect()"
+  (keydown.enter)="onSelect()"
+  (keydown.space)="onSelect()"
+>
+  <div class="user-avatar-container">
+    @if (user.profilePictureUrl) {
+      <img
+        [src]="user.profilePictureUrl"
+        [alt]="user.displayName || user.username"
+        class="user-avatar"
+      />
+    } @else {
+      <div class="user-avatar-fallback">{{ avatarText }}</div>
+    }
+
+    @if (user.isOnline) {
+      <span class="status-dot online" aria-label="Online"></span>
+    }
+  </div>
+
+  <div class="user-details">
+    <h4 class="user-name">{{ user.displayName || user.username }}</h4>
+    <p class="user-info">{{ user.jobTitle || user.email }}</p>
+    @if (user.bio) {
+      <p class="user-bio">{{ user.bio }}</p>
+    }
+  </div>
+</div>

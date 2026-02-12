@@ -1,5 +1,16 @@
 <div class="conversation-list">
-  <div class="list-header"><h2>Messages</h2></div>
+  <div class="list-header">
+    <h2>Messages</h2>
+    <!-- FAB Button -->
+    <button
+      pButton
+      icon="pi pi-plus"
+      [rounded]="true"
+      class="fab-button"
+      aria-label="Start new conversation"
+      (click)="showNewChatModal()"
+    ></button>
+  </div>
 
   <div class="search-container">
     <app-icon-field
@@ -23,10 +34,12 @@
           (keydown.enter)="onSelectUser(user)"
         >
           <div class="avatar-fallback">
-            {{ user.displayName.substring(0, 2).toUpperCase() }}
+            {{
+              (user.displayName || user.username).substring(0, 2) | uppercase
+            }}
           </div>
           <div class="user-details">
-            <h4>{{ user.displayName }}</h4>
+            <h4>{{ user.displayName || user.username }}</h4>
             <p>{{ user.jobTitle || user.email }}</p>
           </div>
         </div>
@@ -58,4 +71,11 @@
       }
     </div>
   }
+
+  <!-- New Chat Modal -->
+  <app-new-chat-modal
+    #newChatModal
+    (userSelected)="onUserSelected($event)"
+    (closed)="onModalClosed()"
+  ></app-new-chat-modal>
 </div>

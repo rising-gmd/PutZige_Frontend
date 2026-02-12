@@ -44,7 +44,12 @@ jest.mock('@microsoft/signalr', () => {
   // Minimal LogLevel enum used by the service
   const LogLevel = { Warning: 1 };
 
-  return { HubConnectionBuilder, LogLevel };
+  // Minimal HubConnectionState enum used by the service checks
+  const HubConnectionState = { Connected: 1 };
+
+  // Export the HubConnectionState so the service's runtime checks don't read
+  // from `undefined` during unit tests.
+  return { HubConnectionBuilder, LogLevel, HubConnectionState };
 });
 
 import { TestBed } from '@angular/core/testing';

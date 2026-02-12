@@ -35,6 +35,10 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string | number) => `/users/${id}`,
     DELETE: (id: string | number) => `/users/${id}`,
     PROFILE: '/users/profile',
+    // New endpoints for user discovery / chat
+    SEARCH: '/users/search',
+    RECENT_CONTACTS: '/users/recent-contacts',
+    SUGGESTIONS: '/users/suggestions',
   },
   PRODUCTS: {
     LIST: '/products',

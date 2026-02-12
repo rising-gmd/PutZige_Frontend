@@ -1,0 +1,100 @@
+<p-dialog
+  header="New Conversation"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '500px', maxHeight: '80vh' }"
+  [breakpoints]="{ '768px': '90vw' }"
+  (onHide)="onClose()"
+>
+  <div class="search-section">
+    <span class="p-input-icon-left w-full">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        #searchInput
+        type="text"
+        placeholder="Search users by name or email..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput($event)"
+        class="w-full"
+        [attr.aria-label]="'Search users'"
+      />
+    </span>
+  </div>
+
+  <div class="results-container" [attr.aria-busy]="isLoading()">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <p>Searching...</p>
+      </div>
+    } @else if (
+      !isLoading() && searchQuery.length > 0 && searchResults().length > 0
+    ) {
+      <div class="section">
+        <h3 class="section-title">Search Results</h3>
+        @for (user of searchResults(); track user.id) {
+          <app-user-search-item
+            [user]="user"
+            (selected)="onUserSelected($event)"
+          ></app-user-search-item>
+        }
+      </div>
+    } @else if (
+      !isLoading() && searchQuery.length > 0 && searchResults().length === 0
+    ) {
+      <div class="empty-state">
+        <i class="pi pi-search"></i>
+        <p>No users found for "{{ searchQuery }}"</p>
+        <span>Try a different search term</span>
+      </div>
+    } @else {
+      @if (!searchQuery.length) {
+        @if (recentContacts().length > 0) {
+          <div class="section">
+            <h3 class="section-title"><i class="pi pi-clock"></i>Recent</h3>
+            @for (user of recentContacts(); track user.id) {
+              <app-user-search-item
+                [user]="user"
+                (selected)="onUserSelected($event)"
+              ></app-user-search-item>
+            }
+          </div>
+        }
+
+        @if (suggestedUsers().length > 0) {
+          <div class="section">
+            <h3 class="section-title">
+              <i class="pi pi-sparkles"></i>Suggested
+            </h3>
+            @for (user of suggestedUsers(); track user.id) {
+              <app-user-search-item
+                [user]="user"
+                (selected)="onUserSelected($event)"
+              ></app-user-search-item>
+            }
+          </div>
+        }
+
+        @if (recentContacts().length === 0 && suggestedUsers().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-users"></i>
+            <p>No contacts yet</p>
+            <span>Search for users to start chatting</span>
+          </div>
+        }
+      }
+    }
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (click)="onClose()"
+      [attr.aria-label]="'Close dialog'"
+    ></p-button>
+  </ng-template>
+</p-dialog>

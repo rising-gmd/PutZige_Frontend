@@ -30,3 +30,19 @@ export interface UserStatus {
   readonly isOnline: boolean;
   readonly lastSeen?: Date;
 }
+
+/**
+ * Lightweight user shape used for search results and discovery APIs.
+ * Display name and some fields may be optional from the search API.
+ */
+export interface UserSearchResult {
+  id: string;
+  username: string;
+  email: string;
+  displayName?: string;
+  profilePictureUrl?: string;
+  isOnline: boolean;
+  lastSeen?: string | Date;
+  bio?: string;
+  jobTitle?: string;
+}

@@ -22,6 +22,7 @@ import { HeaderComponent } from './header.component';
 describe('HeaderComponent', () => {
   it('renders', async () => {
     const { getByText } = await render(HeaderComponent);
-    expect(getByText('hello hi')).toBeTruthy();
+    // Header renders the application brand
+    expect(getByText('PutZige')).toBeTruthy();
   });
 });

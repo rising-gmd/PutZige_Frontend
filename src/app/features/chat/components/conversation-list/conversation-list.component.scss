@@ -9,6 +9,9 @@
 .list-header {
   padding: 24px 20px 16px;
   border-bottom: 1px solid var(--app-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .list-header h2 {
   margin: 0;
@@ -75,4 +78,20 @@
   margin: 0;
   font-size: 0.8rem;
   color: var(--p-text-secondary);
+}
+
+.fab-button {
+  --p-button-padding: 10px;
+  background: var(--p-primary-500) !important;
+  border: none !important;
+  border-radius: 999px;
+
+  &:hover {
+    background: var(--p-primary-600) !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-500);
+    outline-offset: 2px;
+  }
 }
