@@ -1,6 +1,6 @@
 .chat-container {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 380px 1fr;
   height: 100vh;
   background: var(--chat-bg);
   overflow: hidden;
@@ -25,5 +25,24 @@
 
   .sidebar {
     display: none;
+  }
+}
+
+/* Responsive sidebar widths following Material guidance */
+@media (min-width: 1440px) {
+  .chat-container {
+    grid-template-columns: 400px 1fr;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .chat-container {
+    grid-template-columns: 360px 1fr;
+  }
+}
+
+@media (max-width: 1023px) {
+  .chat-container {
+    grid-template-columns: 320px 1fr;
   }
 }
