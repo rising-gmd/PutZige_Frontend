@@ -7,24 +7,24 @@
   (keydown.enter)="onSelect()"
 >
   <div class="avatar-container">
-    @if (conversation.otherUser.profilePictureUrl) {
+    @if (conversation.profilePictureUrl) {
       <img
-        [src]="conversation.otherUser.profilePictureUrl"
-        [alt]="conversation.otherUser.displayName"
+        [src]="conversation.profilePictureUrl"
+        [alt]="conversation.displayName ?? ''"
         class="avatar-img"
       />
     } @else {
       <div class="avatar-fallback">{{ avatarText }}</div>
     }
 
-    @if (conversation.otherUser.isOnline) {
+    @if (conversation.isOnline) {
       <div class="status-dot online" aria-hidden="true"></div>
     }
   </div>
 
   <div class="conversation-details">
     <div class="header-row">
-      <h4 class="user-name">{{ conversation.otherUser.displayName }}</h4>
+      <h4 class="user-name">{{ conversation.displayName }}</h4>
       <span class="timestamp">{{ relativeTime }}</span>
     </div>
 

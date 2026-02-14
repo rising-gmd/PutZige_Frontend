@@ -25,7 +25,9 @@ import { UserSearchItemComponent } from './user-search-item.component';
 import { NewChatService } from '../services/new-chat.service';
 import {
   UserSearchResult,
-  SearchUsersResponse,
+  SearchUsersData,
+  RecentContactsData,
+  SuggestedUsersData,
 } from '../models/new-chat.models';
 import { ElementRef, ViewChild } from '@angular/core';
 
@@ -123,7 +125,7 @@ export class NewChatModalComponent implements OnInit {
         }),
         takeUntilDestroyed(),
       )
-      .subscribe((response: SearchUsersResponse | null) => {
+      .subscribe((response: SearchUsersData | null) => {
         this.isLoading.set(false);
         if (response) {
           this.searchResults.set(response.users || []);
@@ -133,14 +135,18 @@ export class NewChatModalComponent implements OnInit {
 
   private loadInitialData(): void {
     // recent contacts
-    this.newChatService.getRecentContacts().subscribe((resp) => {
-      this.recentContacts.set(resp.contacts || []);
-    });
+    this.newChatService
+      .getRecentContacts()
+      .subscribe((resp: RecentContactsData) => {
+        this.recentContacts.set(resp.contacts || []);
+      });
 
     // suggestions
-    this.newChatService.getSuggestedUsers().subscribe((resp) => {
-      this.suggestedUsers.set(resp.suggestions || []);
-    });
+    this.newChatService
+      .getSuggestedUsers()
+      .subscribe((resp: SuggestedUsersData) => {
+        this.suggestedUsers.set(resp.suggestions || []);
+      });
   }
 
   private resetState(): void {

@@ -23,15 +23,15 @@ export class ConversationItemComponent {
   @Output() selected = new EventEmitter<string>();
 
   get lastMessagePreview(): string {
-    return this.conversation.lastMessage?.messageText ?? 'No messages yet';
+    return this.conversation.lastMessageText ?? 'No messages yet';
   }
 
   get relativeTime(): string {
-    return formatRelativeTime(this.conversation.lastActivity);
+    return formatRelativeTime(new Date(this.conversation.lastActivity));
   }
 
   get avatarText(): string {
-    return this.conversation.otherUser.displayName
+    return (this.conversation.displayName ?? '')
       .split(' ')
       .map((n) => n[0])
       .join('')
@@ -40,6 +40,6 @@ export class ConversationItemComponent {
   }
 
   onSelect(): void {
-    this.selected.emit(this.conversation.id);
+    this.selected.emit(this.conversation.userId);
   }
 }

@@ -42,8 +42,8 @@ export class ConversationListComponent {
   readonly searchQuery = signal('');
   readonly searchResults = this.chatState.searchResults;
 
-  trackByConversation(index: number, item: { id: string }) {
-    return item.id;
+  trackByConversation(index: number, item: { userId: string }) {
+    return item.userId;
   }
 
   showNewChatModal(): void {

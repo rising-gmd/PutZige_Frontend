@@ -37,6 +37,7 @@
     "@ngx-translate/http-loader": "^17.0.0",
     "@primeuix/themes": "^2.0.3",
     "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
     "jest-dom": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.1",

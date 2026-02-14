@@ -32,18 +32,18 @@ export class ChatAreaComponent {
     const conversation = this.activeConversation();
     if (!conversation) return;
 
-    await this.chatState.sendMessage(conversation.otherUser.id, messageText);
+    await this.chatState.sendMessage(conversation.userId, messageText);
   }
 
   onTypingStarted(): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
-    void this.signalR.notifyTyping(conversation.id, true);
+    void this.signalR.notifyTyping(conversation.userId, true);
   }
 
   onTypingStopped(): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
-    void this.signalR.notifyTyping(conversation.id, false);
+    void this.signalR.notifyTyping(conversation.userId, false);
   }
 }

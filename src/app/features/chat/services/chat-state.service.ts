@@ -61,7 +61,9 @@ export class ChatStateService {
   // ── Computed (derived, memoized) ────────────────────────────────────
   readonly activeConversation = computed(() => {
     const id = this.activeConversationId();
-    return id ? (this.conversations().find((c) => c.id === id) ?? null) : null;
+    return id
+      ? (this.conversations().find((c) => c.userId === id) ?? null)
+      : null;
   });
 
   readonly activeMessages = computed(() => {
@@ -76,7 +78,9 @@ export class ChatStateService {
   readonly sortedConversations = computed(() =>
     [...this.conversations()].sort((a, b) => {
       if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
-      return b.lastActivity.getTime() - a.lastActivity.getTime();
+      return (
+        new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
+      );
     }),
   );
 
@@ -211,17 +215,26 @@ export class ChatStateService {
 
   /** Open or create a conversation with the given user. */
   startConversation(user: User): void {
-    const existing = this.conversations().find(
-      (c) => c.otherUser.id === user.id,
-    );
+    const existing = this.conversations().find((c) => c.userId === user.id);
     if (existing) {
-      void this.setActiveConversation(existing.id);
+      void this.setActiveConversation(existing.userId);
       return;
     }
 
-    const newConversation = this.createPlaceholderConversation(user);
+    const newConversation: Conversation = {
+      userId: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      profilePictureUrl: user.profilePictureUrl,
+      isOnline: user.isOnline,
+      unreadCount: 0,
+      isPinned: false,
+      lastActivity: new Date().toISOString(),
+      isTyping: false,
+    };
+
     this.conversations.update((convs) => [newConversation, ...convs]);
-    void this.setActiveConversation(newConversation.id);
+    void this.setActiveConversation(newConversation.userId);
   }
 
   // ── SignalR event wiring ────────────────────────────────────────────
@@ -359,8 +372,18 @@ export class ChatStateService {
   ): void {
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.id === conversationId
-          ? { ...c, lastMessage: message, lastActivity: message.sentAt }
+        c.userId === conversationId
+          ? {
+              ...c,
+              lastMessageId: message.id,
+              lastMessageSenderId: message.senderId,
+              lastMessageReceiverId: message.receiverId,
+              lastMessageText: message.messageText,
+              lastMessageSentAt: message.sentAt.toISOString(),
+              lastMessageDeliveredAt: message.deliveredAt?.toISOString(),
+              lastMessageReadAt: message.readAt?.toISOString(),
+              lastActivity: message.sentAt.toISOString(),
+            }
           : c,
       ),
     );
@@ -368,17 +391,13 @@ export class ChatStateService {
 
   private updateUserStatus(userId: string, isOnline: boolean): void {
     this.conversations.update((convs) =>
-      convs.map((c) =>
-        c.otherUser.id === userId
-          ? { ...c, otherUser: { ...c.otherUser, isOnline } }
-          : c,
-      ),
+      convs.map((c) => (c.userId === userId ? { ...c, isOnline } : c)),
     );
   }
 
   private setTypingIndicator(userId: string, isTyping: boolean): void {
     this.conversations.update((convs) =>
-      convs.map((c) => (c.otherUser.id === userId ? { ...c, isTyping } : c)),
+      convs.map((c) => (c.userId === userId ? { ...c, isTyping } : c)),
     );
   }
 
@@ -399,7 +418,7 @@ export class ChatStateService {
 
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.id === conversationId ? { ...c, unreadCount: 0 } : c,
+        c.userId === conversationId ? { ...c, unreadCount: 0 } : c,
       ),
     );
   }
@@ -412,11 +431,9 @@ export class ChatStateService {
    */
   private findConversationIdForMessage(message: Message): string {
     const conv = this.conversations().find(
-      (c) =>
-        c.otherUser.id === message.senderId ||
-        c.otherUser.id === message.receiverId,
+      (c) => c.userId === message.senderId || c.userId === message.receiverId,
     );
-    if (conv) return conv.id;
+    if (conv) return conv.userId;
 
     const currentUserId = this.currentUser()?.id;
     const otherUserId =
@@ -425,38 +442,54 @@ export class ChatStateService {
         : message.senderId;
 
     const placeholder = this.createPlaceholderConversation(
-      createPlaceholderUser(otherUserId),
+      {
+        id: otherUserId,
+        username: otherUserId,
+        email: '',
+        displayName: otherUserId,
+        isOnline: false,
+      },
       message,
     );
     this.conversations.update((convs) => [placeholder, ...convs]);
-    return placeholder.id;
+    return placeholder.userId;
   }
 
   private getOrCreateConversationIdForUser(userId: string): string {
-    const existing = this.conversations().find(
-      (c) => c.otherUser.id === userId,
-    );
-    if (existing) return existing.id;
+    const existing = this.conversations().find((c) => c.userId === userId);
+    if (existing) return existing.userId;
 
-    const placeholder = this.createPlaceholderConversation(
-      createPlaceholderUser(userId),
-    );
+    const placeholder = this.createPlaceholderConversation({
+      id: userId,
+      username: userId,
+      email: '',
+      displayName: userId,
+      isOnline: false,
+    });
     this.conversations.update((convs) => [placeholder, ...convs]);
-    return placeholder.id;
+    return placeholder.userId;
   }
 
   /** Build a temporary conversation before the server assigns a real one. */
   private createPlaceholderConversation(
-    otherUser: User,
+    user: User,
     lastMessage?: Message,
   ): Conversation {
     return {
-      id: generateUuid(),
-      otherUser,
-      lastMessage,
+      userId: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      profilePictureUrl: user.profilePictureUrl,
+      isOnline: user.isOnline ?? false,
+      lastMessageId: lastMessage?.id,
+      lastMessageSenderId: lastMessage?.senderId,
+      lastMessageReceiverId: lastMessage?.receiverId,
+      lastMessageText: lastMessage?.messageText,
+      lastMessageSentAt: lastMessage?.sentAt.toISOString(),
       unreadCount: 0,
       isPinned: false,
-      lastActivity: lastMessage?.sentAt ?? new Date(),
+      lastActivity:
+        lastMessage?.sentAt.toISOString() ?? new Date().toISOString(),
       isTyping: false,
     };
   }
@@ -475,26 +508,4 @@ function mapDtoToMessage(dto: MessageDto): Message {
     deliveredAt: dto.deliveredAt ? new Date(dto.deliveredAt) : undefined,
     readAt: dto.readAt ? new Date(dto.readAt) : undefined,
   };
-}
-
-/** Create a minimal placeholder user when only the id is known. */
-function createPlaceholderUser(userId: string): User {
-  return {
-    id: userId,
-    username: userId,
-    email: '',
-    displayName: userId,
-    isOnline: false,
-  };
-}
-
-/** Generate a UUID, using the native API when available. */
-function generateUuid(): string {
-  if (
-    typeof crypto !== 'undefined' &&
-    typeof crypto.randomUUID === 'function'
-  ) {
-    return crypto.randomUUID();
-  }
-  return `conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }

@@ -1,17 +1,32 @@
-import { Message } from './message.model';
-import { User } from './user.model';
+// kept imports intentionally minimal — Conversation is a flat DTO-aligned shape
 
 /**
- * Conversation summary shown in the conversation list
+ * Conversation summary matching backend ConversationDto (flat)
  */
 export interface Conversation {
-  readonly id: string;
-  readonly otherUser: User;
-  readonly lastMessage?: Message;
-  readonly unreadCount: number;
-  readonly isPinned: boolean;
-  readonly lastActivity: Date;
-  readonly isTyping?: boolean;
+  // User info (flat, not nested)
+  userId: string;
+  username: string;
+  displayName?: string;
+  profilePictureUrl?: string;
+  isOnline: boolean;
+
+  // Last message (flat, not nested object)
+  lastMessageId?: string;
+  lastMessageSenderId?: string;
+  lastMessageReceiverId?: string;
+  lastMessageText?: string;
+  lastMessageSentAt?: string;
+  lastMessageDeliveredAt?: string;
+  lastMessageReadAt?: string;
+
+  // Metadata
+  unreadCount: number;
+  lastActivity: string;
+
+  // UI state (not from backend)
+  isPinned?: boolean;
+  isTyping?: boolean;
 }
 
 export interface ConversationListResponse {
