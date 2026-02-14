@@ -9,7 +9,7 @@
 
     @if (showTimestamp) {
       <div class="message-footer">
-        <span class="timestamp">{{ formattedTime }}</span>
+        <span class="timestamp">{{ message.sentAt | messageTime }}</span>
         <i
           class="pi {{ statusIcon }} status-icon {{ statusClass }}"
           aria-hidden="true"

@@ -25,7 +25,11 @@
   <div class="conversation-details">
     <div class="header-row">
       <h4 class="user-name">{{ conversation.displayName }}</h4>
-      <span class="timestamp">{{ relativeTime }}</span>
+      <span
+        class="timestamp"
+        title="{{ conversation.lastActivity | relativeTime }}"
+        >{{ conversation.lastActivity | conversationTime }}</span
+      >
     </div>
 
     <div class="preview-row">

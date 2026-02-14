@@ -7,12 +7,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Conversation } from '../../models/conversation.model';
-import { formatRelativeTime } from '../../utils/date-formatter.util';
+import { ConversationTimePipe } from '../../../../shared/pipes/conversation-time.pipe';
+import { RelativeTimePipe } from '../../../../shared/pipes/relative-time.pipe';
 
 @Component({
   selector: 'app-conversation-item',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConversationTimePipe, RelativeTimePipe],
   templateUrl: './conversation-item.component.html',
   styleUrls: ['./conversation-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,9 +27,7 @@ export class ConversationItemComponent {
     return this.conversation.lastMessageText ?? 'No messages yet';
   }
 
-  get relativeTime(): string {
-    return formatRelativeTime(new Date(this.conversation.lastActivity));
-  }
+  // use pipes in template for time formatting and tooltips
 
   get avatarText(): string {
     return (this.conversation.displayName ?? '')

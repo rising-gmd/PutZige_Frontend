@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { Message } from '../models/message.model';
 import { UserStatus } from '../models/user.model';
 import { API_CONFIG, ApiConfig } from '../../../core/config/api.config';
+import { parseDate } from '../../../core/utils/date.util';
 
 export interface SignalREvents {
   ReceiveMessage: Message;
@@ -223,22 +224,12 @@ export class SignalRService {
     const receiverId = p['receiverId'];
     const messageText = p['messageText'];
 
-    // Parse sentAt with fallback
-    let sentAt: Date;
-    if (typeof p['sentAt'] === 'string') {
-      sentAt = new Date(p['sentAt']);
-    } else if (p['sentAt'] instanceof Date) {
-      sentAt = p['sentAt'];
-    } else {
-      sentAt = new Date();
-    }
+    // Parse sentAt with centralized parser and fallback
+    const parsedSent = parseDate(p['sentAt']);
+    const sentAt = parsedSent ?? new Date();
 
-    const deliveredAt =
-      typeof p['deliveredAt'] === 'string'
-        ? new Date(p['deliveredAt'])
-        : undefined;
-    const readAt =
-      typeof p['readAt'] === 'string' ? new Date(p['readAt']) : undefined;
+    const deliveredAt = parseDate(p['deliveredAt']) ?? undefined;
+    const readAt = parseDate(p['readAt']) ?? undefined;
     const conversationId =
       typeof p['conversationId'] === 'string' ? p['conversationId'] : undefined;
 
@@ -301,8 +292,7 @@ export class SignalRService {
     if (typeof p['userId'] !== 'string') return null;
 
     const userId = p['userId'];
-    const lastSeen =
-      typeof p['lastSeen'] === 'string' ? new Date(p['lastSeen']) : undefined;
+    const lastSeen = parseDate(p['lastSeen']) ?? undefined;
 
     return { userId, isOnline, lastSeen };
   }

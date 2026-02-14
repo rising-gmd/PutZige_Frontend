@@ -1,12 +1,12 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../models/message.model';
-import { formatTime } from '../../utils/date-formatter.util';
+import { MessageTimePipe } from '../../../../shared/pipes/message-time.pipe';
 
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MessageTimePipe],
   templateUrl: './message-bubble.component.html',
   styleUrls: ['./message-bubble.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,9 +16,7 @@ export class MessageBubbleComponent {
   @Input({ required: true }) isOwnMessage!: boolean;
   @Input() showTimestamp = false;
 
-  get formattedTime(): string {
-    return formatTime(this.message.sentAt);
-  }
+  // Use pipes in template for formatting timestamps
 
   get statusIcon(): string {
     if (this.message.isOptimistic) return 'pi-clock';

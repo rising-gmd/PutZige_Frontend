@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map, retry, shareReplay } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../core/config/api.config';
 import { UI_CONSTANTS } from '../../../core/constants/ui.constants';
+import { parseDate } from '../../../core/utils/date.util';
 
 const { CONVERSATION_PAGE_SIZE } = UI_CONSTANTS;
 import {
@@ -140,6 +141,8 @@ function mapUserDtoToUser(dto: UserDto): User {
     bio: dto.bio,
     profilePictureUrl: dto.profilePictureUrl,
     isOnline: maybeIsOnline ?? false,
-    lastSeen: maybeLastSeen ? new Date(String(maybeLastSeen)) : undefined,
+    lastSeen: maybeLastSeen
+      ? (parseDate(String(maybeLastSeen)) ?? undefined)
+      : undefined,
   } as User;
 }

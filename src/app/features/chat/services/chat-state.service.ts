@@ -21,6 +21,7 @@ import { extractErrorMessage } from '../../../core/utils/error.util';
 import { ChatApiService } from './chat-api.service';
 import { SignalRService } from './signalr.service';
 import { Conversation, Message, User, MessageDto } from '../models';
+import { parseDate } from '../../../core/utils/date.util';
 import { NotificationService } from '../../../shared/services/notification.service';
 
 /**
@@ -78,9 +79,9 @@ export class ChatStateService {
   readonly sortedConversations = computed(() =>
     [...this.conversations()].sort((a, b) => {
       if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
-      return (
-        new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
-      );
+      const ta = parseDate(a.lastActivity)?.getTime() ?? 0;
+      const tb = parseDate(b.lastActivity)?.getTime() ?? 0;
+      return tb - ta;
     }),
   );
 
@@ -193,7 +194,7 @@ export class ChatStateService {
           senderId: dto.senderId,
           receiverId: dto.receiverId,
           messageText: dto.messageText,
-          sentAt: new Date(dto.sentAt),
+          sentAt: parseDate(dto.sentAt) ?? new Date(),
           conversationId,
         };
         this.replaceOptimisticMessage(conversationId, tempId, realMessage);
@@ -504,8 +505,10 @@ function mapDtoToMessage(dto: MessageDto): Message {
     senderId: dto.senderId,
     receiverId: dto.receiverId,
     messageText: dto.messageText,
-    sentAt: new Date(dto.sentAt),
-    deliveredAt: dto.deliveredAt ? new Date(dto.deliveredAt) : undefined,
-    readAt: dto.readAt ? new Date(dto.readAt) : undefined,
+    sentAt: parseDate(dto.sentAt) ?? new Date(),
+    deliveredAt: dto.deliveredAt
+      ? (parseDate(dto.deliveredAt) ?? undefined)
+      : undefined,
+    readAt: dto.readAt ? (parseDate(dto.readAt) ?? undefined) : undefined,
   };
 }
