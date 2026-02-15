@@ -114,7 +114,10 @@ export class SignalRService {
     }
   }
 
-  async sendMessage(receiverId: string, messageText: string): Promise<void> {
+  async sendMessage(
+    conversationId: string,
+    messageText: string,
+  ): Promise<void> {
     if (
       !this.hubConnection ||
       this.hubConnection.state !== HubConnectionState.Connected
@@ -122,7 +125,11 @@ export class SignalRService {
       throw new Error('SignalR not connected');
     }
 
-    await this.hubConnection.invoke('SendMessage', receiverId, messageText);
+    // Server expects a conversationId and messageText
+    await this.hubConnection.invoke('SendMessage', {
+      conversationId,
+      messageText,
+    });
   }
 
   async notifyTyping(conversationId: string, isTyping: boolean): Promise<void> {

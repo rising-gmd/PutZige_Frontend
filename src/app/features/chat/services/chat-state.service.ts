@@ -62,9 +62,7 @@ export class ChatStateService {
   // ── Computed (derived, memoized) ────────────────────────────────────
   readonly activeConversation = computed(() => {
     const id = this.activeConversationId();
-    return id
-      ? (this.conversations().find((c) => c.userId === id) ?? null)
-      : null;
+    return id ? (this.conversations().find((c) => c.id === id) ?? null) : null;
   });
 
   readonly activeMessages = computed(() => {
@@ -161,12 +159,18 @@ export class ChatStateService {
    * 3. Fall back to REST on SignalR failure.
    * 4. Reconcile or rollback the optimistic entry.
    */
-  async sendMessage(receiverId: string, messageText: string): Promise<void> {
+  async sendMessage(
+    conversationId: string,
+    messageText: string,
+  ): Promise<void> {
     const user = this.currentUser();
     if (!user) throw new Error('User not authenticated');
 
+    const conv = this.conversations().find((c) => c.id === conversationId);
+    if (!conv) throw new Error('Conversation not found');
+
+    const receiverId = conv.userId;
     const tempId = `temp-${Date.now()}`;
-    const conversationId = this.getOrCreateConversationIdForUser(receiverId);
 
     const optimisticMessage: Message = {
       id: tempId,
@@ -182,12 +186,12 @@ export class ChatStateService {
     this.isSendingMessage.set(true);
 
     try {
-      await this.signalR.sendMessage(receiverId, messageText);
+      await this.signalR.sendMessage(conversationId, messageText);
     } catch {
       // SignalR unavailable — fall back to REST
       try {
         const dto = await firstValueFrom(
-          this.api.sendMessage({ receiverId, messageText }),
+          this.api.sendMessage({ conversationId, messageText }),
         );
         const realMessage: Message = {
           id: dto.messageId,
@@ -218,11 +222,12 @@ export class ChatStateService {
   startConversation(user: User): void {
     const existing = this.conversations().find((c) => c.userId === user.id);
     if (existing) {
-      void this.setActiveConversation(existing.userId);
+      void this.setActiveConversation(existing.id);
       return;
     }
 
     const newConversation: Conversation = {
+      id: user.id,
       userId: user.id,
       username: user.username,
       displayName: user.displayName,
@@ -235,7 +240,7 @@ export class ChatStateService {
     };
 
     this.conversations.update((convs) => [newConversation, ...convs]);
-    void this.setActiveConversation(newConversation.userId);
+    void this.setActiveConversation(newConversation.id);
   }
 
   // ── SignalR event wiring ────────────────────────────────────────────
@@ -373,7 +378,7 @@ export class ChatStateService {
   ): void {
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.userId === conversationId
+        c.id === conversationId
           ? {
               ...c,
               lastMessageId: message.id,
@@ -419,7 +424,7 @@ export class ChatStateService {
 
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.userId === conversationId ? { ...c, unreadCount: 0 } : c,
+        c.id === conversationId ? { ...c, unreadCount: 0 } : c,
       ),
     );
   }
@@ -434,7 +439,7 @@ export class ChatStateService {
     const conv = this.conversations().find(
       (c) => c.userId === message.senderId || c.userId === message.receiverId,
     );
-    if (conv) return conv.userId;
+    if (conv) return conv.id;
 
     const currentUserId = this.currentUser()?.id;
     const otherUserId =
@@ -453,12 +458,12 @@ export class ChatStateService {
       message,
     );
     this.conversations.update((convs) => [placeholder, ...convs]);
-    return placeholder.userId;
+    return placeholder.id;
   }
 
   private getOrCreateConversationIdForUser(userId: string): string {
     const existing = this.conversations().find((c) => c.userId === userId);
-    if (existing) return existing.userId;
+    if (existing) return existing.id;
 
     const placeholder = this.createPlaceholderConversation({
       id: userId,
@@ -468,7 +473,7 @@ export class ChatStateService {
       isOnline: false,
     });
     this.conversations.update((convs) => [placeholder, ...convs]);
-    return placeholder.userId;
+    return placeholder.id;
   }
 
   /** Build a temporary conversation before the server assigns a real one. */
@@ -477,6 +482,7 @@ export class ChatStateService {
     lastMessage?: Message,
   ): Conversation {
     return {
+      id: user.id,
       userId: user.id,
       username: user.username,
       displayName: user.displayName,

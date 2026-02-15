@@ -4,6 +4,8 @@
  * Conversation summary matching backend ConversationDto (flat)
  */
 export interface Conversation {
+  /** Conversation id from backend (stable identifier) */
+  id: string;
   // User info (flat, not nested)
   userId: string;
   username: string;

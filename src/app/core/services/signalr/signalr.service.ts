@@ -116,9 +116,15 @@ export class SignalRService implements OnDestroy {
   }
 
   /** Send a chat message via the hub. Throws if not connected. */
-  async sendMessage(receiverId: string, messageText: string): Promise<void> {
+  async sendMessage(
+    conversationId: string,
+    messageText: string,
+  ): Promise<void> {
     this.assertConnected();
-    await this.connection!.invoke('SendMessage', { receiverId, messageText });
+    await this.connection!.invoke('SendMessage', {
+      conversationId,
+      messageText,
+    });
   }
 
   /** Gracefully stop the connection and clean up handlers. */

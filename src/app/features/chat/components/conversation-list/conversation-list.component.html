@@ -60,10 +60,10 @@
         </div>
       } @else {
         @if (conversations().length > 0) {
-          @for (conversation of conversations(); track conversation.userId) {
+          @for (conversation of conversations(); track conversation.id) {
             <app-conversation-item
               [conversation]="conversation"
-              [isActive]="conversation.userId === activeConversationId()"
+              [isActive]="conversation.id === activeConversationId()"
               (selected)="onSelectConversation($event)"
             ></app-conversation-item>
           }

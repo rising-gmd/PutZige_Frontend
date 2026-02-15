@@ -3,7 +3,7 @@
  */
 
 export interface SendMessageRequest {
-  receiverId: string;
+  conversationId: string;
   messageText: string;
 }
 
@@ -38,6 +38,8 @@ export interface ConversationsListResponse {
 }
 
 export interface ConversationDto {
+  /** Backend conversation id */
+  id: string;
   userId: string;
   username: string;
   displayName: string;
