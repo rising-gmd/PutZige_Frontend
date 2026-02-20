@@ -19,6 +19,8 @@ import {
   switchMap,
   of,
   catchError,
+  exhaustMap,
+  from,
 } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserSearchItemComponent } from './user-search-item.component';
@@ -30,6 +32,8 @@ import {
   SuggestedUsersData,
 } from '../models/new-chat.models';
 import { ElementRef, ViewChild } from '@angular/core';
+import { ChatStateService } from '../services/chat-state.service';
+import { User } from '../models';
 
 @Component({
   selector: 'app-new-chat-modal',
@@ -48,7 +52,9 @@ import { ElementRef, ViewChild } from '@angular/core';
 })
 export class NewChatModalComponent implements OnInit {
   private readonly newChatService = inject(NewChatService);
+  private readonly chatState = inject(ChatStateService);
   private readonly searchSubject$ = new Subject<string>();
+  private readonly startConversationSubject$ = new Subject<User>();
 
   @Output() userSelected = new EventEmitter<UserSearchResult>();
   @Output() closed = new EventEmitter<void>();
@@ -63,6 +69,17 @@ export class NewChatModalComponent implements OnInit {
 
   constructor() {
     this.setupSearchDebounce();
+
+    this.startConversationSubject$
+      .pipe(
+        debounceTime(300),
+        exhaustMap((user) => from(this.chatState.startConversation(user))),
+        takeUntilDestroyed(),
+      )
+      .subscribe({
+        next: () => this.hide(),
+        error: (err) => console.error('Start conversation failed', err),
+      });
   }
 
   ngOnInit(): void {
@@ -91,8 +108,18 @@ export class NewChatModalComponent implements OnInit {
   }
 
   onUserSelected(user: UserSearchResult): void {
+    // Emit immediately so parent can optimistically navigate if desired
     this.userSelected.emit(user);
-    this.hide();
+
+    // Start conversation via debounced/exhaust-mapped stream to avoid races
+    this.startConversationSubject$.next({
+      id: user.id,
+      username: user.username,
+      email: user.email ?? '',
+      displayName: user.displayName ?? user.username,
+      profilePictureUrl: user.profilePictureUrl,
+      isOnline: user.isOnline ?? false,
+    } as User);
   }
 
   onClose(): void {

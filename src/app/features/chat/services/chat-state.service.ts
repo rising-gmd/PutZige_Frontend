@@ -62,7 +62,9 @@ export class ChatStateService {
   // ── Computed (derived, memoized) ────────────────────────────────────
   readonly activeConversation = computed(() => {
     const id = this.activeConversationId();
-    return id ? (this.conversations().find((c) => c.id === id) ?? null) : null;
+    return id
+      ? (this.conversations().find((c) => c.conversationId === id) ?? null)
+      : null;
   });
 
   readonly activeMessages = computed(() => {
@@ -166,7 +168,9 @@ export class ChatStateService {
     const user = this.currentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const conv = this.conversations().find((c) => c.id === conversationId);
+    const conv = this.conversations().find(
+      (c) => c.conversationId === conversationId,
+    );
     if (!conv) throw new Error('Conversation not found');
 
     const receiverId = conv.userId;
@@ -217,30 +221,62 @@ export class ChatStateService {
   searchUsers(query: string): void {
     this.searchQuery$.next(query);
   }
-
-  /** Open or create a conversation with the given user. */
-  startConversation(user: User): void {
+  /**
+   * Start a conversation with a user.
+   *
+   * Flow:
+   * 1. Check if conversation already exists (instant switch)
+   * 2. If not, create via API (gets real conversationId)
+   * 3. Update state with real conversation
+   * 4. Set as active
+   *
+   * This prevents race conditions where user sends message before conversation exists.
+   */
+  async startConversation(user: User): Promise<void> {
+    // Fast path: conversation already exists
     const existing = this.conversations().find((c) => c.userId === user.id);
     if (existing) {
-      void this.setActiveConversation(existing.id);
+      await this.setActiveConversation(existing.conversationId);
       return;
     }
 
-    const newConversation: Conversation = {
-      id: user.id,
-      userId: user.id,
-      username: user.username,
-      displayName: user.displayName,
-      profilePictureUrl: user.profilePictureUrl,
-      isOnline: user.isOnline,
-      unreadCount: 0,
-      isPinned: false,
-      lastActivity: new Date().toISOString(),
-      isTyping: false,
-    };
+    // Slow path: create conversation first
+    try {
+      // Call backend to create/get conversation
+      const convResponse = await firstValueFrom(
+        this.api.createOrGetConversation(user.id),
+      );
 
-    this.conversations.update((convs) => [newConversation, ...convs]);
-    void this.setActiveConversation(newConversation.id);
+      // Create conversation with REAL conversationId from backend
+      const newConversation: Conversation = {
+        conversationId: convResponse.conversationId, // CRITICAL: Use real ID from backend
+        userId: user.id,
+        username: user.username,
+        displayName: user.displayName ?? user.username,
+        profilePictureUrl: user.profilePictureUrl,
+        isOnline: user.isOnline ?? false,
+        unreadCount: 0,
+        isPinned: false,
+        lastActivity: convResponse.lastActivity,
+        isTyping: false,
+      } as Conversation;
+
+      // Add to state
+      this.conversations.update((convs) => [newConversation, ...convs]);
+
+      // Set as active
+      await this.setActiveConversation(newConversation.conversationId);
+
+      this.notification.showSuccess(
+        `Started conversation with ${user.displayName ?? user.username}`,
+      );
+    } catch (err: unknown) {
+      // Handle 404 user-not-found specially
+      const msg = extractErrorMessage(err);
+      this.error.set(msg);
+      this.notification.showError(`Failed to start conversation: ${msg}`);
+      throw err;
+    }
   }
 
   // ── SignalR event wiring ────────────────────────────────────────────
@@ -297,8 +333,15 @@ export class ChatStateService {
   // ── Message signal helpers ──────────────────────────────────────────
 
   private handleIncomingMessage(message: Message): void {
+    console.log('[ChatState] Received message:', message);
+
     const convId =
       message.conversationId ?? this.findConversationIdForMessage(message);
+
+    if (!convId) {
+      console.warn('Received message with no conversation context', message);
+      return;
+    }
 
     const existing = this.messages()[convId] ?? [];
     const optimistic = existing.find(
@@ -313,6 +356,7 @@ export class ChatStateService {
     } else {
       this.addMessageToConversation(convId, message);
     }
+
     this.updateConversationLastMessage(convId, message);
   }
 
@@ -378,7 +422,7 @@ export class ChatStateService {
   ): void {
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.id === conversationId
+        c.conversationId === conversationId
           ? {
               ...c,
               lastMessageId: message.id,
@@ -424,7 +468,7 @@ export class ChatStateService {
 
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.id === conversationId ? { ...c, unreadCount: 0 } : c,
+        c.conversationId === conversationId ? { ...c, unreadCount: 0 } : c,
       ),
     );
   }
@@ -435,11 +479,11 @@ export class ChatStateService {
    * Resolve the conversation id for an inbound message, creating a
    * placeholder conversation if one doesn't exist yet.
    */
-  private findConversationIdForMessage(message: Message): string {
+  private findConversationIdForMessage(message: Message): string | undefined {
     const conv = this.conversations().find(
       (c) => c.userId === message.senderId || c.userId === message.receiverId,
     );
-    if (conv) return conv.id;
+    if (conv) return conv.conversationId;
 
     const currentUserId = this.currentUser()?.id;
     const otherUserId =
@@ -458,22 +502,7 @@ export class ChatStateService {
       message,
     );
     this.conversations.update((convs) => [placeholder, ...convs]);
-    return placeholder.id;
-  }
-
-  private getOrCreateConversationIdForUser(userId: string): string {
-    const existing = this.conversations().find((c) => c.userId === userId);
-    if (existing) return existing.id;
-
-    const placeholder = this.createPlaceholderConversation({
-      id: userId,
-      username: userId,
-      email: '',
-      displayName: userId,
-      isOnline: false,
-    });
-    this.conversations.update((convs) => [placeholder, ...convs]);
-    return placeholder.id;
+    return placeholder.conversationId;
   }
 
   /** Build a temporary conversation before the server assigns a real one. */
@@ -482,7 +511,7 @@ export class ChatStateService {
     lastMessage?: Message,
   ): Conversation {
     return {
-      id: user.id,
+      conversationId: user.id,
       userId: user.id,
       username: user.username,
       displayName: user.displayName,
@@ -493,6 +522,8 @@ export class ChatStateService {
       lastMessageReceiverId: lastMessage?.receiverId,
       lastMessageText: lastMessage?.messageText,
       lastMessageSentAt: lastMessage?.sentAt.toISOString(),
+      lastMessageDeliveredAt: lastMessage?.deliveredAt?.toISOString(),
+      lastMessageReadAt: lastMessage?.readAt?.toISOString(),
       unreadCount: 0,
       isPinned: false,
       lastActivity:

@@ -5,7 +5,7 @@
  */
 export interface Conversation {
   /** Conversation id from backend (stable identifier) */
-  id: string;
+  conversationId: string; // Explicit field for clarity (optional, id is primary)
   // User info (flat, not nested)
   userId: string;
   username: string;

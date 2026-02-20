@@ -10,23 +10,12 @@ import { Message } from '../models/message.model';
 import { UserStatus } from '../models/user.model';
 import { API_CONFIG, ApiConfig } from '../../../core/config/api.config';
 import { parseDate } from '../../../core/utils/date.util';
-
-export interface SignalREvents {
-  ReceiveMessage: Message;
-  MessageDelivered: { messageId: string; deliveredAt: string };
-  MessageRead: { messageId: string; readAt: string };
-  UserOnline: UserStatus;
-  UserOffline: UserStatus;
-  UserTyping: { userId: string; conversationId: string };
-  UserStoppedTyping: { userId: string; conversationId: string };
-  Error: { message: string };
-}
+import { MessageSentPayload, SignalREvents } from './signalr-events.constants';
 
 @Injectable({ providedIn: 'root' })
 export class SignalRService {
   private readonly apiConfig = inject(API_CONFIG) as ApiConfig;
   private hubConnection?: HubConnection;
-  private accessTokenFactory?: () => Promise<string>;
   private eventHandlers: {
     event: string;
     handler: (...args: unknown[]) => void;
@@ -40,6 +29,7 @@ export class SignalRService {
     messageId: string;
     deliveredAt: Date;
   }>();
+  private readonly messageSent$ = new Subject<MessageSentPayload>();
   private readonly messageRead$ = new Subject<{
     messageId: string;
     readAt: Date;
@@ -58,33 +48,23 @@ export class SignalRService {
   readonly onMessageReceived = this.messageReceived$.asObservable();
   readonly onMessageDelivered = this.messageDelivered$.asObservable();
   readonly onMessageRead = this.messageRead$.asObservable();
+  readonly onMessageSent = this.messageSent$.asObservable();
   readonly onUserOnline = this.userOnline$.asObservable();
   readonly onUserOffline = this.userOffline$.asObservable();
   readonly onUserTyping = this.userTyping$.asObservable();
   readonly onUserStoppedTyping = this.userStoppedTyping$.asObservable();
 
-  /** Start SignalR connection with an optional token factory used for refresh on reconnect */
-  async startConnection(tokenFactory?: () => Promise<string>): Promise<void> {
-    // accept optional tokenFactory for callers that don't have one
-    this.accessTokenFactory = tokenFactory;
-
+  async startConnection(): Promise<void> {
     if (this.hubConnection?.state === HubConnectionState.Connected) return;
 
     const hubUrl = `${this.apiConfig.baseUrl}/api/${this.apiConfig.version}/hubs/chat`;
 
     const builder = new HubConnectionBuilder()
       .withUrl(hubUrl, {
-        accessTokenFactory: async () => {
-          try {
-            const t = await this.accessTokenFactory?.();
-            return t ?? '';
-          } catch {
-            return '';
-          }
-        },
+        withCredentials: true,
       })
-      .withAutomaticReconnect()
-      .configureLogging(LogLevel.Warning);
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+      .configureLogging(LogLevel.Information);
 
     this.hubConnection = builder.build();
 
@@ -95,14 +75,15 @@ export class SignalRService {
       await this.hubConnection.start();
       this.isConnected.set(true);
       this.connectionId.set(this.hubConnection.connectionId ?? null);
+      console.log('[SignalR] Connected:', this.hubConnection.connectionId);
     } catch (err) {
       this.isConnected.set(false);
+      console.error('[SignalR] Connection failed:', err);
       throw err;
     }
   }
 
   async stopConnection(): Promise<void> {
-    // remove any registered handlers to avoid leaks
     this.unregisterEventHandlers();
 
     try {
@@ -125,11 +106,7 @@ export class SignalRService {
       throw new Error('SignalR not connected');
     }
 
-    // Server expects a conversationId and messageText
-    await this.hubConnection.invoke('SendMessage', {
-      conversationId,
-      messageText,
-    });
+    await this.hubConnection.invoke('SendMessage', conversationId, messageText);
   }
 
   async notifyTyping(conversationId: string, isTyping: boolean): Promise<void> {
@@ -148,51 +125,54 @@ export class SignalRService {
     this.unregisterEventHandlers();
 
     const register = (event: string, handler: (...args: unknown[]) => void) => {
-      this.hubConnection!.on(
-        event,
-        handler as unknown as (...args: unknown[]) => void,
-      );
+      this.hubConnection!.on(event, handler);
       this.eventHandlers.push({ event, handler });
     };
 
-    register('ReceiveMessage', (payload: unknown) => {
+    register(SignalREvents.ReceiveMessage, (payload: unknown) => {
       const msg = this.parseMessage(payload);
       if (msg) this.messageReceived$.next(msg);
     });
 
-    register('MessageDelivered', (payload: unknown) => {
+    register(SignalREvents.MessageDelivered, (payload: unknown) => {
       const p = this.parseDelivered(payload);
       if (p) this.messageDelivered$.next(p);
     });
 
-    register('MessageRead', (payload: unknown) => {
+    register(SignalREvents.MessageSent, (payload: unknown) => {
+      console.log('[SignalR] MessageSent:', payload);
+      const p = this.parseMessageSent(payload);
+      if (p) this.messageSent$.next(p);
+    });
+
+    register(SignalREvents.MessageRead, (payload: unknown) => {
       const p = this.parseRead(payload);
       if (p) this.messageRead$.next(p);
     });
 
-    register('UserOnline', (status: unknown) => {
+    register(SignalREvents.UserOnline, (status: unknown) => {
       const s = this.parseUserStatus(status, true);
       if (s) this.userOnline$.next(s);
     });
 
-    register('UserOffline', (status: unknown) => {
+    register(SignalREvents.UserOffline, (status: unknown) => {
       const s = this.parseUserStatus(status, false);
       if (s) this.userOffline$.next(s);
     });
 
-    register('UserTyping', (payload: unknown) => {
+    register(SignalREvents.UserTyping, (payload: unknown) => {
       const t = this.parseTyping(payload);
       if (t) this.userTyping$.next(t);
     });
 
-    register('UserStoppedTyping', (payload: unknown) => {
+    register(SignalREvents.UserStoppedTyping, (payload: unknown) => {
       const t = this.parseTyping(payload);
       if (t) this.userStoppedTyping$.next(t);
     });
 
-    register('Error', (err: unknown) => {
+    register(SignalREvents.Error, (err: unknown) => {
       const message = extractErrorMessage(err);
-      console.error('SignalR server error', message);
+      console.error('[SignalR] Server error:', message);
     });
   }
 
@@ -204,10 +184,7 @@ export class SignalRService {
 
     for (const { event, handler } of this.eventHandlers) {
       try {
-        this.hubConnection.off(
-          event,
-          handler as unknown as (...args: unknown[]) => void,
-        );
+        this.hubConnection.off(event, handler);
       } catch {
         // ignore
       }
@@ -220,25 +197,26 @@ export class SignalRService {
     if (!payload || typeof payload !== 'object') return null;
     const p = payload as Record<string, unknown>;
 
-    // Strict validation of required fields
-    if (typeof p['id'] !== 'string') return null;
-    if (typeof p['senderId'] !== 'string') return null;
-    if (typeof p['receiverId'] !== 'string') return null;
-    if (typeof p['messageText'] !== 'string') return null;
-
     const id = p['id'];
     const senderId = p['senderId'];
     const receiverId = p['receiverId'];
     const messageText = p['messageText'];
+    const sentAtValue = p['sentAt'];
+    const deliveredAtValue = p['deliveredAt'];
+    const readAtValue = p['readAt'];
+    const conversationId = p['conversationId'];
 
-    // Parse sentAt with centralized parser and fallback
-    const parsedSent = parseDate(p['sentAt']);
+    if (typeof id !== 'string') return null;
+    if (typeof senderId !== 'string') return null;
+    if (typeof receiverId !== 'string') return null;
+    if (typeof messageText !== 'string') return null;
+
+    const parsedSent = parseDate(sentAtValue);
     const sentAt = parsedSent ?? new Date();
-
-    const deliveredAt = parseDate(p['deliveredAt']) ?? undefined;
-    const readAt = parseDate(p['readAt']) ?? undefined;
-    const conversationId =
-      typeof p['conversationId'] === 'string' ? p['conversationId'] : undefined;
+    const deliveredAt = parseDate(deliveredAtValue) ?? undefined;
+    const readAt = parseDate(readAtValue) ?? undefined;
+    const conversationIdStr =
+      typeof conversationId === 'string' ? conversationId : undefined;
 
     return {
       id,
@@ -248,7 +226,7 @@ export class SignalRService {
       sentAt,
       deliveredAt,
       readAt,
-      conversationId,
+      conversationId: conversationIdStr,
     };
   }
 
@@ -257,18 +235,22 @@ export class SignalRService {
   ): { messageId: string; deliveredAt: Date } | null {
     if (!payload || typeof payload !== 'object') return null;
     const p = payload as Record<string, unknown>;
-    if (typeof p['messageId'] !== 'string') return null;
+
+    const messageId = p['messageId'];
+    const deliveredAtValue = p['deliveredAt'];
+
+    if (typeof messageId !== 'string') return null;
 
     let deliveredAt: Date;
-    if (typeof p['deliveredAt'] === 'string') {
-      deliveredAt = new Date(p['deliveredAt']);
-    } else if (p['deliveredAt'] instanceof Date) {
-      deliveredAt = p['deliveredAt'];
+    if (typeof deliveredAtValue === 'string') {
+      deliveredAt = new Date(deliveredAtValue);
+    } else if (deliveredAtValue instanceof Date) {
+      deliveredAt = deliveredAtValue;
     } else {
       return null;
     }
 
-    return { messageId: p['messageId'], deliveredAt };
+    return { messageId, deliveredAt };
   }
 
   private parseRead(
@@ -276,18 +258,22 @@ export class SignalRService {
   ): { messageId: string; readAt: Date } | null {
     if (!payload || typeof payload !== 'object') return null;
     const p = payload as Record<string, unknown>;
-    if (typeof p['messageId'] !== 'string') return null;
+
+    const messageId = p['messageId'];
+    const readAtValue = p['readAt'];
+
+    if (typeof messageId !== 'string') return null;
 
     let readAt: Date;
-    if (typeof p['readAt'] === 'string') {
-      readAt = new Date(p['readAt']);
-    } else if (p['readAt'] instanceof Date) {
-      readAt = p['readAt'];
+    if (typeof readAtValue === 'string') {
+      readAt = new Date(readAtValue);
+    } else if (readAtValue instanceof Date) {
+      readAt = readAtValue;
     } else {
       return null;
     }
 
-    return { messageId: p['messageId'], readAt };
+    return { messageId, readAt };
   }
 
   private parseUserStatus(
@@ -296,10 +282,14 @@ export class SignalRService {
   ): UserStatus | null {
     if (!payload || typeof payload !== 'object') return null;
     const p = payload as Record<string, unknown>;
-    if (typeof p['userId'] !== 'string') return null;
 
-    const userId = p['userId'];
-    const lastSeen = parseDate(p['lastSeen']) ?? undefined;
+    const userIdValue = p['userId'];
+    const lastSeenValue = p['lastSeen'];
+
+    if (typeof userIdValue !== 'string') return null;
+
+    const userId = userIdValue;
+    const lastSeen = parseDate(lastSeenValue) ?? undefined;
 
     return { userId, isOnline, lastSeen };
   }
@@ -309,35 +299,70 @@ export class SignalRService {
   ): { userId: string; conversationId: string } | null {
     if (!payload || typeof payload !== 'object') return null;
     const p = payload as Record<string, unknown>;
+
+    const userIdValue = p['userId'];
+    const conversationIdValue = p['conversationId'];
+
     if (
-      typeof p['userId'] !== 'string' ||
-      typeof p['conversationId'] !== 'string'
+      typeof userIdValue !== 'string' ||
+      typeof conversationIdValue !== 'string'
     )
       return null;
 
-    return { userId: p['userId'], conversationId: p['conversationId'] };
+    return { userId: userIdValue, conversationId: conversationIdValue };
+  }
+
+  private parseMessageSent(payload: unknown): MessageSentPayload | null {
+    if (!payload || typeof payload !== 'object') return null;
+    const p = payload as Record<string, unknown>;
+
+    const conversationId = p['conversationId'];
+    const messageId = p['messageId'];
+    const senderId = p['senderId'];
+    const receiverId = p['receiverId'];
+    const messageText = p['messageText'];
+    const sentAt = p['sentAt'];
+
+    if (
+      typeof conversationId !== 'string' ||
+      typeof messageId !== 'string' ||
+      typeof senderId !== 'string' ||
+      typeof receiverId !== 'string' ||
+      typeof messageText !== 'string'
+    )
+      return null;
+
+    return {
+      conversationId,
+      messageId,
+      senderId,
+      receiverId,
+      messageText,
+      sentAt: sentAt as string | Date,
+    };
   }
 
   private registerConnectionHandlers(): void {
     if (!this.hubConnection) return;
+
     this.hubConnection.onreconnecting(() => {
+      console.log('[SignalR] Reconnecting...');
       this.isConnected.set(false);
     });
 
     this.hubConnection.onreconnected((connectionId) => {
+      console.log('[SignalR] Reconnected:', connectionId);
       this.isConnected.set(true);
       this.connectionId.set(connectionId ?? null);
-      console.log('SignalR reconnected', connectionId);
     });
 
     this.hubConnection.onclose(() => {
+      console.log('[SignalR] Connection closed');
       this.isConnected.set(false);
       this.connectionId.set(null);
-      // automatic reconnect is enabled; server-side token refresh is handled by accessTokenFactory
     });
   }
 
-  // Small helper to safely extract error messages from unknown values
   private static extractErrorMessageLocal(err: unknown): string {
     if (!err) return String(err);
     if (typeof err === 'string') return err;
@@ -353,7 +378,6 @@ export class SignalRService {
   }
 }
 
-// exported helper used above (keeps function name short in handlers)
 function extractErrorMessage(err: unknown): string {
   return SignalRService['extractErrorMessageLocal'](err);
 }

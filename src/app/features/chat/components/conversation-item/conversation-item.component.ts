@@ -39,6 +39,6 @@ export class ConversationItemComponent {
   }
 
   onSelect(): void {
-    this.selected.emit(this.conversation.id);
+    this.selected.emit(this.conversation.conversationId);
   }
 }

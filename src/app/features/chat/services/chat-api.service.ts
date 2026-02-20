@@ -19,6 +19,14 @@ import {
   ApiResponse,
 } from '../models';
 
+export interface ConversationResponse {
+  conversationId: string;
+  isGroup: boolean;
+  lastActivity: string;
+  otherUserId: string;
+  otherUserDisplayName?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatApiService {
   private readonly http = inject(HttpClient);
@@ -79,6 +87,27 @@ export class ChatApiService {
       .pipe(
         map((r) => r.data as SendMessageResponse),
         retry(2),
+        catchError(this.handleError),
+      );
+  }
+
+  /**
+   * Create or retrieve a direct conversation with another user.
+   * Call this before sending the first message to a new contact.
+   *
+   * @param otherUserId - The other user's ID
+   * @returns Observable of conversation details including conversationId
+   */
+  createOrGetConversation(
+    otherUserId: string,
+  ): Observable<ConversationResponse> {
+    return this.http
+      .post<
+        ApiResponse<ConversationResponse>
+      >(API_ENDPOINTS.CHAT.CONVERSATIONS, { otherUserId })
+      .pipe(
+        map((r) => r.data as ConversationResponse),
+        retry(1),
         catchError(this.handleError),
       );
   }

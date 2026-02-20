@@ -47,12 +47,12 @@ export const API_ENDPOINTS = {
     CATEGORIES: '/products/categories',
   },
   CHAT: {
-    CONVERSATIONS: '/conversations',
+    CONVERSATIONS: '/api/v1/conversations',
     CONVERSATION_MESSAGES: (id: string | number) =>
-      `/conversations/${id}/messages`,
-    MESSAGES: '/messages',
-    USERS_SEARCH: '/users/search',
-    ME: '/users/me',
+      `/api/v1/conversations/${id}/messages`,
+    MESSAGES: '/api/v1/messages',
+    USERS_SEARCH: '/api/v1/users/search',
+    ME: '/api/v1/users/me',
   },
   SIGNALR: {
     NEGOTIATE: '/signalr/negotiate',

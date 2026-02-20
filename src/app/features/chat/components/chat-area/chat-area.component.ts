@@ -1,4 +1,10 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
@@ -22,28 +28,37 @@ import { SignalRService } from '../../services/signalr.service';
 export class ChatAreaComponent {
   private readonly chatState = inject(ChatStateService);
   private readonly signalR = inject(SignalRService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly activeConversation = this.chatState.activeConversation;
   readonly activeMessages = this.chatState.activeMessages;
   readonly currentUser = this.chatState.currentUser;
   readonly isLoading = this.chatState.isLoadingMessages;
 
+  constructor() {
+    effect(() => {
+      const messages = this.activeMessages();
+      console.log('[ChatArea] Active messages changed:', messages.length);
+      this.cdr.markForCheck();
+    });
+  }
+
   async onSendMessage(messageText: string): Promise<void> {
     const conversation = this.activeConversation();
     if (!conversation) return;
 
-    await this.chatState.sendMessage(conversation.id, messageText);
+    await this.chatState.sendMessage(conversation.conversationId, messageText);
   }
 
   onTypingStarted(): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
-    void this.signalR.notifyTyping(conversation.id, true);
+    void this.signalR.notifyTyping(conversation.conversationId, true);
   }
 
   onTypingStopped(): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
-    void this.signalR.notifyTyping(conversation.id, false);
+    void this.signalR.notifyTyping(conversation.conversationId, false);
   }
 }

@@ -51,7 +51,18 @@ export class ConversationListComponent {
   }
 
   // Accept the emitted UserSearchResult from the modal and convert to project User
-  onUserSelected(user: UserSearchResult): void {
+  async onUserSelected(user: UserSearchResult): Promise<void> {
+    // Modal already called startConversation; ensure active conversation is set.
+    const conv = this.chatState
+      .conversations()
+      .find((c) => c.userId === user.id);
+
+    if (conv) {
+      await this.chatState.setActiveConversation(conv.conversationId);
+      return;
+    }
+
+    // Fallback: ensure conversation exists by creating one
     const chatUser: User = {
       id: user.id,
       username: user.username || user.displayName || '',
@@ -61,7 +72,7 @@ export class ConversationListComponent {
       isOnline: user.isOnline ?? false,
     };
 
-    this.chatState.startConversation(chatUser);
+    await this.chatState.startConversation(chatUser);
   }
 
   trackByUser(_index: number, item: UserSearchResult) {
@@ -82,7 +93,7 @@ export class ConversationListComponent {
   }
 
   onSelectUser(user: User): void {
-    this.chatState.startConversation(user);
+    void this.chatState.startConversation(user);
     this.searchQuery.set('');
   }
 }
