@@ -43,6 +43,8 @@ export class ChatAreaComponent {
     });
   }
 
+  // ngOnInit intentionally left blank; marking-as-read is handled by ChatStateService.setActiveConversation
+
   async onSendMessage(messageText: string): Promise<void> {
     const conversation = this.activeConversation();
     if (!conversation) return;

@@ -23,6 +23,7 @@ import { SignalRService } from './signalr.service';
 import { Conversation, Message, User, MessageDto } from '../models';
 import { parseDate } from '../../../core/utils/date.util';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { ConversationService } from './conversation.service';
 
 /**
  * Central chat state manager.
@@ -40,6 +41,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
 @Injectable({ providedIn: 'root' })
 export class ChatStateService {
   private readonly api = inject(ChatApiService);
+  private readonly convApi = inject(ConversationService);
   private readonly signalR = inject(SignalRService);
   private readonly notification = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -455,22 +457,35 @@ export class ChatStateService {
     const currentUserId = this.currentUser()?.id;
     if (!currentUserId) return;
 
-    const unread = (this.messages()[conversationId] ?? []).filter(
+    const msgs = this.messages()[conversationId] ?? [];
+    const unread = msgs.filter(
       (m) => !m.readAt && m.receiverId === currentUserId,
     );
     if (unread.length === 0) return;
 
-    await Promise.allSettled(
-      unread.map((m) =>
-        firstValueFrom(this.api.markMessageAsRead(m.id)).catch(() => undefined),
+    // Optimistic local update: mark unread messages as read and clear unreadCount
+    const now = new Date();
+    this.messages.update((all) => ({
+      ...all,
+      [conversationId]: (all[conversationId] ?? []).map((m) =>
+        !m.readAt && m.receiverId === currentUserId ? { ...m, readAt: now } : m,
       ),
-    );
+    }));
 
     this.conversations.update((convs) =>
       convs.map((c) =>
-        c.conversationId === conversationId ? { ...c, unreadCount: 0 } : c,
+        c.conversationId === conversationId
+          ? { ...c, unreadCount: 0, lastMessageReadAt: now.toISOString() }
+          : c,
       ),
     );
+
+    // Single conversation-level API call (best-effort, silent fail)
+    try {
+      await firstValueFrom(this.convApi.markConversationAsRead(conversationId));
+    } catch {
+      // silent fail per requirements — no user-visible error
+    }
   }
 
   // ── Conversation resolution ─────────────────────────────────────────
