@@ -523,13 +523,52 @@ export class ChatStateService {
   }
 
   private handleIncomingConversation(conversation: Conversation): void {
-    const exists = this.conversations().some(
+    const convs = this.conversations();
+
+    // If a conversation with same id already exists, merge/update it
+    const existingById = convs.find(
       (c) => c.conversationId === conversation.conversationId,
     );
-    if (exists) return;
+    if (existingById) {
+      this.conversations.update((all) =>
+        all.map((c) =>
+          c.conversationId === conversation.conversationId
+            ? { ...c, ...conversation }
+            : c,
+        ),
+      );
+      return;
+    }
 
-    // Prepend so it appears at top of list
-    this.conversations.update((convs) => [conversation, ...convs]);
+    // If a placeholder exists for the same user (created earlier using user.id
+    // as conversationId), replace that placeholder with the real conversation
+    // and transfer any cached messages from the placeholder id to the new id.
+    const placeholder = convs.find((c) => c.userId === conversation.userId);
+    if (placeholder) {
+      const oldId = placeholder.conversationId;
+
+      // Replace placeholder in conversations list
+      this.conversations.update((all) =>
+        all.map((c) => (c.conversationId === oldId ? conversation : c)),
+      );
+
+      // Transfer messages (if any) from old placeholder id to new conversation id
+      this.messages.update((msgs) => {
+        if (!msgs[oldId]) return msgs;
+        const transferred = {
+          ...msgs,
+          [conversation.conversationId]: msgs[oldId],
+        };
+        // remove old key
+        delete transferred[oldId];
+        return transferred;
+      });
+
+      return;
+    }
+
+    // No existing conversation — prepend so it appears at top of list
+    this.conversations.update((all) => [conversation, ...all]);
   }
 
   private async markConversationAsRead(conversationId: string): Promise<void> {
