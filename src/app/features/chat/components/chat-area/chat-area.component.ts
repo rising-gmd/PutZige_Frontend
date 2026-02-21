@@ -37,8 +37,7 @@ export class ChatAreaComponent {
 
   constructor() {
     effect(() => {
-      const messages = this.activeMessages();
-      console.log('[ChatArea] Active messages changed:', messages.length);
+      // active messages changed
       this.cdr.markForCheck();
     });
   }

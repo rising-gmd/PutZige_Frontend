@@ -36,6 +36,6 @@ export class ProfileCardComponent {
   }
 
   openSettings(): void {
-    console.log('open settings');
+    // open settings
   }
 }

@@ -47,7 +47,6 @@ export function initializeApp(
 
     return firstValueFrom(translate.use(savedLang))
       .then(() => {
-        console.log('Translations loaded successfully');
         return;
       })
 

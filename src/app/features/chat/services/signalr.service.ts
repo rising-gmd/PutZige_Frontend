@@ -64,7 +64,6 @@ export class SignalRService {
     if (!this.apiConfig) {
       // In unit tests the API config is often not provided. Fail fast by
       // warning and skipping connection setup rather than throwing.
-      console.warn('[SignalR] API config not provided — skipping connection');
       return;
     }
 
@@ -86,10 +85,8 @@ export class SignalRService {
       await this.hubConnection.start();
       this.isConnected.set(true);
       this.connectionId.set(this.hubConnection.connectionId ?? null);
-      console.log('[SignalR] Connected:', this.hubConnection.connectionId);
     } catch (err) {
       this.isConnected.set(false);
-      console.error('[SignalR] Connection failed:', err);
       throw err;
     }
   }
@@ -151,7 +148,6 @@ export class SignalRService {
     });
 
     register(SignalREvents.MessageSent, (payload: unknown) => {
-      console.log('[SignalR] MessageSent:', payload);
       const p = this.parseMessageSent(payload);
       if (p) this.messageSent$.next(p);
     });
@@ -180,11 +176,6 @@ export class SignalRService {
       const t = this.parseTyping(payload);
       if (t) this.userStoppedTyping$.next(t);
     });
-
-    register(SignalREvents.Error, (err: unknown) => {
-      const message = extractErrorMessage(err);
-      console.error('[SignalR] Server error:', message);
-    });
   }
 
   private unregisterEventHandlers(): void {
@@ -207,27 +198,37 @@ export class SignalRService {
   private parseMessage(payload: unknown): Message | null {
     if (!payload || typeof payload !== 'object') return null;
     const p = payload as Record<string, unknown>;
-
-    const id = p['id'];
-    const senderId = p['senderId'];
-    const receiverId = p['receiverId'];
-    const messageText = p['messageText'];
+    // Accept either `id` (legacy) or `messageId` (server SendMessageResponse)
+    const id =
+      typeof p['id'] === 'string'
+        ? (p['id'] as string)
+        : typeof p['messageId'] === 'string'
+          ? (p['messageId'] as string)
+          : undefined;
+    const senderId =
+      typeof p['senderId'] === 'string' ? (p['senderId'] as string) : undefined;
+    const receiverId =
+      typeof p['receiverId'] === 'string'
+        ? (p['receiverId'] as string)
+        : undefined;
+    const messageText =
+      typeof p['messageText'] === 'string'
+        ? (p['messageText'] as string)
+        : undefined;
     const sentAtValue = p['sentAt'];
     const deliveredAtValue = p['deliveredAt'];
     const readAtValue = p['readAt'];
-    const conversationId = p['conversationId'];
+    const conversationId =
+      typeof p['conversationId'] === 'string'
+        ? (p['conversationId'] as string)
+        : undefined;
 
-    if (typeof id !== 'string') return null;
-    if (typeof senderId !== 'string') return null;
-    if (typeof receiverId !== 'string') return null;
-    if (typeof messageText !== 'string') return null;
+    if (!id || !senderId || !receiverId || !messageText) return null;
 
     const parsedSent = parseDate(sentAtValue);
     const sentAt = parsedSent ?? new Date();
     const deliveredAt = parseDate(deliveredAtValue) ?? undefined;
     const readAt = parseDate(readAtValue) ?? undefined;
-    const conversationIdStr =
-      typeof conversationId === 'string' ? conversationId : undefined;
 
     return {
       id,
@@ -237,7 +238,7 @@ export class SignalRService {
       sentAt,
       deliveredAt,
       readAt,
-      conversationId: conversationIdStr,
+      conversationId,
     };
   }
 
@@ -357,18 +358,15 @@ export class SignalRService {
     if (!this.hubConnection) return;
 
     this.hubConnection.onreconnecting(() => {
-      console.log('[SignalR] Reconnecting...');
       this.isConnected.set(false);
     });
 
     this.hubConnection.onreconnected((connectionId) => {
-      console.log('[SignalR] Reconnected:', connectionId);
       this.isConnected.set(true);
       this.connectionId.set(connectionId ?? null);
     });
 
     this.hubConnection.onclose(() => {
-      console.log('[SignalR] Connection closed');
       this.isConnected.set(false);
       this.connectionId.set(null);
     });
@@ -387,8 +385,4 @@ export class SignalRService {
       return 'Unknown error';
     }
   }
-}
-
-function extractErrorMessage(err: unknown): string {
-  return SignalRService['extractErrorMessageLocal'](err);
 }

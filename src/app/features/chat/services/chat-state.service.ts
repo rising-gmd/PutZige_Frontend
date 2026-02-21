@@ -298,35 +298,45 @@ export class ChatStateService {
   private setupSignalRListeners(): void {
     this.signalR.onMessageReceived
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((message) => this.handleIncomingMessage(message));
+      .subscribe((message) => {
+        this.handleIncomingMessage(message);
+      });
 
     this.signalR.onMessageDelivered
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ messageId, deliveredAt }) =>
-        this.updateMessageStatus(messageId, 'delivered', deliveredAt),
-      );
+      .subscribe(({ messageId, deliveredAt }) => {
+        this.updateMessageStatus(messageId, 'delivered', deliveredAt);
+      });
 
     this.signalR.onMessageRead
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ messageId, readAt }) =>
-        this.updateMessageStatus(messageId, 'read', readAt),
-      );
+      .subscribe(({ messageId, readAt }) => {
+        this.updateMessageStatus(messageId, 'read', readAt);
+      });
 
     this.signalR.onUserOnline
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((status) => this.updateUserStatus(status.userId, true));
+      .subscribe((status) => {
+        this.updateUserStatus(status.userId, true);
+      });
 
     this.signalR.onUserOffline
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((status) => this.updateUserStatus(status.userId, false));
+      .subscribe((status) => {
+        this.updateUserStatus(status.userId, false);
+      });
 
     this.signalR.onUserTyping
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ userId }) => this.setTypingIndicator(userId, true));
+      .subscribe(({ userId }) => {
+        this.setTypingIndicator(userId, true);
+      });
 
     this.signalR.onUserStoppedTyping
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ userId }) => this.setTypingIndicator(userId, false));
+      .subscribe(({ userId }) => {
+        this.setTypingIndicator(userId, false);
+      });
   }
 
   private setupSearchDebounce(): void {
@@ -347,17 +357,35 @@ export class ChatStateService {
   // ── Message signal helpers ──────────────────────────────────────────
 
   private handleIncomingMessage(message: Message): void {
-    console.log('[ChatState] Received message:', message);
-
-    const convId =
+    const convIdRaw =
       message.conversationId ?? this.findConversationIdForMessage(message);
 
-    if (!convId) {
-      console.warn('Received message with no conversation context', message);
+    if (!convIdRaw) {
+      console.warn(
+        '[ChatState] Received message with no conversation context',
+        message,
+      );
       return;
     }
 
+    // If user currently has a conversation open with the sender/receiver,
+    // prefer adding the incoming message to the active conversation so it
+    // appears immediately in the open chat even if the server-provided
+    // conversation id differs (some backend flows may return a different id).
+    const active = this.activeConversation();
+    const activeId = this.activeConversationId();
+    let convId = convIdRaw;
+    if (
+      activeId &&
+      active &&
+      (active.userId === message.senderId ||
+        active.userId === message.receiverId)
+    ) {
+      convId = activeId;
+    }
+
     const existing = this.messages()[convId] ?? [];
+
     const optimistic = existing.find(
       (m) =>
         m.isOptimistic &&
@@ -370,7 +398,6 @@ export class ChatStateService {
     } else {
       this.addMessageToConversation(convId, message);
     }
-
     this.updateConversationLastMessage(convId, message);
   }
 
@@ -378,10 +405,10 @@ export class ChatStateService {
     conversationId: string,
     message: Message,
   ): void {
-    this.messages.update((msgs) => ({
-      ...msgs,
-      [conversationId]: [...(msgs[conversationId] ?? []), message],
-    }));
+    this.messages.update((msgs) => {
+      const newArr = [...(msgs[conversationId] ?? []), message];
+      return { ...msgs, [conversationId]: newArr };
+    });
   }
 
   private replaceOptimisticMessage(
@@ -389,24 +416,24 @@ export class ChatStateService {
     tempId: string,
     realMessage: Message,
   ): void {
-    this.messages.update((msgs) => ({
-      ...msgs,
-      [conversationId]: (msgs[conversationId] ?? []).map((m) =>
+    this.messages.update((msgs) => {
+      const list = (msgs[conversationId] ?? []).map((m) =>
         m.id === tempId ? realMessage : m,
-      ),
-    }));
+      );
+      return { ...msgs, [conversationId]: list };
+    });
   }
 
   private removeOptimisticMessage(
     conversationId: string,
     tempId: string,
   ): void {
-    this.messages.update((msgs) => ({
-      ...msgs,
-      [conversationId]: (msgs[conversationId] ?? []).filter(
+    this.messages.update((msgs) => {
+      const filtered = (msgs[conversationId] ?? []).filter(
         (m) => m.id !== tempId,
-      ),
-    }));
+      );
+      return { ...msgs, [conversationId]: filtered };
+    });
   }
 
   private updateMessageStatus(

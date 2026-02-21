@@ -33,7 +33,6 @@ export class MessageListComponent implements OnChanges, AfterViewChecked {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['messages']) {
-      console.log('[MessageList] Messages changed:', this.messages.length);
       this.wasNearBottomBeforeUpdate = this.isNearBottom();
       this.cdr.detectChanges();
     }
@@ -42,12 +41,6 @@ export class MessageListComponent implements OnChanges, AfterViewChecked {
   ngAfterViewChecked(): void {
     if (!this.messages) return;
     if (this.messages.length !== this.prevMessageCount) {
-      console.log(
-        '[MessageList] Message count changed:',
-        this.prevMessageCount,
-        '->',
-        this.messages.length,
-      );
       if (this.wasNearBottomBeforeUpdate) {
         this.scrollToBottom();
       }

@@ -412,7 +412,8 @@ export class NotificationService implements OnDestroy {
         console.warn(prefix, message);
         break;
       default:
-        console.log(prefix, message);
+        // intentionally silent in non-critical cases
+        break;
     }
   }
 
