@@ -52,28 +52,13 @@ export class ConversationListComponent {
 
   // Accept the emitted UserSearchResult from the modal and convert to project User
   onUserSelected(user: UserSearchResult): void {
-    // Modal already called startConversation; ensure active conversation is set.
     const conv = this.chatState
       .conversations()
       .find((c) => c.userId === user.id);
-
     if (conv) {
       // Fire-and-forget: state manages loading/mark-as-read
       this.chatState.setActiveConversation(conv.conversationId);
-      return;
     }
-
-    // Fallback: ensure conversation exists by creating one
-    const chatUser: User = {
-      id: user.id,
-      username: user.username || user.displayName || '',
-      email: user.email || '',
-      displayName: user.displayName || user.username || '',
-      profilePictureUrl: user.profilePictureUrl,
-      isOnline: user.isOnline ?? false,
-    };
-
-    this.chatState.startConversation(chatUser);
   }
 
   trackByUser(_index: number, item: UserSearchResult) {
