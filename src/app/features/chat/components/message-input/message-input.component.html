@@ -1,19 +1,40 @@
-<div class="message-input-container">
+<div class="message-input-container" role="form" aria-label="Compose message">
   <textarea
+    pTextarea
     class="message-input"
-    [value]="messageText()"
-    (input)="onInput($any($event.target).value)"
+    [formControl]="messageControl"
     (keydown)="onKeyDown($event)"
-    placeholder="Type your message..."
+    [autoResize]="true"
+    [fluid]="true"
+    [placeholder]="'messaging.placeholder' | translate"
     rows="1"
+    autocomplete="off"
+    autocorrect="on"
+    autocapitalize="sentences"
+    spellcheck="true"
+    [attr.aria-label]="'messaging.message_label' | translate"
+    aria-describedby="send-hint"
+    [attr.aria-disabled]="isSending()"
     [disabled]="isSending()"
   ></textarea>
 
   <p-button
+    class="send-button"
     icon="pi pi-send"
-    [disabled]="!messageText().trim() || isSending()"
     [loading]="isSending()"
+    [disabled]="!messageText().trim() || isSending()"
+    [attr.aria-label]="'messaging.send_button' | translate"
     (onClick)="onSend()"
-    styleClass="send-button"
-  ></p-button>
+  />
+
+  <!-- Links to textarea via aria-describedby — announced on focus by screen readers -->
+  <span id="send-hint" class="sr-only">
+    {{ "messaging.send_hint" | translate }}
+  </span>
+
+  <span aria-live="polite" aria-atomic="true" class="sr-only">
+    @if (isSending()) {
+      <span>{{ "messaging.sending" | translate }}</span>
+    }
+  </span>
 </div>

@@ -1,60 +1,78 @@
 import {
   Component,
-  Output,
-  EventEmitter,
   ChangeDetectionStrategy,
   signal,
+  inject,
+  DestroyRef,
+  output,
+  OnDestroy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
+import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 import { UI_CONSTANTS } from '../../../../core/constants/ui.constants';
-
-/** Delay before emitting typing stopped event (milliseconds) */
-const TYPING_DEBOUNCE_MS = UI_CONSTANTS.TYPING_DEBOUNCE_MS;
-/** Delay before resetting sending state (milliseconds) */
-const SEND_RESET_DELAY_MS = UI_CONSTANTS.SEND_RESET_DELAY_MS;
 
 @Component({
   selector: 'app-message-input',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule],
+  imports: [ReactiveFormsModule, TextareaModule, ButtonModule, TranslateModule],
   templateUrl: './message-input.component.html',
-  styleUrls: ['./message-input.component.scss'],
+  styleUrl: './message-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MessageInputComponent {
-  @Output() messageSent = new EventEmitter<string>();
-  @Output() typingStarted = new EventEmitter<void>();
-  @Output() typingStopped = new EventEmitter<void>();
+export class MessageInputComponent implements OnDestroy {
+  readonly messageSent = output<string>();
+  readonly typingStarted = output<void>();
+  readonly typingStopped = output<void>();
 
-  readonly messageText = signal('');
   readonly isSending = signal(false);
+  readonly messageControl = new FormControl('', { nonNullable: true });
+  readonly messageText = toSignal(this.messageControl.valueChanges, {
+    initialValue: '',
+  });
 
-  private typingTimeout?: number;
+  private wasTyping = false;
+  private readonly destroyRef = inject(DestroyRef);
 
-  onInput(value: string): void {
-    this.messageText.set(value);
-    if (value.length === 1) this.typingStarted.emit();
-    if (this.typingTimeout) clearTimeout(this.typingTimeout);
-    if (value.length > 0) {
-      this.typingTimeout = window.setTimeout(
-        () => this.typingStopped.emit(),
-        TYPING_DEBOUNCE_MS,
-      );
-    } else {
-      this.typingStopped.emit();
-    }
+  constructor() {
+    // Single pipe handles full typing lifecycle:
+    // tap (sync) → start/clear on keystroke; debounce → stop after silence.
+    this.messageControl.valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        tap((value) => {
+          if (!this.wasTyping && value.length > 0) {
+            this.wasTyping = true;
+            this.typingStarted.emit();
+          }
+          if (this.wasTyping && value.length === 0) {
+            this.wasTyping = false;
+            this.typingStopped.emit();
+          }
+        }),
+        debounceTime(UI_CONSTANTS.TYPING_DEBOUNCE_MS),
+        tap(() => this.stopTyping()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   onSend(): void {
-    const text = this.messageText().trim();
+    const text = this.messageControl.value.trim();
     if (!text || this.isSending()) return;
+
     this.isSending.set(true);
     this.messageSent.emit(text);
-    this.messageText.set('');
-    this.typingStopped.emit();
-    setTimeout(() => this.isSending.set(false), SEND_RESET_DELAY_MS);
+    this.messageControl.setValue('');
+    this.stopTyping();
+
+    // timer() not setTimeout — auto-cancelled by destroyRef if component unmounts mid-send.
+    timer(UI_CONSTANTS.SEND_RESET_DELAY_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.isSending.set(false));
   }
 
   onKeyDown(event: KeyboardEvent): void {
@@ -62,5 +80,16 @@ export class MessageInputComponent {
       event.preventDefault();
       this.onSend();
     }
+  }
+
+  // Prevent ghost typing indicator if user navigates away mid-composition.
+  ngOnDestroy(): void {
+    this.stopTyping();
+  }
+
+  private stopTyping(): void {
+    if (!this.wasTyping) return;
+    this.wasTyping = false;
+    this.typingStopped.emit();
   }
 }

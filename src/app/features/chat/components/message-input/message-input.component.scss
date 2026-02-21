@@ -1,20 +1,72 @@
+/**
+ * message-input.component.scss
+ *
+ * No ::ng-deep, no !important, no hardcoded hex values.
+ * PrimeNG tokens (var(--p-*)) ensure theme + dark mode compatibility.
+ */
+
+// ── Layout ───────────────────────────────────────────────────────────────────
+
 .message-input-container {
   display: flex;
   gap: 8px;
   padding: 12px;
   align-items: flex-end;
   border-top: 1px solid var(--app-border);
-  background: var(--p-surface-50);
+  background: var(--app-bg);
 }
+
+// ── Textarea ─────────────────────────────────────────────────────────────────
+
 .message-input {
   flex: 1;
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid var(--app-border);
+  /* Use PrimeNG surface token with white fallback to ensure theme compatibility */
+  background: var(--app-bg);
   resize: none;
   max-height: 120px;
-  font-size: 0.95rem;
+  font-size: 0.95rem; // rem — respects user browser font-size preference
+  line-height: 1.5;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-surface-300) transparent;
+  transition: border-color 150ms ease;
+
+  &:focus-visible {
+    // WCAG 2.2 compliant — never outline: none
+    outline: 3px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
 }
+
+// ── Send button ───────────────────────────────────────────────────────────────
+
 .send-button {
   --p-button-padding: 10px 14px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+// ── Screen reader only ────────────────────────────────────────────────────────
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ── Reduced motion ────────────────────────────────────────────────────────────
+
+@media (prefers-reduced-motion: reduce) {
+  .message-input {
+    transition: none;
+  }
 }

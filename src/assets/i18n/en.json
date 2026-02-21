@@ -4,14 +4,12 @@
     "login_submit": "Continue",
     "login_invalid_credentials": "Wrong email or password. Try again or click Forgot password to reset it.",
     "login_success": "Welcome back",
-
     "register_title": "Create your account",
     "register_google": "Continue with Google",
     "register_already_member": "Already have an account?",
     "register_success": "Welcome! We sent a verification email to your inbox.",
     "register_email_exists": "An account with this email already exists",
     "register_username_taken": "This username isn't available. Try another.",
-
     "verify_email_title": "Verifying your email",
     "verify_email_wait": "This will only take a moment...",
     "verify_email_success": "Your email is verified",
@@ -35,7 +33,6 @@
     "verify_email_help": "Need help? Contact support@putzige.com",
     "verify_email_too_many_attempts": "Too many attempts. Wait a few minutes before trying again.",
     "verify_email_verification_sent": "Check your email to verify your account",
-
     "session_expired": "Your session expired. Please sign in again.",
     "token_expired_redirect": "Your session expired. Redirecting to sign in...",
     "forbidden": "You don't have access to this",
@@ -44,16 +41,19 @@
     "account_inactive": "Your account is inactive. Contact support to reactivate it.",
     "email_not_verified": "Verify your email address to continue"
   },
-
   "messaging": {
     "send_success": "Message sent",
     "message_too_long": "Your message is too long. Keep it under 1,000 characters.",
     "message_not_found": "Message not found",
     "sender_required": "Sender information is missing",
     "receiver_required": "Recipient is required",
-    "message_text_required": "Can't send an empty message"
+    "message_text_required": "Can't send an empty message",
+    "placeholder": "Write a message...",
+    "message_label": "Message",
+    "send_button": "Send message",
+    "send_hint": "Press Enter to send, Shift+Enter for a new line",
+    "sending": "Sending message..."
   },
-
   "global": {
     "app_title": "PutZige",
     "app_welcome": "Hello GMD",
@@ -74,7 +74,6 @@
     "auth_error": "Authentication error",
     "server_error": "Server error"
   },
-
   "network": {
     "offline": "No internet connection. Check your network and try again.",
     "timeout": "This is taking longer than usual. Check your connection and try again.",
@@ -82,7 +81,6 @@
     "unknown": "Something went wrong with your connection. Try again.",
     "server_unavailable": "Can't reach the server right now. Try again in a few minutes."
   },
-
   "http": {
     "bad_request": "Something's not right with your request. Check your info and try again.",
     "not_found": "We couldn't find what you're looking for",
@@ -95,7 +93,6 @@
     "unknown": "Something went wrong. Try again.",
     "rate_limit": "Slow down. Wait {{seconds}} seconds before trying again."
   },
-
   "form": {
     "required": "Required",
     "required_field": "{{field}} is required",
@@ -115,7 +112,6 @@
     "identifier_required": "ID is required",
     "refresh_token_required": "Session token is required"
   },
-
   "system": {
     "jwt_secret_missing": "Configuration error. Contact support.",
     "jwt_secret_invalid": "Configuration error. Contact support.",
@@ -123,6 +119,7 @@
     "hash_required": "Hash is required",
     "salt_required": "Salt is required",
     "page_number_invalid": "Page number is invalid",
-    "page_size_invalid": "Page size is invalid"
+    "page_size_invalid": "Page size is invalid",
+    "jwt_secret_too_short": "Configuration error. Contact support."
   }
 }
