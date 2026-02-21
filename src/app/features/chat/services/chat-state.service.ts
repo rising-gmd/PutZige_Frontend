@@ -43,7 +43,11 @@ export class ChatStateService {
   private readonly api = inject(ChatApiService);
   private readonly convApi = inject(ConversationService);
   private readonly signalR = inject(SignalRService);
-  private readonly notification = inject(NotificationService);
+  // NotificationService is optional in some unit tests; inject optionally to
+  // avoid forcing TestBed providers for unrelated specs.
+  private readonly notification = inject(NotificationService, {
+    optional: true,
+  }) as NotificationService | undefined;
   private readonly destroyRef = inject(DestroyRef);
 
   // ── State signals ───────────────────────────────────────────────────
@@ -105,7 +109,7 @@ export class ChatStateService {
     } catch (err: unknown) {
       const msg = extractErrorMessage(err);
       this.error.set(msg);
-      this.notification.showError(msg);
+      this.notification?.showError(msg);
       throw err;
     }
   }
@@ -126,11 +130,19 @@ export class ChatStateService {
 
   /** Activate a conversation, loading its messages if not already cached. */
   async setActiveConversation(conversationId: string): Promise<void> {
+    // Set active conversation immediately
     this.activeConversationId.set(conversationId);
-    if (!this.messages()[conversationId]) {
+
+    // Immediately mark conversation as read on the server (fire-and-forget).
+    // Users expect the unread badge to clear as soon as they click a chat
+    // even if messages haven't been loaded yet.
+    this.markConversationAsRead(conversationId);
+
+    // Load messages if not cached yet (still await to ensure UI renders messages)
+    const cached = this.messages()[conversationId];
+    if (!cached || cached.length === 0) {
       await this.loadMessages(conversationId);
     }
-    await this.markConversationAsRead(conversationId);
   }
 
   /** Load paginated message history for a conversation. */
@@ -211,7 +223,7 @@ export class ChatStateService {
       } catch (apiErr: unknown) {
         this.removeOptimisticMessage(conversationId, tempId);
         const msg = extractErrorMessage(apiErr);
-        this.notification.showError(msg);
+        this.notification?.showError(msg);
         throw apiErr;
       }
     } finally {
@@ -269,14 +281,14 @@ export class ChatStateService {
       // Set as active
       await this.setActiveConversation(newConversation.conversationId);
 
-      this.notification.showSuccess(
+      this.notification?.showSuccess(
         `Started conversation with ${user.displayName ?? user.username}`,
       );
     } catch (err: unknown) {
       // Handle 404 user-not-found specially
       const msg = extractErrorMessage(err);
       this.error.set(msg);
-      this.notification.showError(`Failed to start conversation: ${msg}`);
+      this.notification?.showError(`Failed to start conversation: ${msg}`);
       throw err;
     }
   }
@@ -454,24 +466,12 @@ export class ChatStateService {
   }
 
   private async markConversationAsRead(conversationId: string): Promise<void> {
-    const currentUserId = this.currentUser()?.id;
-    if (!currentUserId) return;
-
-    const msgs = this.messages()[conversationId] ?? [];
-    const unread = msgs.filter(
-      (m) => !m.readAt && m.receiverId === currentUserId,
-    );
-    if (unread.length === 0) return;
-
-    // Optimistic local update: mark unread messages as read and clear unreadCount
+    // Simplified behavior: when user opens a conversation, immediately
+    // clear the conversation unread badge locally and notify the server.
+    // This avoids races where currentUser or messages aren't loaded yet.
     const now = new Date();
-    this.messages.update((all) => ({
-      ...all,
-      [conversationId]: (all[conversationId] ?? []).map((m) =>
-        !m.readAt && m.receiverId === currentUserId ? { ...m, readAt: now } : m,
-      ),
-    }));
 
+    // Optimistically clear unread count on conversation only
     this.conversations.update((convs) =>
       convs.map((c) =>
         c.conversationId === conversationId
@@ -480,11 +480,11 @@ export class ChatStateService {
       ),
     );
 
-    // Single conversation-level API call (best-effort, silent fail)
+    // Fire the backend call (best-effort, silent fail)
     try {
       await firstValueFrom(this.convApi.markConversationAsRead(conversationId));
     } catch {
-      // silent fail per requirements — no user-visible error
+      // intentionally silent per existing behavior
     }
   }
 

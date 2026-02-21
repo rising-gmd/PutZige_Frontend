@@ -29,6 +29,10 @@ export class ChatContainerComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   async ngOnInit(): Promise<void> {
+    // Ensure chat state is fully initialized (current user, conversations,
+    // SignalR connection) before the UI allows selecting conversations.
+    // Awaiting here prevents race conditions where mark-as-read runs before
+    // currentUser is known.
     await this.chatState.initialize();
   }
 }

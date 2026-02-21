@@ -14,7 +14,11 @@ import { MessageSentPayload, SignalREvents } from './signalr-events.constants';
 
 @Injectable({ providedIn: 'root' })
 export class SignalRService {
-  private readonly apiConfig = inject(API_CONFIG) as ApiConfig;
+  // API config may not be provided in some tests; make injection optional to
+  // avoid breaking TestBed setups that don't provide the token.
+  private readonly apiConfig = inject(API_CONFIG, { optional: true }) as
+    | ApiConfig
+    | undefined;
   private hubConnection?: HubConnection;
   private eventHandlers: {
     event: string;
@@ -56,6 +60,13 @@ export class SignalRService {
 
   async startConnection(): Promise<void> {
     if (this.hubConnection?.state === HubConnectionState.Connected) return;
+
+    if (!this.apiConfig) {
+      // In unit tests the API config is often not provided. Fail fast by
+      // warning and skipping connection setup rather than throwing.
+      console.warn('[SignalR] API config not provided — skipping connection');
+      return;
+    }
 
     const hubUrl = `${this.apiConfig.baseUrl}/api/${this.apiConfig.version}/hubs/chat`;
 

@@ -45,22 +45,23 @@ export class ChatAreaComponent {
 
   // ngOnInit intentionally left blank; marking-as-read is handled by ChatStateService.setActiveConversation
 
-  async onSendMessage(messageText: string): Promise<void> {
+  onSendMessage(messageText: string): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
 
-    await this.chatState.sendMessage(conversation.conversationId, messageText);
+    // Fire-and-forget: ChatStateService handles optimistic updates and errors
+    this.chatState.sendMessage(conversation.conversationId, messageText);
   }
 
   onTypingStarted(): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
-    void this.signalR.notifyTyping(conversation.conversationId, true);
+    this.signalR.notifyTyping(conversation.conversationId, true);
   }
 
   onTypingStopped(): void {
     const conversation = this.activeConversation();
     if (!conversation) return;
-    void this.signalR.notifyTyping(conversation.conversationId, false);
+    this.signalR.notifyTyping(conversation.conversationId, false);
   }
 }

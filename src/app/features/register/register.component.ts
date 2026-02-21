@@ -104,7 +104,7 @@ export class RegisterComponent {
     return this.form.controls.terms;
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     this.submitted.set(true);
     if (this.form.invalid) {
       this.form.markAllAsTouched();

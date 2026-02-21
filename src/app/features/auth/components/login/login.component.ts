@@ -79,7 +79,7 @@ export class LoginComponent {
     return this.form.controls.password;
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     this.submitted.set(true);
     if (this.form.invalid) {
       this.form.markAllAsTouched();

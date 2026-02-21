@@ -51,14 +51,15 @@ export class ConversationListComponent {
   }
 
   // Accept the emitted UserSearchResult from the modal and convert to project User
-  async onUserSelected(user: UserSearchResult): Promise<void> {
+  onUserSelected(user: UserSearchResult): void {
     // Modal already called startConversation; ensure active conversation is set.
     const conv = this.chatState
       .conversations()
       .find((c) => c.userId === user.id);
 
     if (conv) {
-      await this.chatState.setActiveConversation(conv.conversationId);
+      // Fire-and-forget: state manages loading/mark-as-read
+      this.chatState.setActiveConversation(conv.conversationId);
       return;
     }
 
@@ -72,7 +73,7 @@ export class ConversationListComponent {
       isOnline: user.isOnline ?? false,
     };
 
-    await this.chatState.startConversation(chatUser);
+    this.chatState.startConversation(chatUser);
   }
 
   trackByUser(_index: number, item: UserSearchResult) {
@@ -84,6 +85,7 @@ export class ConversationListComponent {
   }
 
   onSelectConversation(conversationId: string): void {
+    // Fire-and-forget; ChatStateService handles loading and mark-as-read
     this.chatState.setActiveConversation(conversationId);
   }
 
@@ -93,7 +95,7 @@ export class ConversationListComponent {
   }
 
   onSelectUser(user: User): void {
-    void this.chatState.startConversation(user);
+    this.chatState.startConversation(user);
     this.searchQuery.set('');
   }
 }

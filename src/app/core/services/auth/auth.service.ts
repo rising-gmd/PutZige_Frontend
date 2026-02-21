@@ -88,7 +88,7 @@ export class AuthService {
       .subscribe({
         complete: () => {
           this.clearAuthState();
-          void this.router.navigate(['/auth/login']);
+          this.router.navigate(['/auth/login']);
         },
       });
   }
