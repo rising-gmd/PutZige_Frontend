@@ -230,6 +230,9 @@ export class SignalRService {
     const deliveredAt = parseDate(deliveredAtValue) ?? undefined;
     const readAt = parseDate(readAtValue) ?? undefined;
 
+    const unreadCount =
+      typeof p['unreadCount'] === 'number' ? (p['unreadCount'] as number) : 0;
+
     return {
       id,
       senderId,
@@ -239,6 +242,7 @@ export class SignalRService {
       deliveredAt,
       readAt,
       conversationId,
+      unreadCount,
     };
   }
 

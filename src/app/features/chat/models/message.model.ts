@@ -11,6 +11,8 @@ export interface Message {
   readonly readAt?: Date;
   /** Optional conversation id associated with the message (provided by server) */
   readonly conversationId?: string;
+  /** Server-provided unread count for the conversation at the time this message was sent */
+  readonly unreadCount?: number;
   /** Marked for optimistic UI before server ack */
   readonly isOptimistic?: boolean;
   /** Temporary client-side id used for optimistic messages */

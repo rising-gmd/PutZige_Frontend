@@ -395,8 +395,25 @@ export class ChatStateService {
 
     if (optimistic) {
       this.replaceOptimisticMessage(convId, optimistic.id, message);
+      // If the server says this message belongs to the conversation that is
+      // currently open, treat it as read immediately (Case A). Use the
+      // server-provided conversationId for this check to avoid local
+      // derivations.
+      if (
+        message.conversationId &&
+        this.activeConversationId() === message.conversationId
+      ) {
+        // Fire-and-forget: mark as read on server and clear local badge.
+        void this.markConversationAsRead(message.conversationId);
+      }
     } else {
       this.addMessageToConversation(convId, message);
+      if (
+        message.conversationId &&
+        this.activeConversationId() === message.conversationId
+      ) {
+        void this.markConversationAsRead(message.conversationId);
+      }
     }
     this.updateConversationLastMessage(convId, message);
   }
@@ -474,6 +491,13 @@ export class ChatStateService {
               lastMessageDeliveredAt: message.deliveredAt?.toISOString(),
               lastMessageReadAt: message.readAt?.toISOString(),
               lastActivity: message.sentAt.toISOString(),
+              // Use server-provided unreadCount when available. Never
+              // increment or calculate locally. If the conversation is the
+              // active one, force unreadCount to 0.
+              unreadCount:
+                c.conversationId === this.activeConversationId()
+                  ? 0
+                  : (message.unreadCount ?? 0),
             }
           : c,
       ),
