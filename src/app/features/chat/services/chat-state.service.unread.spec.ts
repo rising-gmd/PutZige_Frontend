@@ -41,6 +41,7 @@ describe('ChatStateService — unreadCount (SignalR) behavior', () => {
       onMessageReceived: messageReceived$.asObservable(),
       onMessageDelivered: of(),
       onMessageRead: of(),
+      onConversationCreated: of(),
       onUserOnline: of(),
       onUserOffline: of(),
       onUserTyping: of(),

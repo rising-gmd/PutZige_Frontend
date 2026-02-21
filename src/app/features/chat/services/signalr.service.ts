@@ -8,6 +8,7 @@ import {
 import { Subject } from 'rxjs';
 import { Message } from '../models/message.model';
 import { UserStatus } from '../models/user.model';
+import { Conversation } from '../models';
 import { API_CONFIG, ApiConfig } from '../../../core/config/api.config';
 import { parseDate } from '../../../core/utils/date.util';
 import { MessageSentPayload, SignalREvents } from './signalr-events.constants';
@@ -48,6 +49,7 @@ export class SignalRService {
     userId: string;
     conversationId: string;
   }>();
+  private readonly conversationCreated$ = new Subject<Conversation>();
 
   readonly onMessageReceived = this.messageReceived$.asObservable();
   readonly onMessageDelivered = this.messageDelivered$.asObservable();
@@ -57,6 +59,7 @@ export class SignalRService {
   readonly onUserOffline = this.userOffline$.asObservable();
   readonly onUserTyping = this.userTyping$.asObservable();
   readonly onUserStoppedTyping = this.userStoppedTyping$.asObservable();
+  readonly onConversationCreated = this.conversationCreated$.asObservable();
 
   async startConnection(): Promise<void> {
     if (this.hubConnection?.state === HubConnectionState.Connected) return;
@@ -175,6 +178,11 @@ export class SignalRService {
     register(SignalREvents.UserStoppedTyping, (payload: unknown) => {
       const t = this.parseTyping(payload);
       if (t) this.userStoppedTyping$.next(t);
+    });
+
+    register(SignalREvents.ConversationCreated, (payload: unknown) => {
+      const conv = this.parseConversation(payload);
+      if (conv) this.conversationCreated$.next(conv);
     });
   }
 
@@ -326,6 +334,25 @@ export class SignalRService {
       return null;
 
     return { userId: userIdValue, conversationId: conversationIdValue };
+  }
+
+  private parseConversation(payload: unknown): Conversation | null {
+    if (!payload || typeof payload !== 'object') return null;
+    const p = payload as Record<string, unknown>;
+    if (typeof p['conversationId'] !== 'string') return null;
+
+    return {
+      conversationId: p['conversationId'] as string,
+      userId: (p['userId'] as string) ?? '',
+      username: (p['username'] as string) ?? '',
+      displayName: (p['displayName'] as string) ?? undefined,
+      profilePictureUrl: (p['profilePictureUrl'] as string) ?? undefined,
+      isOnline: (p['isOnline'] as boolean) ?? false,
+      unreadCount: 0,
+      isPinned: false,
+      lastActivity: (p['lastActivity'] as string) ?? new Date().toISOString(),
+      isTyping: false,
+    } as Conversation;
   }
 
   private parseMessageSent(payload: unknown): MessageSentPayload | null {

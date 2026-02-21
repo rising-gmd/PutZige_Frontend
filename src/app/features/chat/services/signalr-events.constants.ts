@@ -9,6 +9,7 @@ export const SignalREvents = {
   UserOffline: 'UserOffline',
   UserTyping: 'UserTyping',
   UserStoppedTyping: 'UserStoppedTyping',
+  ConversationCreated: 'ConversationCreated',
   Error: 'Error',
 } as const;
 

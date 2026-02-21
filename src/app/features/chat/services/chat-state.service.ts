@@ -337,6 +337,12 @@ export class ChatStateService {
       .subscribe(({ userId }) => {
         this.setTypingIndicator(userId, false);
       });
+
+    this.signalR.onConversationCreated
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((conversation) => {
+        this.handleIncomingConversation(conversation);
+      });
   }
 
   private setupSearchDebounce(): void {
@@ -514,6 +520,16 @@ export class ChatStateService {
     this.conversations.update((convs) =>
       convs.map((c) => (c.userId === userId ? { ...c, isTyping } : c)),
     );
+  }
+
+  private handleIncomingConversation(conversation: Conversation): void {
+    const exists = this.conversations().some(
+      (c) => c.conversationId === conversation.conversationId,
+    );
+    if (exists) return;
+
+    // Prepend so it appears at top of list
+    this.conversations.update((convs) => [conversation, ...convs]);
   }
 
   private async markConversationAsRead(conversationId: string): Promise<void> {
