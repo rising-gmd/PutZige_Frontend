@@ -21,9 +21,13 @@ export class UserSearchItemComponent {
   @Output() selected = new EventEmitter<UserSearchResult>();
 
   get avatarText(): string {
-    const name = this.user.displayName || this.user.username;
+    const name = (
+      this.user.displayName?.trim() ||
+      this.user.username ||
+      ''
+    ).toString();
     return name
-      .split(' ')
+      .split(/\s+/)
       .map((n: string) => n[0])
       .join('')
       .slice(0, 2)

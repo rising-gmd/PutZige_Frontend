@@ -30,8 +30,12 @@ export class ConversationItemComponent {
   // use pipes in template for time formatting and tooltips
 
   get avatarText(): string {
-    return (this.conversation.displayName ?? '')
-      .split(' ')
+    const name =
+      (this.conversation.displayName && this.conversation.displayName.trim()) ||
+      this.conversation.username ||
+      '';
+    return name
+      .split(/\s+/)
       .map((n) => n[0])
       .join('')
       .slice(0, 2)

@@ -1,0 +1,17 @@
+/* Settings drawer styles - variables only */
+:host {
+  --settings-drawer-width: 420px;
+  --settings-drawer-mobile-width: 100%;
+  --settings-drawer-padding: var(--p-drawer-padding, 1.5rem);
+}
+
+::ng-deep .settings-drawer {
+  width: var(--settings-drawer-width) !important;
+  padding: var(--settings-drawer-padding);
+}
+
+@media (max-width: 768px) {
+  ::ng-deep .settings-drawer {
+    width: var(--settings-drawer-mobile-width) !important;
+  }
+}

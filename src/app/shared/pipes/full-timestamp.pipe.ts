@@ -1,12 +1,15 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { formatFullTimestamp } from '../../core/utils/date.util';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { TimezoneService } from '../../core/services/timezone.service';
 
 @Pipe({
   name: 'fullTimestamp',
   standalone: true,
+  pure: false,
 })
 export class FullTimestampPipe implements PipeTransform {
+  private readonly tz = inject(TimezoneService);
+
   transform(value: Date | string | undefined | null): string {
-    return formatFullTimestamp(value);
+    return this.tz.formatFull(value);
   }
 }

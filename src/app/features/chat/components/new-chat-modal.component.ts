@@ -116,7 +116,8 @@ export class NewChatModalComponent implements OnInit {
       id: user.id,
       username: user.username,
       email: user.email ?? '',
-      displayName: user.displayName ?? user.username,
+      displayName:
+        (user.displayName && user.displayName.trim()) || user.username,
       profilePictureUrl: user.profilePictureUrl,
       isOnline: user.isOnline ?? false,
     } as User);

@@ -1,12 +1,20 @@
 @use "@fontsource/outfit";
 @use "primeicons/primeicons.css";
 
+// ─── IMPORTANT ───────────────────────────────────────────────────────────────
+// --p-* variables are NOT defined here.
+// PrimeNG v21 manages all --p-* tokens via definePreset in theme/my-preset.ts.
+// Overriding --p-* here conflicts with the preset and causes components to
+// render with wrong colors (black backgrounds etc). Do not add them back.
+// Dark mode is handled by .my-app-dark on <html> — matches app.config.ts.
+// ─────────────────────────────────────────────────────────────────────────────
+
 // CSS Reset
 * {
   box-sizing: border-box;
 }
 
-// Design Tokens
+// ─── LIGHT MODE TOKENS (default) ─────────────────────────────────────────────
 :root {
   // Typography
   --font-family-primary: "Outfit", sans-serif;
@@ -46,132 +54,123 @@
   --z-popover: 1060;
   --z-tooltip: 1070;
 
-  /* Primitive palette for dark theme (default app theme) */
-  --p-primary-50: #eef2ff;
-  --p-primary-100: #e0e7ff;
-  --p-primary-200: #c7d2fe;
-  --p-primary-300: #a5b4fc;
-  --p-primary-400: #818cf8;
-  --p-primary-500: #3b82f6;
-  --p-primary-600: #2563eb;
-  --p-primary-700: #1d4ed8;
-  --p-primary-800: #1e40af;
-  --p-primary-900: #172554;
+  // App surface
+  --app-bg: #ffffff;
+  --app-surface: #ffffff;
+  --app-surface-100: #f3f4f6;
+  --app-border: #e5e7eb;
 
-  --p-surface-0: #050505;
-  --p-surface-50: #0b0b0b;
-  --p-surface-100: #0f1720;
-  --p-surface-200: #111827;
+  // App text
+  --app-text: #111827;
+  --app-text-muted: rgba(17, 24, 39, 0.7);
+  --app-text-muted-weak: rgba(17, 24, 39, 0.55);
+  --app-muted: #6b7280;
+  --app-muted-strong: #9ca3af;
 
-  --p-text-primary: #f3f4f6;
-  --p-text-secondary: #9ca3af;
-  --p-text-500: #6b7280;
+  // App primary — for non-PrimeNG elements only
+  // PrimeNG components use var(--p-primary-*) from the preset
+  --app-primary-start: #3b82f6;
+  --app-primary-end: #2563eb;
+  --app-on-primary: #ffffff;
 
-  /* App design tokens mapped to PrimeNG theme tokens */
-  --app-surface: var(--p-surface-0);
-  --app-surface-100: var(--p-surface-100);
-  --app-border: var(--p-surface-200);
-  --app-muted: var(--p-text-secondary);
-  --app-muted-strong: var(--p-text-500);
-  --app-primary-start: var(--p-primary-500);
-  --app-primary-end: var(--p-primary-600);
+  // App card
+  --app-card-bg-start: rgba(0, 0, 0, 0.03);
+  --app-card-bg-end: rgba(0, 0, 0, 0.015);
+  --app-card-border: rgba(0, 0, 0, 0.06);
+  --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --app-cta-border: rgba(0, 0, 0, 0.06);
 
-  /* Page-specific theme tokens (used by pages/components) */
-  /* Chat specific tokens */
-  --chat-bg: var(--app-bg);
-  --chat-sidebar-bg: var(--app-bg);
-  --chat-message-bg: var(--p-surface-100);
-  --chat-own-message-text: #ffffff;
-  --chat-avatar-text: #ffffff;
-  --chat-item-hover-bg: rgba(255, 255, 255, 0.03);
-  --chat-item-active-bg: rgba(59, 130, 246, 0.08);
-  --chat-status-online: #10b981;
-  --chat-badge-text: #ffffff;
-  --app-card-bg-start: rgba(255, 255, 255, 0.02);
-  --app-card-bg-end: rgba(255, 255, 255, 0.01);
-  --app-card-border: rgba(255, 255, 255, 0.06);
-  --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  --app-text: #f3f4f6;
-  --app-text-muted: rgba(255, 255, 255, 0.7);
-  --app-text-muted-weak: rgba(255, 255, 255, 0.55);
+  // Semantic status
   --app-success: #4ade80;
   --app-danger: #fb7185;
-  --app-cta-border: rgba(255, 255, 255, 0.06);
-
-  /* Semantic status colors */
   --status-success: #10b981;
   --status-warning: #f59e0b;
   --status-expired: #f97316;
-  --status-info: var(--p-primary-500);
-  --app-on-primary: #ffffff;
+  --status-info: #3b82f6;
 
-  /* Auth card light theme tokens (for login/register pages) */
+  // Chat tokens — light
+  --chat-bg: #ffffff;
+  --chat-sidebar-bg: #f9fafb;
+  --chat-message-bg: #f3f4f6;
+  --chat-own-message-text: #ffffff;
+  --chat-avatar-text: #ffffff;
+  --chat-item-hover-bg: rgba(0, 0, 0, 0.04);
+  --chat-item-active-bg: rgba(59, 130, 246, 0.12);
+  --chat-status-online: #059669;
+  --chat-badge-text: #ffffff;
+
+  // Auth page tokens — light
+  --auth-viewport-bg: #f3f4f6;
+  --auth-card-bg: #ffffff;
+  --auth-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   --auth-card-surface-default: #ffffff;
   --auth-card-border-default: #e5e7eb;
   --auth-card-text-default: #111827;
   --auth-card-placeholder-default: #9ca3af;
+  --auth-cta-bg: #3b82f6;
+  --auth-cta-bg-hover: #2563eb;
+  --auth-cta-text: #ffffff;
 
-  /* Brand tokens */
+  // Brand tokens
   --google-blue: #4285f4;
   --google-green: #34a853;
   --google-yellow: #fbbc05;
   --google-red: #ea4335;
 }
 
-/* Light theme (add data attribute or class) */
-[data-theme="light"] {
-  /* Primitive palette overrides for light theme */
-  --p-primary-50: #eff6ff;
-  --p-primary-100: #dbeafe;
-  --p-primary-200: #bfdbfe;
-  --p-primary-300: #93c5fd;
-  --p-primary-400: #60a5fa;
-  --p-primary-500: #3b82f6;
-  --p-primary-600: #2563eb;
-  --p-primary-700: #1d4ed8;
-  --p-primary-800: #1e40af;
-  --p-primary-900: #172554;
+// ─── DARK MODE TOKENS ─────────────────────────────────────────────────────────
+// Activated by adding .my-app-dark to <html>
+// Must match darkModeSelector: '.my-app-dark' in app.config.ts
+// PrimeNG switches its own --p-* tokens automatically.
+// We only override our own --app-*, --chat-*, --auth-* tokens here.
+// ─────────────────────────────────────────────────────────────────────────────
+.my-app-dark {
+  // App surface
+  --app-bg: #0f1720;
+  --app-surface: #0f1720;
+  --app-surface-100: #1f2937;
+  --app-border: #374151;
 
-  --p-surface-0: #ffffff;
-  --p-surface-50: #f9fafb;
-  --p-surface-100: #f3f4f6;
-  --p-surface-200: #e5e7eb;
+  // App text
+  --app-text: #f3f4f6;
+  --app-text-muted: rgba(255, 255, 255, 0.7);
+  --app-text-muted-weak: rgba(255, 255, 255, 0.55);
+  --app-muted: #9ca3af;
+  --app-muted-strong: #6b7280;
 
-  --p-text-primary: #111827;
-  --p-text-secondary: #6b7280;
-  --p-text-500: #9ca3af;
+  // App card
+  --app-card-bg-start: rgba(255, 255, 255, 0.02);
+  --app-card-bg-end: rgba(255, 255, 255, 0.01);
+  --app-card-border: rgba(255, 255, 255, 0.06);
+  --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --app-cta-border: rgba(255, 255, 255, 0.06);
 
-  /* App mappings */
-  --app-surface: var(--p-surface-0);
-  --app-bg: #ffffff;
-  --app-card-bg-start: rgba(0, 0, 0, 0.03);
-  --app-card-bg-end: rgba(0, 0, 0, 0.015);
-  --app-card-border: rgba(0, 0, 0, 0.06);
-  --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  --app-text: #111827;
-  --app-text-muted: rgba(17, 24, 39, 0.7);
-  --app-text-muted-weak: rgba(17, 24, 39, 0.55);
-
-  /* Chat specific overrides for light theme */
-  --chat-bg: var(--app-bg);
-  --chat-sidebar-bg: var(--p-surface-50);
-  --chat-message-bg: var(--p-surface-100);
-  --chat-own-message-text: #ffffff; /* gradient on own message keeps white text */
-  --chat-avatar-text: #ffffff; /* avatars remain white text on gradient */
-  --chat-item-hover-bg: rgba(0, 0, 0, 0.04);
-  --chat-item-active-bg: rgba(59, 130, 246, 0.12);
-  --chat-status-online: #059669;
+  // Chat tokens — dark
+  --chat-bg: #0f1720;
+  --chat-sidebar-bg: #0b0b0b;
+  --chat-message-bg: #1f2937;
+  --chat-own-message-text: #ffffff;
+  --chat-avatar-text: #ffffff;
+  --chat-item-hover-bg: rgba(255, 255, 255, 0.03);
+  --chat-item-active-bg: rgba(59, 130, 246, 0.08);
+  --chat-status-online: #10b981;
   --chat-badge-text: #ffffff;
-  /* semantic for auth pages */
-  --auth-viewport-bg: var(--p-surface-100);
-  --auth-card-bg: var(--auth-card-surface-default);
-  --auth-card-shadow: var(--app-card-shadow);
-  --auth-cta-bg: var(--p-primary-500);
-  --auth-cta-bg-hover: var(--p-primary-600);
-  --auth-cta-text: var(--app-on-primary);
+
+  // Auth page tokens — dark
+  --auth-viewport-bg: #0b0b0b;
+  --auth-card-bg: #111827;
+  --auth-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --auth-card-surface-default: #1f2937;
+  --auth-card-border-default: #374151;
+  --auth-card-text-default: #f3f4f6;
+  --auth-card-placeholder-default: #6b7280;
+  --auth-cta-bg: #3b82f6;
+  --auth-cta-bg-hover: #2563eb;
+  --auth-cta-text: #ffffff;
 }
 
-// Base
+// ─── BASE STYLES ──────────────────────────────────────────────────────────────
+
 html {
   font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
@@ -185,9 +184,10 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
-// Typography
 h1,
 h2,
 h3,
@@ -207,7 +207,6 @@ a {
   transition: color var(--transition-fast);
 }
 
-// Form elements
 button {
   font-family: inherit;
   cursor: pointer;
@@ -220,7 +219,8 @@ select {
   font-size: inherit;
 }
 
-// Utilities
+// ─── UTILITIES ────────────────────────────────────────────────────────────────
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -233,18 +233,23 @@ select {
   border-width: 0;
 }
 
-/* Global adjustments for PrimeNG wrapped components to avoid ::ng-deep */
+// ─── PRIMENG GLOBAL ADJUSTMENTS ───────────────────────────────────────────────
+// Use sparingly — prefer preset tokens and [dt] scoped tokens.
+// Only add here when there is truly no other option.
+
+// PrimeNG password wrapper
 .app-password .p-password .p-inputtext {
   width: 100%;
 }
 
-/* Ensure PrimeNG password feedback panel appears above form elements */
+// Password strength panel — prevent layout shift
 .p-password-panel {
   position: fixed !important;
   z-index: var(--z-popover) !important;
 }
 
-/* Global auth page input overrides - applies light theme to auth inputs */
+// Auth page inputs — always light regardless of dark mode
+// These pages render on a light card background even in dark mode
 .register-page input.p-inputtext,
 .login-page input.p-inputtext,
 .register-page input.p-password-input.p-component.p-inputtext,

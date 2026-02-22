@@ -1,12 +1,25 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SettingsDrawerComponent } from '../settings-drawer/settings-drawer.component';
+import { AppButtonComponent } from '../../../../shared/components/app-button/app-button.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChatStateService } from '../../services/chat-state.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-profile-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    SettingsDrawerComponent,
+    AppButtonComponent,
+    TranslateModule,
+  ],
   templateUrl: './profile-card.component.html',
   styleUrls: ['./profile-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,6 +29,9 @@ export class ProfileCardComponent {
   readonly currentUser = this.chatState.currentUser;
   private readonly auth = inject(AuthService);
 
+  @ViewChild('settingsDrawer')
+  settingsDrawer!: import('../settings-drawer/settings-drawer.component').SettingsDrawerComponent;
+
   logout(): void {
     this.auth.logout();
   }
@@ -23,9 +39,12 @@ export class ProfileCardComponent {
   get avatarText(): string {
     const user = this.currentUser();
     if (!user) return '';
-    const name = (user.displayName ?? user.username ?? user.email ?? '')
-      .toString()
-      .trim();
+    const name = (
+      user.displayName?.trim() ||
+      user.username ||
+      user.email ||
+      ''
+    ).toString();
     if (!name) return '';
     return name
       .split(/\s+/)
@@ -36,6 +55,6 @@ export class ProfileCardComponent {
   }
 
   openSettings(): void {
-    // open settings
+    this.settingsDrawer?.open();
   }
 }

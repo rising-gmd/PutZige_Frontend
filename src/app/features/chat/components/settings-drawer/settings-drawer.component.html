@@ -1,0 +1,13 @@
+<p-drawer
+  [visible]="isVisible()"
+  (visibleChange)="isVisible.set($event)"
+  [header]="'settings.title' | translate"
+  position="right"
+  styleClass="settings-drawer"
+  [modal]="true"
+  role="complementary"
+  id="settings-drawer"
+  (onHide)="close()"
+>
+  <app-settings></app-settings>
+</p-drawer>

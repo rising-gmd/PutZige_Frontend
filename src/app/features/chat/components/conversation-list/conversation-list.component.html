@@ -35,11 +35,18 @@
         >
           <div class="avatar-fallback">
             {{
-              (user.displayName || user.username).substring(0, 2) | uppercase
+              (
+                (user.displayName && user.displayName.trim()) ||
+                user.username
+              ).substring(0, 2) | uppercase
             }}
           </div>
           <div class="user-details">
-            <h4>{{ user.displayName || user.username }}</h4>
+            <h4>
+              {{
+                (user.displayName && user.displayName.trim()) || user.username
+              }}
+            </h4>
             <p>{{ user.jobTitle || user.email }}</p>
           </div>
         </div>

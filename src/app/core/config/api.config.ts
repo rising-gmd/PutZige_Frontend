@@ -39,6 +39,7 @@ export const API_ENDPOINTS = {
     SEARCH: '/users/search',
     RECENT_CONTACTS: '/users/recent-contacts',
     SUGGESTIONS: '/users/suggestions',
+    SETTINGS_PREFERENCES: '/api/v1/users/me/settings/preferences',
   },
   PRODUCTS: {
     LIST: '/products',

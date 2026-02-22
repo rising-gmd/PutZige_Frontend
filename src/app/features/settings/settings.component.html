@@ -1,0 +1,35 @@
+<div
+  class="settings-panel"
+  [attr.aria-busy]="isLoading() || isSaving()"
+  aria-live="polite"
+  aria-atomic="true"
+>
+  <label for="timezone" class="settings-label">Timezone</label>
+
+  <p-select
+    id="timezone"
+    [options]="options"
+    optionLabel="label"
+    optionValue="value"
+    [ngModel]="selectedTimezone()"
+    (onChange)="onTimezoneChange($event.value)"
+    [loading]="isLoading()"
+    [disabled]="isLoading() || isSaving()"
+    ariaLabel="Select your timezone"
+    [filter]="true"
+    filterBy="label"
+  ></p-select>
+
+  <div class="status">
+    @if (hasError()) {
+      <p-message severity="error" class="error-message">{{
+        errorMessage()
+      }}</p-message>
+    }
+    @if (isSaving()) {
+      <div class="saving">
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Saving...
+      </div>
+    }
+  </div>
+</div>

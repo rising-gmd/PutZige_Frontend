@@ -10,7 +10,11 @@
     @if (conversation.profilePictureUrl) {
       <img
         [src]="conversation.profilePictureUrl"
-        [alt]="conversation.displayName ?? ''"
+        [alt]="
+          (conversation.displayName && conversation.displayName.trim()) ||
+          conversation.username ||
+          ''
+        "
         class="avatar-img"
       />
     } @else {
@@ -24,7 +28,12 @@
 
   <div class="conversation-details">
     <div class="header-row">
-      <h4 class="user-name">{{ conversation.displayName }}</h4>
+      <h4 class="user-name">
+        {{
+          (conversation.displayName && conversation.displayName.trim()) ||
+            conversation.username
+        }}
+      </h4>
       <span
         class="timestamp"
         title="{{ conversation.lastActivity | relativeTime }}"

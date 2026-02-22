@@ -62,6 +62,7 @@
     "btn_register": "Registrieren",
     "btn_login": "Anmelden",
     "btn_sign_in": "Weiter",
+    "btn_logout": "Abmelden",
     "btn_toggle_dark": "Dunkelmodus umschalten",
     "label_username": "Benutzername",
     "label_identifier": "Benutzername oder E-Mail",
@@ -121,5 +122,12 @@
     "page_number_invalid": "Seitennummer ist ungültig",
     "page_size_invalid": "Seitengröße ist ungültig",
     "jwt_secret_too_short": "Konfigurationsfehler. Kontaktiere den Support."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "open": "Einstellungen öffnen",
+    "load_error": "Einstellungen konnten nicht geladen werden. Zeige lokale Standardwerte.",
+    "save_error": "Speichern der Zeitzone fehlgeschlagen. Vorherige Einstellung wiederhergestellt.",
+    "saving": "Wird gespeichert..."
   }
 }

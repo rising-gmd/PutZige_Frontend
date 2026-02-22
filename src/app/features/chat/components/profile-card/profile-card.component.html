@@ -4,7 +4,7 @@
       @if (user.profilePictureUrl) {
         <img
           [src]="user.profilePictureUrl"
-          [alt]="user.displayName || user.username"
+          [alt]="(user.displayName && user.displayName.trim()) || user.username"
           class="avatar"
         />
       } @else {
@@ -12,7 +12,13 @@
       }
 
       <div class="user-details">
-        <h4>{{ user.displayName || user.username || user.email }}</h4>
+        <h4>
+          {{
+            (user.displayName && user.displayName.trim()) ||
+              user.username ||
+              user.email
+          }}
+        </h4>
         @if (user.jobTitle) {
           <p>{{ user.jobTitle }}</p>
         }
@@ -20,16 +26,25 @@
     </div>
 
     <div class="profile-actions">
-      <button
+      <app-button
         class="settings-btn"
-        (click)="openSettings()"
-        aria-label="Settings"
-      >
-        <i class="pi pi-cog"></i>
-      </button>
-      <button class="logout-btn" (click)="logout()" aria-label="Logout">
-        Logout
-      </button>
+        [label]="'settings.open' | translate"
+        (clicked)="openSettings()"
+        [disabled]="false"
+        [loading]="false"
+        [type]="'button'"
+        [attr.aria-expanded]="settingsDrawer?.isVisible() ?? false"
+        aria-controls="settings-drawer"
+      ></app-button>
+
+      <app-button
+        class="logout-btn"
+        [label]="'global.btn_logout' | translate"
+        (clicked)="logout()"
+        [type]="'button'"
+      ></app-button>
     </div>
+
+    <app-settings-drawer #settingsDrawer></app-settings-drawer>
   </div>
 }

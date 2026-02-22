@@ -1,0 +1,35 @@
+/* Settings component styles - use CSS variables only */
+:host {
+  --settings-gap: var(--p-gap, 1rem);
+  --settings-label-color: var(--p-text-secondary, var(--p-primary-700));
+  --settings-select-width: 100%;
+  display: block;
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--settings-gap);
+  width: var(--settings-select-width);
+}
+
+.settings-label {
+  color: var(--settings-label-color);
+  font-size: var(--p-font-size, 1rem);
+}
+
+.status {
+  margin-top: calc(var(--settings-gap) / 2);
+}
+
+.error-message {
+  color: var(--p-danger-600);
+}
+
+.saving {
+  color: var(--p-primary-500);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--settings-gap) / 4);
+}

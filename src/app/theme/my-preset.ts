@@ -3,7 +3,6 @@ import Aura from '@primeuix/themes/aura';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
-    // Use the blue primitive palette as the primary palette
     primary: {
       50: '{blue.50}',
       100: '{blue.100}',
@@ -17,11 +16,10 @@ const MyPreset = definePreset(Aura, {
       900: '{blue.900}',
       950: '{blue.950}',
     },
-    // Define surfaces for light and dark schemes for better contrast control
     colorScheme: {
       light: {
         surface: {
-          0: '{zinc.0}',
+          0: '#ffffff', // true white — no tint
           50: '{zinc.50}',
           100: '{zinc.100}',
           200: '{zinc.200}',
@@ -37,18 +35,18 @@ const MyPreset = definePreset(Aura, {
       },
       dark: {
         surface: {
-          0: '{slate.0}',
-          50: '{slate.50}',
-          100: '{slate.100}',
-          200: '{slate.200}',
-          300: '{slate.300}',
-          400: '{slate.400}',
-          500: '{slate.500}',
-          600: '{slate.600}',
-          700: '{slate.700}',
-          800: '{slate.800}',
-          900: '{slate.900}',
-          950: '{slate.950}',
+          0: '#0f1720', // your dark app background
+          50: '#111827',
+          100: '#1f2937',
+          200: '#374151',
+          300: '#4b5563',
+          400: '#6b7280',
+          500: '#9ca3af',
+          600: '#d1d5db',
+          700: '#e5e7eb',
+          800: '#f3f4f6',
+          900: '#f9fafb',
+          950: '#ffffff',
         },
       },
     },

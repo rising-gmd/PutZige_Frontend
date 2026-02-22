@@ -1,10 +1,21 @@
 import {
   formatDistanceToNow,
-  format,
-  isToday,
-  isYesterday,
   parseISO,
+  startOfDay,
+  endOfDay,
+  subDays,
+  isWithinInterval,
+  differenceInCalendarDays,
 } from 'date-fns';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
+import { UI_CONSTANTS } from '../constants/ui.constants';
+const {
+  DEFAULT_TIMEZONE,
+  DATE_FORMATS,
+  DATE_LABELS,
+  DATE_THRESHOLDS,
+  EMPTY_STRING,
+} = UI_CONSTANTS;
 
 /**
  * Centralized date formatting utilities for chat application.
@@ -32,25 +43,43 @@ export function parseDate(value: unknown): Date | null {
  * This week: "Mon 3:45 PM"
  * Older: "Jan 15"
  */
+
+function isInDayForTimeZone(
+  date: Date,
+  timeZoneId: string,
+  daysOffset: number = DATE_THRESHOLDS.ZERO,
+): boolean {
+  const zoned = toZonedTime(date, timeZoneId);
+  const nowZoned = toZonedTime(new Date(), timeZoneId);
+  const target =
+    daysOffset === DATE_THRESHOLDS.ZERO
+      ? nowZoned
+      : subDays(nowZoned, Math.abs(daysOffset));
+  const start = startOfDay(target);
+  const end = endOfDay(target);
+  return isWithinInterval(zoned, { start, end });
+}
+
 export function formatMessageTime(
   value: Date | string | undefined | null,
+  timeZoneId: string = DEFAULT_TIMEZONE,
 ): string {
   const date = parseDate(value);
-  if (!date) return '';
+  if (!date) return EMPTY_STRING;
 
-  if (isToday(date)) {
-    return format(date, 'h:mm a');
+  if (isInDayForTimeZone(date, timeZoneId, DATE_THRESHOLDS.ZERO)) {
+    return formatInTimeZone(date, timeZoneId, DATE_FORMATS.TIME);
   }
-  if (isYesterday(date)) {
-    return 'Yesterday';
+  if (isInDayForTimeZone(date, timeZoneId, DATE_THRESHOLDS.ONE)) {
+    return DATE_LABELS.YESTERDAY;
   }
-  const daysDiff = Math.floor(
-    (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  if (daysDiff < 7) {
-    return format(date, 'EEE h:mm a');
+  const zonedNow = toZonedTime(new Date(), timeZoneId);
+  const zonedDate = toZonedTime(date, timeZoneId);
+  const diffDays = differenceInCalendarDays(zonedNow, zonedDate);
+  if (diffDays < DATE_THRESHOLDS.WEEK_DAYS) {
+    return formatInTimeZone(date, timeZoneId, DATE_FORMATS.DAY_TIME);
   }
-  return format(date, 'MMM d');
+  return formatInTimeZone(date, timeZoneId, DATE_FORMATS.MONTH_DAY);
 }
 
 /**
@@ -62,18 +91,23 @@ export function formatMessageTime(
  */
 export function formatConversationTime(
   value: Date | string | undefined | null,
+  timeZoneId: string = DEFAULT_TIMEZONE,
 ): string {
   const date = parseDate(value);
-  if (!date) return '';
+  if (!date) return EMPTY_STRING;
 
-  if (isToday(date)) {
-    return format(date, 'h:mm a');
+  if (isInDayForTimeZone(date, timeZoneId, DATE_THRESHOLDS.ZERO)) {
+    return formatInTimeZone(date, timeZoneId, DATE_FORMATS.TIME);
   }
-  if (isYesterday(date)) {
-    return 'Yesterday';
+  if (isInDayForTimeZone(date, timeZoneId, DATE_THRESHOLDS.ONE)) {
+    return DATE_LABELS.YESTERDAY;
   }
-  const isThisYear = date.getFullYear() === new Date().getFullYear();
-  return isThisYear ? format(date, 'MMM d') : format(date, 'MMM d, yyyy');
+  const zoned = toZonedTime(date, timeZoneId);
+  const currentZoned = toZonedTime(new Date(), timeZoneId);
+  const isThisYear = zoned.getFullYear() === currentZoned.getFullYear();
+  return isThisYear
+    ? formatInTimeZone(date, timeZoneId, DATE_FORMATS.MONTH_DAY)
+    : formatInTimeZone(date, timeZoneId, DATE_FORMATS.MONTH_DAY_YEAR);
 }
 
 /**
@@ -84,7 +118,8 @@ export function formatRelativeTime(
   value: Date | string | undefined | null,
 ): string {
   const date = parseDate(value);
-  if (!date) return '';
+  if (!date) return EMPTY_STRING;
+  // Relative time is independent of timezone for duration semantics; keep using UTC date
   return formatDistanceToNow(date, { addSuffix: true });
 }
 
@@ -94,10 +129,11 @@ export function formatRelativeTime(
  */
 export function formatFullTimestamp(
   value: Date | string | undefined | null,
+  timeZoneId: string = DEFAULT_TIMEZONE,
 ): string {
   const date = parseDate(value);
-  if (!date) return '';
-  return format(date, "MMMM d, yyyy 'at' h:mm a");
+  if (!date) return EMPTY_STRING;
+  return formatInTimeZone(date, timeZoneId, DATE_FORMATS.FULL_TIMESTAMP);
 }
 export function formatDate(date: Date): string {
   return date.toISOString();

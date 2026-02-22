@@ -3,7 +3,12 @@
     <!-- Chat Header -->
     <div class="chat-header">
       <div class="user-info">
-        <h3>{{ conversation.displayName }}</h3>
+        <h3>
+          {{
+            (conversation.displayName && conversation.displayName.trim()) ||
+              conversation.username
+          }}
+        </h3>
         @if (conversation.isOnline) {
           <span class="status online">Active now</span>
         } @else {
@@ -23,7 +28,13 @@
         <div class="empty-state">
           <i class="pi pi-comments"></i>
           <h4>Start the conversation</h4>
-          <p>Send a message to {{ conversation.displayName }}</p>
+          <p>
+            Send a message to
+            {{
+              (conversation.displayName && conversation.displayName.trim()) ||
+                conversation.username
+            }}
+          </p>
         </div>
       } @else {
         <app-message-list
@@ -36,7 +47,11 @@
     <!-- Typing Indicator -->
     @if (conversation.isTyping) {
       <app-typing-indicator
-        [name]="conversation.displayName ?? ''"
+        [name]="
+          (conversation.displayName && conversation.displayName.trim()) ||
+          conversation.username ||
+          ''
+        "
       ></app-typing-indicator>
     }
 
