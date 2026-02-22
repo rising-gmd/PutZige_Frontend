@@ -126,8 +126,20 @@
   "settings": {
     "title": "Settings",
     "open": "Open settings",
-    "load_error": "Failed to load preferences. Showing local defaults.",
-    "save_error": "Failed to save timezone. Previous setting restored.",
-    "saving": "Saving..."
+    "subtitle": "Manage your account preferences",
+    "appearance": "Appearance",
+    "appearance_desc": "Choose how PutZige looks for you",
+    "dark_mode": "Theme",
+    "dark_mode_hint": "Switch between light and dark mode",
+    "light": "Light",
+    "dark": "Dark",
+    "timezone": "Timezone",
+    "timezone_desc": "All message timestamps will use this timezone",
+    "timezone_label": "Your timezone",
+    "timezone_placeholder": "Search timezones...",
+    "saving": "Saving...",
+    "timezone_saved": "Timezone updated successfully",
+    "save_error": "Failed to save. Please try again.",
+    "load_error": "Could not load preferences. Using local defaults."
   }
 }

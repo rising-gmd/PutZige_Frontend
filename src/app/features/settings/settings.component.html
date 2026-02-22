@@ -1,35 +1,112 @@
-<div
-  class="settings-panel"
-  [attr.aria-busy]="isLoading() || isSaving()"
-  aria-live="polite"
-  aria-atomic="true"
->
-  <label for="timezone" class="settings-label">Timezone</label>
-
-  <p-select
-    id="timezone"
-    [options]="options"
-    optionLabel="label"
-    optionValue="value"
-    [ngModel]="selectedTimezone()"
-    (onChange)="onTimezoneChange($event.value)"
-    [loading]="isLoading()"
-    [disabled]="isLoading() || isSaving()"
-    ariaLabel="Select your timezone"
-    [filter]="true"
-    filterBy="label"
-  ></p-select>
-
-  <div class="status">
-    @if (hasError()) {
-      <p-message severity="error" class="error-message">{{
-        errorMessage()
-      }}</p-message>
-    }
-    @if (isSaving()) {
-      <div class="saving">
-        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Saving...
-      </div>
-    }
+<div class="settings-panel" [attr.aria-busy]="isLoading() || isSaving()">
+  <!-- Header -->
+  <div class="settings-header">
+    <h2 class="settings-title">{{ "settings.title" | translate }}</h2>
+    <p class="settings-subtitle">{{ "settings.subtitle" | translate }}</p>
   </div>
+
+  <hr class="settings-divider" role="separator" aria-hidden="true" />
+
+  <!-- Appearance section -->
+  <section class="settings-section" aria-labelledby="appearance-heading">
+    <div class="section-meta">
+      <i class="pi pi-sliders-h section-icon" aria-hidden="true"></i>
+      <div class="section-meta-text">
+        <h3 id="appearance-heading" class="section-title">
+          {{ "settings.appearance" | translate }}
+        </h3>
+        <p class="section-desc">{{ "settings.appearance_desc" | translate }}</p>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <label
+          id="dark-mode-label"
+          for="dark-mode-switch"
+          class="setting-label"
+        >
+          {{ "settings.dark_mode" | translate }}
+        </label>
+        <span class="setting-hint" id="dark-mode-hint">
+          {{ "settings.dark_mode_hint" | translate }}
+        </span>
+      </div>
+
+      <div class="toggle-wrapper">
+        <span class="toggle-label-side" aria-hidden="true">
+          <i class="pi pi-sun" aria-hidden="true"></i>
+        </span>
+        <p-toggleswitch
+          inputId="dark-mode-switch"
+          [ngModel]="isDarkMode()"
+          (ngModelChange)="toggleDarkMode()"
+          ariaLabelledBy="dark-mode-label dark-mode-hint"
+        >
+          <ng-template #handle let-checked="checked">
+            <i
+              [class]="
+                checked
+                  ? 'pi pi-moon toggle-handle-icon'
+                  : 'pi pi-sun toggle-handle-icon'
+              "
+              aria-hidden="true"
+            ></i>
+          </ng-template>
+        </p-toggleswitch>
+        <span class="toggle-label-side" aria-hidden="true">
+          <i class="pi pi-moon" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="settings-divider" role="separator" aria-hidden="true" />
+
+  <!-- Timezone section -->
+  <section class="settings-section" aria-labelledby="timezone-heading">
+    <div class="section-meta">
+      <i class="pi pi-globe section-icon" aria-hidden="true"></i>
+      <div class="section-meta-text">
+        <h3 id="timezone-heading" class="section-title">
+          {{ "settings.timezone" | translate }}
+        </h3>
+        <p class="section-desc">{{ "settings.timezone_desc" | translate }}</p>
+      </div>
+    </div>
+
+    <div class="setting-row setting-row--column">
+      <label for="timezone-select" class="setting-label">
+        {{ "settings.timezone_label" | translate }}
+      </label>
+
+      <p-select
+        inputId="timezone-select"
+        [options]="options"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="selectedTimezone()"
+        (onChange)="onTimezoneChange($event.value)"
+        [loading]="isLoading()"
+        [disabled]="isLoading() || isSaving()"
+        [filter]="true"
+        filterBy="label"
+        [placeholder]="'settings.timezone_placeholder' | translate"
+        [ariaLabel]="'settings.timezone_label' | translate"
+        [fluid]="true"
+      ></p-select>
+
+      @if (isSaving()) {
+        <div
+          class="saving-indicator"
+          aria-live="polite"
+          aria-atomic="true"
+          role="status"
+        >
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+          <span>{{ "settings.saving" | translate }}</span>
+        </div>
+      }
+    </div>
+  </section>
 </div>

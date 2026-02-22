@@ -1,35 +1,171 @@
-/* Settings component styles - use CSS variables only */
+/* Settings component — premium, variable-driven styles */
 :host {
-  --settings-gap: var(--p-gap, 1rem);
-  --settings-label-color: var(--p-text-secondary, var(--p-primary-700));
-  --settings-select-width: 100%;
+  --_padding: var(--spacing-lg);
+  --_gap: var(--spacing-xl);
+  --_section-gap: var(--spacing-md);
+  --_divider: var(--app-border);
+  --_title-color: var(--app-text);
+  --_subtitle-color: var(--app-muted);
+  --_icon-color: var(--app-primary-start);
+  --_icon-size: 1.1rem;
+  --_label-size: 0.875rem;
+  --_hint-size: 0.775rem;
+  --_hint-color: var(--app-muted);
+  --_saving-color: var(--app-muted);
+  --_toggle-icon-color: var(--app-muted);
+  --_toggle-icon-size: 0.85rem;
+  --_toggle-handle-size: var(--_toggle-icon-size);
+  /* Prominent page title size requested by design */
+  --_title-size: 1.25rem;
+  /* small icon offset for alignment */
+  --_icon-offset: 3px;
+  --_title-size: var(--_label-size);
+  --_subtitle-size: var(--_hint-size);
+  --_title-letter-spacing: 0em;
+  --_section-title-letter-spacing: 0.06em;
   display: block;
 }
 
 .settings-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--settings-gap);
-  width: var(--settings-select-width);
+  gap: var(--_gap);
+  padding: var(--_padding);
 }
 
-.settings-label {
-  color: var(--settings-label-color);
-  font-size: var(--p-font-size, 1rem);
+.settings-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
-.status {
-  margin-top: calc(var(--settings-gap) / 2);
+.settings-title {
+  font-size: var(--_title-size);
+  font-weight: 700;
+  color: var(--_title-color);
+  margin: 0;
+  letter-spacing: var(--_title-letter-spacing);
 }
 
-.error-message {
-  color: var(--p-danger-600);
+.settings-subtitle {
+  font-size: var(--_hint-size);
+  color: var(--_subtitle-color);
+  margin: 0;
 }
 
-.saving {
-  color: var(--p-primary-500);
-  font-size: 0.9rem;
+.settings-divider {
+  border: none;
+  border-top: 1px solid var(--_divider);
+  margin: 0;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_section-gap);
+}
+
+.section-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.section-icon {
+  color: var(--_icon-color);
+  font-size: var(--_icon-size);
+  margin-top: var(--_icon-offset);
+  flex-shrink: 0;
+}
+
+.section-meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.section-title {
+  font-size: var(--_label-size);
+  font-weight: 600;
+  color: var(--_title-color);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: var(--_section-title-letter-spacing);
+}
+
+.section-desc {
+  font-size: var(--_hint-size);
+  color: var(--_subtitle-color);
+  margin: 0;
+}
+
+.setting-row {
   display: flex;
   align-items: center;
-  gap: calc(var(--settings-gap) / 4);
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.setting-row--column {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-label {
+  font-size: var(--_label-size);
+  font-weight: 500;
+  color: var(--_title-color);
+}
+
+.setting-hint {
+  font-size: var(--_hint-size);
+  color: var(--_hint-color);
+}
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: fit-content;
+  flex-shrink: 0;
+}
+
+.toggle-label-side {
+  color: var(--_toggle-icon-color);
+  font-size: var(--_toggle-icon-size);
+  display: flex;
+  align-items: center;
+}
+
+.toggle-handle-icon {
+  font-size: var(--_toggle-handle-size);
+  display: inline-flex;
+  align-items: center;
+}
+
+.saving-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--_hint-size);
+  color: var(--_saving-color);
+  animation: fadeIn var(--transition-fast) ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

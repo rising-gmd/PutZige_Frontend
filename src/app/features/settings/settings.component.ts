@@ -8,13 +8,16 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
-import { MessageModule } from 'primeng/message';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs/operators';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { TimezoneService } from '../../core/services/timezone.service';
 import { UI_CONSTANTS } from '../../core/constants/ui.constants';
+import { NotificationService } from '../../shared/services/notification.service';
+import { LocalStorageService } from '../../core/services/local-storage.service';
+import { STORAGE_KEYS } from '../../core/constants/storage-keys.constants';
 
 @Component({
   selector: 'app-settings',
@@ -23,7 +26,7 @@ import { UI_CONSTANTS } from '../../core/constants/ui.constants';
     CommonModule,
     FormsModule,
     SelectModule,
-    MessageModule,
+    ToggleSwitchModule,
     TranslateModule,
   ],
   templateUrl: './settings.component.html',
@@ -32,20 +35,40 @@ import { UI_CONSTANTS } from '../../core/constants/ui.constants';
 export class SettingsComponent {
   private readonly userService = inject(UserService);
   private readonly auth = inject(AuthService);
-  private readonly tz = inject(TimezoneService);
+  // TimezoneService not required directly in this component; timezone
+  // is managed via UserService and AuthService. Keep code minimal.
+  private readonly notificationService = inject(NotificationService);
+  private readonly localStorage = inject(LocalStorageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
 
   readonly isLoading = signal(false);
   readonly isSaving = signal(false);
-  readonly hasError = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly selectedTimezone = signal<string>(
     UI_CONSTANTS.DEFAULT_TIMEZONE as string,
   );
   private previousTimezone = UI_CONSTANTS.DEFAULT_TIMEZONE as string;
 
   readonly options = UI_CONSTANTS.SUPPORTED_TIMEZONES;
+
+  private readonly htmlEl = document.documentElement;
+  readonly isDarkMode = signal<boolean>(
+    this.htmlEl.classList.contains('my-app-dark'),
+  );
+
+  private applySavedTheme(): void {
+    const saved = this.localStorage.get<string | null>(
+      STORAGE_KEYS.THEME,
+      null,
+    );
+    if (saved === 'dark') {
+      this.htmlEl.classList.add('my-app-dark');
+      this.isDarkMode.set(true);
+    } else {
+      this.htmlEl.classList.remove('my-app-dark');
+      this.isDarkMode.set(false);
+    }
+  }
 
   constructor() {
     // load preferences
@@ -60,14 +83,20 @@ export class SettingsComponent {
           this.selectedTimezone.set(tz);
           this.previousTimezone = this.selectedTimezone();
           this.isLoading.set(false);
+          // Apply saved UI theme after preferences load completes
+          this.applySavedTheme();
         },
         error: () => {
-          this.hasError.set(true);
-          this.errorMessage.set(this.translate.instant('settings.load_error'));
+          // Notify user, fall back to browser timezone
+          this.notificationService.showWarn(
+            this.translate.instant('settings.load_error'),
+          );
           this.selectedTimezone.set(
             Intl.DateTimeFormat().resolvedOptions().timeZone,
           );
           this.isLoading.set(false);
+          // Apply saved UI theme even when loading preferences fails
+          this.applySavedTheme();
         },
       });
   }
@@ -80,26 +109,51 @@ export class SettingsComponent {
     this.previousTimezone = this.selectedTimezone();
     this.selectedTimezone.set(value);
     this.isSaving.set(true);
-    this.hasError.set(false);
+    // Notifications will convey errors/success to the user
 
     this.userService
       .updateUserPreferences({ timeZoneId: value })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.isSaving.set(false);
-          // refresh auth user to pick up changed settings
+          // show success toast, refresh auth, then stop saving indicator
+          this.notificationService.showSuccess(
+            this.translate.instant('settings.timezone_saved'),
+          );
           this.auth
             .checkAuthStatus()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe();
+            .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => {
+                /* no-op; user refreshed */
+              },
+              error: () => {
+                /* ignore auth refresh errors */
+              },
+              complete: () => {
+                // ensure saving indicator always cleared
+                this.isSaving.set(false);
+              },
+            });
         },
         error: () => {
+          this.notificationService.showError(
+            this.translate.instant('settings.save_error'),
+          );
           this.selectedTimezone.set(this.previousTimezone);
           this.isSaving.set(false);
-          this.hasError.set(true);
-          this.errorMessage.set(this.translate.instant('settings.save_error'));
         },
       });
+  }
+
+  toggleDarkMode(): void {
+    this.htmlEl.classList.toggle('my-app-dark');
+    const isDark = this.htmlEl.classList.contains('my-app-dark');
+    this.isDarkMode.set(isDark);
+    try {
+      this.localStorage.set(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
+    } catch {
+      // ignore storage errors silently
+    }
   }
 }

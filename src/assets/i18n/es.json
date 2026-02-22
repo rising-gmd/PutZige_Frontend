@@ -125,10 +125,22 @@
   },
 
   "settings": {
-    "title": "Configuración",
-    "open": "Abrir configuración",
-    "load_error": "No se pudieron cargar las preferencias. Usando valores locales.",
-    "save_error": "Error al guardar la zona horaria. Se restauró la configuración anterior.",
-    "saving": "Guardando..."
+    "title": "Settings",
+    "open": "Open settings",
+    "subtitle": "Manage your account preferences",
+    "appearance": "Appearance",
+    "appearance_desc": "Choose how PutZige looks for you",
+    "dark_mode": "Theme",
+    "dark_mode_hint": "Switch between light and dark mode",
+    "light": "Light",
+    "dark": "Dark",
+    "timezone": "Timezone",
+    "timezone_desc": "All message timestamps will use this timezone",
+    "timezone_label": "Your timezone",
+    "timezone_placeholder": "Search timezones...",
+    "saving": "Saving...",
+    "timezone_saved": "Timezone updated successfully",
+    "save_error": "Failed to save. Please try again.",
+    "load_error": "Could not load preferences. Using local defaults."
   }
 }
