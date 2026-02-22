@@ -1,5 +1,7 @@
 {
   "auth": {
+    "logout_success": "Sie wurden abgemeldet.",
+    "logout_error": "Abmeldung fehlgeschlagen. Bitte versuche es erneut.",
     "login_title": "Anmelden",
     "login_submit": "Weiter",
     "login_invalid_credentials": "Falsche E-Mail oder Passwort. Versuche es erneut oder klicke auf Passwort vergessen.",
@@ -40,6 +42,13 @@
     "account_locked": "Dein Konto wurde gesperrt. Kontaktiere den Support.",
     "account_inactive": "Dein Konto ist inaktiv. Kontaktiere den Support zur Reaktivierung.",
     "email_not_verified": "Verifiziere deine E-Mail-Adresse, um fortzufahren"
+  },
+  "chat": {
+    "welcome_title": "Willkommen bei PutZige Chat",
+    "welcome_subtitle": "Wähle eine Unterhaltung, um Nachrichten zu senden"
+  },
+  "profile": {
+    "actions": "Profilaktionen"
   },
   "messaging": {
     "send_success": "Nachricht gesendet",

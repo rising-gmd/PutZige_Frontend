@@ -1,5 +1,7 @@
 {
   "auth": {
+    "logout_success": "Has cerrado sesión.",
+    "logout_error": "Error al cerrar sesión. Por favor, inténtalo de nuevo.",
     "login_title": "Iniciar sesión",
     "login_submit": "Continuar",
     "login_invalid_credentials": "Correo o contraseña incorrectos. Inténtalo de nuevo o haz clic en Olvidé mi contraseña.",
@@ -40,6 +42,13 @@
     "account_locked": "Tu cuenta ha sido bloqueada. Contacta al soporte.",
     "account_inactive": "Tu cuenta está inactiva. Contacta al soporte para reactivarla.",
     "email_not_verified": "Verifica tu correo electrónico para continuar"
+  },
+  "chat": {
+    "welcome_title": "Bienvenido a PutZige Chat",
+    "welcome_subtitle": "Selecciona una conversación para empezar a enviar mensajes"
+  },
+  "profile": {
+    "actions": "Acciones de perfil"
   },
   "messaging": {
     "send_success": "Mensaje enviado",

@@ -1,6 +1,7 @@
 @if (currentUser(); as user) {
   <div class="profile-card">
-    <div class="profile-info">
+    <!-- Avatar -->
+    <div class="avatar-wrap">
       @if (user.profilePictureUrl) {
         <img
           [src]="user.profilePictureUrl"
@@ -8,41 +9,60 @@
           class="avatar"
         />
       } @else {
-        <div class="avatar-fallback">{{ avatarText }}</div>
+        <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
       }
-
-      <div class="user-details">
-        <h4>
-          {{
-            (user.displayName && user.displayName.trim()) ||
-              user.username ||
-              user.email
-          }}
-        </h4>
-        @if (user.jobTitle) {
-          <p>{{ user.jobTitle }}</p>
-        }
-      </div>
+      <div class="status-dot" aria-hidden="true"></div>
     </div>
 
-    <div class="profile-actions">
-      <app-button
-        class="settings-btn"
-        [label]="'settings.open' | translate"
-        (clicked)="openSettings()"
-        [disabled]="false"
-        [loading]="false"
-        [type]="'button'"
+    <!-- User info -->
+    <div class="user-meta">
+      <span class="user-name">
+        {{
+          (user.displayName && user.displayName.trim()) ||
+            user.username ||
+            user.email
+        }}
+      </span>
+      @if (user.jobTitle) {
+        <span class="user-title">{{ user.jobTitle }}</span>
+      }
+    </div>
+
+    <!-- Spacer -->
+    <div class="spacer"></div>
+
+    <!-- Icon actions -->
+    <div
+      class="actions"
+      role="group"
+      [attr.aria-label]="'profile.actions' | translate"
+    >
+      <button
+        class="action-btn"
+        type="button"
+        (click)="openSettings()"
         [attr.aria-expanded]="settingsDrawer?.isVisible() ?? false"
         aria-controls="settings-drawer"
-      ></app-button>
+        [attr.aria-label]="'settings.open' | translate"
+        [title]="'settings.open' | translate"
+      >
+        <i class="pi pi-cog" aria-hidden="true"></i>
+      </button>
 
-      <app-button
-        class="logout-btn"
-        [label]="'global.btn_logout' | translate"
-        (clicked)="logout()"
-        [type]="'button'"
-      ></app-button>
+      <button
+        class="action-btn action-btn--danger"
+        type="button"
+        (click)="logout()"
+        [disabled]="isLoggingOut()"
+        [attr.aria-label]="'global.btn_logout' | translate"
+        [title]="'global.btn_logout' | translate"
+      >
+        @if (isLoggingOut()) {
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+        } @else {
+          <i class="pi pi-sign-out" aria-hidden="true"></i>
+        }
+      </button>
     </div>
 
     <app-settings-drawer #settingsDrawer></app-settings-drawer>

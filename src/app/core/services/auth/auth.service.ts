@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, Subject, of } from 'rxjs';
-import { catchError, first, tap, map } from 'rxjs/operators';
+import { catchError, first, tap, map, take } from 'rxjs/operators';
 import { authState } from './auth.state';
 import { AuthApiService } from '../../../features/auth/services/auth-api.service';
 import type { LoginRequest, AuthUser } from '../../models/auth.model';
@@ -79,18 +79,31 @@ export class AuthService {
     );
   }
 
-  /** Logout — call server to clear cookies and clear local state */
-  logout(): void {
-    // best-effort remote logout (fire-and-forget)
-    this.api
-      .logout()
-      .pipe(catchError(() => of(undefined)))
-      .subscribe({
-        complete: () => {
-          this.clearAuthState();
-          this.router.navigate(['/auth/login']);
-        },
-      });
+  /**
+   * Logout — call server to clear cookies and clear local state.
+   * Returns an Observable so callers may react to completion/failure.
+   */
+  logout(): Observable<void> {
+    return this.api.logout().pipe(
+      // only take a single response
+      take(1),
+      // treat errors as a successful flow from the caller's perspective,
+      // but still clear local state below
+      catchError(() => of(undefined)),
+      // always clear local session and navigate to login on completion
+      tap(() => {
+        this.clearAuthState();
+        this.router.navigate(['/auth/login']);
+      }),
+      // ensure the observable has a consistent void type
+      map(() => undefined),
+    );
+  }
+
+  private clearSessionAndRedirect(): void {
+    this.clearAuthState();
+    // Always redirect to the login route
+    this.router.navigate(['/auth/login']);
   }
 
   /**

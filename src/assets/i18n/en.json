@@ -1,5 +1,7 @@
 {
   "auth": {
+    "logout_success": "You have been logged out",
+    "logout_error": "Logout failed. Please try again.",
     "login_title": "Sign in",
     "login_submit": "Continue",
     "login_invalid_credentials": "Wrong email or password. Try again or click Forgot password to reset it.",
@@ -40,6 +42,13 @@
     "account_locked": "Your account has been locked. Contact support for help.",
     "account_inactive": "Your account is inactive. Contact support to reactivate it.",
     "email_not_verified": "Verify your email address to continue"
+  },
+  "chat": {
+    "welcome_title": "Welcome to PutZige Chat",
+    "welcome_subtitle": "Select a conversation to start messaging"
+  },
+  "profile": {
+    "actions": "Profile actions"
   },
   "messaging": {
     "send_success": "Message sent",

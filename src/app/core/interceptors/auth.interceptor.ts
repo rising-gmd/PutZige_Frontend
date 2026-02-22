@@ -3,22 +3,27 @@ import {
   type HttpInterceptorFn,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { throwError, of } from 'rxjs';
+import { catchError, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth/auth.service';
-import { ROUTE_PATHS } from '../constants/route.constants';
 import { API_ENDPOINTS } from '../config/api.config';
 
 function getCookie(name: string): string | null {
   try {
-    const cookies = document.cookie ? document.cookie.split('; ') : [];
-    for (const c of cookies) {
-      const [k, v] = c.split('=');
+    if (!document.cookie) return null;
+    // robust parsing: cookie values can contain '=' so only split on first '='
+    const cookies = document.cookie.split(';');
+    for (const raw of cookies) {
+      const c = raw.trim();
+      const idx = c.indexOf('=');
+      if (idx === -1) continue;
+      const k = c.substring(0, idx).trim();
+      const v = c.substring(idx + 1);
       if (k === name) return decodeURIComponent(v || '');
     }
     return null;
   } catch {
+    // avoid throwing from interceptor cookie parsing
     return null;
   }
 }
@@ -31,13 +36,11 @@ function getCookie(name: string): string | null {
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  const router = inject(Router);
 
   // Public endpoints that should not trigger refresh logic (use centralized endpoints)
   const publicEndpoints = [
     API_ENDPOINTS.AUTH.LOGIN,
     API_ENDPOINTS.AUTH.REFRESH,
-    API_ENDPOINTS.AUTH.REFRESH_TOKEN ?? API_ENDPOINTS.AUTH.REFRESH_TOKEN,
     API_ENDPOINTS.AUTH.LOGOUT,
     API_ENDPOINTS.AUTH.VERIFY_EMAIL,
     API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
@@ -73,9 +76,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               });
               return next(retryReq);
             }
-            // Refresh failed — force logout and navigate to login
-            auth.logout();
-            void router.navigate([`/${ROUTE_PATHS.AUTH}/${ROUTE_PATHS.LOGIN}`]);
+            // Refresh failed — trigger logout (service clears state and navigates)
+            auth
+              .logout()
+              .pipe(
+                take(1),
+                catchError(() => of(undefined)),
+              )
+              .subscribe();
             return throwError(() => err);
           }),
         );

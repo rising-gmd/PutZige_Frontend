@@ -62,10 +62,12 @@
       (typingStopped)="onTypingStopped()"
     ></app-message-input>
   } @else {
-    <div class="no-conversation-state">
-      <i class="pi pi-comments"></i>
-      <h3>Welcome to PutZige Chat</h3>
-      <p>Select a conversation to start messaging</p>
+    <div class="no-conversation-state" role="status" aria-live="polite">
+      <div class="empty-icon-wrap" aria-hidden="true">
+        <i class="pi pi-comments"></i>
+      </div>
+      <h3 class="empty-title">{{ "chat.welcome_title" | translate }}</h3>
+      <p class="empty-subtitle">{{ "chat.welcome_subtitle" | translate }}</p>
     </div>
   }
 </div>

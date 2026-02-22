@@ -40,6 +40,36 @@
   gap: 16px;
   padding: 48px;
   color: var(--p-text-secondary);
+  text-align: center;
+}
+
+.empty-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--chat-item-active-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-sm);
+
+  i {
+    font-size: 1.5rem;
+    color: var(--app-primary-start);
+  }
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.empty-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--app-muted);
 }
 
 .typing-indicator {

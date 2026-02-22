@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { TypingIndicatorComponent } from '../typing-indicator/typing-indicator.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChatStateService } from '../../services/chat-state.service';
 import { SignalRService } from '../../services/signalr.service';
 
@@ -20,6 +21,7 @@ import { SignalRService } from '../../services/signalr.service';
     MessageListComponent,
     MessageInputComponent,
     TypingIndicatorComponent,
+    TranslateModule,
   ],
   templateUrl: './chat-area.component.html',
   styleUrls: ['./chat-area.component.scss'],
@@ -37,7 +39,8 @@ export class ChatAreaComponent {
 
   constructor() {
     effect(() => {
-      // active messages changed
+      // re-run when activeMessages changes so OnPush components update
+      this.activeMessages();
       this.cdr.markForCheck();
     });
   }

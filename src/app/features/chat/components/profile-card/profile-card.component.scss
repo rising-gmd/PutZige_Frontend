@@ -1,73 +1,150 @@
-.profile-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px; /* increased for breathing room */
-  border-top: 1px solid var(--app-border);
-  background: var(--chat-sidebar-bg);
-}
-.profile-card {
-  width: 100%;
-}
-
-/* Ensure the component host itself pushes to the bottom of the sidebar flex container */
 :host {
+  --_height: 64px;
+  --_padding-x: var(--spacing-md);
+  --_padding-y: var(--spacing-sm);
+  --_avatar-size: 34px;
+  --_avatar-radius: var(--radius-full);
+  --_status-size: 9px;
+  --_status-offset: 1px;
+  --_status-border: 2px;
+  --_name-size: 0.8rem;
+  --_title-size: 0.7rem;
+  --_btn-size: 30px;
+  --_btn-radius: var(--radius-md);
+  --_btn-color: var(--app-muted);
+  --_btn-hover-bg: var(--chat-item-hover-bg);
+  --_btn-hover-color: var(--app-text);
+  --_btn-danger-hover-color: var(--app-danger);
+  --_btn-danger-hover-bg: rgba(251, 113, 133, 0.08);
+  --_border-color: var(--app-border);
+  --_bg: var(--chat-sidebar-bg);
+  --_transition: var(--transition-fast);
   display: block;
   margin-top: auto;
 }
-.profile-info {
+
+.profile-card {
   display: flex;
-  gap: var(--spacing-chat-md, 12px);
   align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--_padding-y) var(--_padding-x);
+  height: var(--_height);
+  border-top: 1px solid var(--_border-color);
+  background: var(--_bg);
+  width: 100%;
 }
+
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .avatar,
 .avatar-fallback {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: var(--_avatar-size);
+  height: var(--_avatar-size);
+  border-radius: var(--_avatar-radius);
 }
+
+.avatar {
+  object-fit: cover;
+}
+
 .avatar-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(
     135deg,
-    var(--p-primary-500),
-    var(--p-primary-600)
+    var(--app-primary-start),
+    var(--app-primary-end)
   );
-  color: var(--chat-avatar-text);
-  font-weight: 600;
-}
-.user-details h4 {
-  margin: 0;
-  font-size: 0.9rem;
-}
-.settings-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--p-text-secondary);
-  padding: 8px;
-  border-radius: 6px;
+  color: var(--app-on-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
-.profile-actions {
+.status-dot {
+  position: absolute;
+  bottom: var(--_status-offset);
+  right: var(--_status-offset);
+  width: var(--_status-size);
+  height: var(--_status-size);
+  border-radius: var(--radius-full);
+  background: var(--chat-status-online);
+  border: var(--_status-border) solid var(--_bg);
+}
+
+.user-meta {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-name {
+  font-size: var(--_name-size);
+  font-weight: 600;
+  color: var(--app-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-title {
+  font-size: var(--_title-size);
+  color: var(--app-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.actions {
+  display: flex;
   align-items: center;
+  gap: var(--spacing-xs);
 }
 
-.logout-btn {
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_btn-size);
+  height: var(--_btn-size);
+  border-radius: var(--_btn-radius);
+  border: none;
   background: transparent;
-  border: 1px solid var(--app-border);
-  color: var(--p-text-primary);
-  padding: 6px 10px;
-  border-radius: 8px;
+  color: var(--_btn-color);
   cursor: pointer;
-  font-size: 0.875rem;
+  transition:
+    background var(--_transition),
+    color var(--_transition);
+  font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
-.settings-btn:hover,
-.logout-btn:hover {
-  background: var(--chat-item-hover-bg);
+.action-btn:hover {
+  background: var(--_btn-hover-bg);
+  color: var(--_btn-hover-color);
+}
+
+.action-btn:focus-visible {
+  outline: 2px solid var(--app-primary-start);
+  outline-offset: 2px;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn--danger:hover {
+  background: var(--_btn-danger-hover-bg);
+  color: var(--_btn-danger-hover-color);
 }
