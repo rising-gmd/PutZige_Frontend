@@ -194,6 +194,7 @@ h3,
 h4,
 h5,
 h6 {
+  font-family: var(--font-family-primary); // add this
   font-weight: 600;
   line-height: 1.2;
 }
