@@ -6,15 +6,10 @@ export const UI_CONSTANTS = {
   CONVERSATION_PAGE_SIZE: 50,
   VERIFY_REDIRECT_DELAY_MS: 3000,
   DEFAULT_TIMEZONE: 'UTC',
-  SUPPORTED_TIMEZONES: [
-    { label: 'UTC', value: 'UTC' },
-    { label: 'Asia / Karachi', value: 'Asia/Karachi' },
-    { label: 'Europe / Berlin', value: 'Europe/Berlin' },
-    { label: 'Asia / Tokyo', value: 'Asia/Tokyo' },
-    { label: 'Asia / Singapore', value: 'Asia/Singapore' },
-    { label: 'America / New York', value: 'America/New_York' },
-    { label: 'America / Los Angeles', value: 'America/Los_Angeles' },
-  ] as const,
+  SUPPORTED_TIMEZONES: Intl.supportedValuesOf('timeZone').map((tz) => ({
+    label: tz.replace(/_/g, ' '),
+    value: tz,
+  })),
   DATE_FORMATS: {
     TIME: 'h:mm a',
     DAY_TIME: 'EEE h:mm a',
