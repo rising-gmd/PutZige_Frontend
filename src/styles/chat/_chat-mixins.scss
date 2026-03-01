@@ -1,0 +1,116 @@
+// ── Avatar mixin ───────────────────────────────────────────
+@mixin chat-avatar($size: var(--chat-avatar-size)) {
+  width: $size;
+  height: $size;
+  border-radius: var(--chat-avatar-radius);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+@mixin chat-avatar-fallback($size: var(--chat-avatar-size)) {
+  @include chat-avatar($size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--chat-avatar-fallback-bg);
+  color: var(--chat-avatar-fallback-color);
+  font-size: var(--chat-avatar-font-size);
+  font-weight: var(--chat-avatar-font-weight);
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+// ── Status dot mixin ───────────────────────────────────────
+@mixin chat-status-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: var(--chat-status-size);
+  height: var(--chat-status-size);
+  border-radius: 50%;
+  border: var(--chat-status-border-width) solid var(--chat-status-border-color);
+  background: var(--chat-status-online-color);
+}
+
+// ── Truncate text ──────────────────────────────────────────
+@mixin text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Focus ring (WCAG AA) ───────────────────────────────────
+@mixin focus-ring($color: var(--p-primary-500), $offset: 2px) {
+  &:focus-visible {
+    outline: 2px solid $color;
+    outline-offset: $offset;
+    border-radius: var(--radius-sm);
+  }
+}
+
+// ── Interactive row (hover + active) ──────────────────────
+@mixin interactive-row {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--chat-item-hover-bg);
+  }
+
+  @include focus-ring;
+}
+
+// ── Icon button ───────────────────────────────────────────
+@mixin icon-btn($size: 36px) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $size;
+  height: $size;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover {
+    background: var(--chat-item-hover-bg);
+    color: var(--app-text);
+  }
+
+  @include focus-ring;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// ── Scrollbar thin ────────────────────────────────────────
+@mixin scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--app-border);
+    border-radius: 4px;
+  }
+}
+
+// ── Reduced motion ────────────────────────────────────────
+@mixin no-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}

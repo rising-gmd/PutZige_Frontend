@@ -1,39 +1,98 @@
-<div class="chat-area">
-  @if (activeConversation(); as conversation) {
-    <!-- Chat Header -->
-    <div class="chat-header">
-      <div class="user-info">
-        <h3>
-          {{
-            (conversation.displayName && conversation.displayName.trim()) ||
-              conversation.username
-          }}
-        </h3>
-        @if (conversation.isOnline) {
-          <span class="status online">Active now</span>
+<!-- ============================================================
+  chat-area.component.html
+  Path: src/app/features/chat/components/chat-area/
+  ============================================================ -->
+
+<div class="chat-area-host">
+  @if (activeConversation(); as conv) {
+    <!-- ── Header ────────────────────────────────────────── -->
+    <header class="chat-header">
+      <!-- Avatar -->
+      <div class="header-avatar-wrap">
+        @if (conv.profilePictureUrl) {
+          <img
+            class="header-avatar-img"
+            [src]="conv.profilePictureUrl"
+            [alt]="convDisplayName(conv)"
+            loading="lazy"
+          />
         } @else {
-          <span class="status offline">Offline</span>
+          <div class="header-avatar-fallback" aria-hidden="true">
+            {{ convInitials(conv) }}
+          </div>
+        }
+        @if (conv.isOnline) {
+          <span class="header-status-dot" aria-hidden="true"></span>
         }
       </div>
-    </div>
 
-    <!-- Messages Area -->
-    <div class="messages-container">
+      <!-- Name + Status -->
+      <div class="header-user-info">
+        <h2 class="header-name">{{ convDisplayName(conv) }}</h2>
+        @if (conv.isOnline) {
+          <span class="header-status online" role="status">Online</span>
+        } @else {
+          <span class="header-status offline" role="status">Offline</span>
+        }
+      </div>
+
+      <!-- Action buttons (right side) -->
+      <div
+        class="header-actions"
+        role="group"
+        aria-label="Conversation actions"
+      >
+        <button
+          class="header-action-btn"
+          type="button"
+          aria-label="Video call"
+          title="Video call"
+        >
+          <i class="pi pi-video" aria-hidden="true"></i>
+        </button>
+
+        <button
+          class="header-action-btn"
+          type="button"
+          aria-label="Voice call"
+          title="Voice call"
+        >
+          <i class="pi pi-phone" aria-hidden="true"></i>
+        </button>
+
+        <button
+          class="header-action-btn"
+          type="button"
+          aria-label="More options"
+          title="More options"
+        >
+          <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Messages ─────────────────────────────────────── -->
+    <div class="messages-area">
       @if (isLoading()) {
-        <div class="loading-state">
-          <i class="pi pi-spin pi-spinner"></i>
-          <p>Loading messages...</p>
+        <div
+          class="state-view"
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+        >
+          <div class="state-icon" aria-hidden="true">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <p class="state-subtitle">Loading messages...</p>
         </div>
       } @else if (activeMessages().length === 0) {
-        <div class="empty-state">
-          <i class="pi pi-comments"></i>
-          <h4>Start the conversation</h4>
-          <p>
-            Send a message to
-            {{
-              (conversation.displayName && conversation.displayName.trim()) ||
-                conversation.username
-            }}
+        <div class="state-view" role="status">
+          <div class="state-icon" aria-hidden="true">
+            <i class="pi pi-comments"></i>
+          </div>
+          <h3 class="state-title">Start the conversation</h3>
+          <p class="state-subtitle">
+            Send a message to {{ convDisplayName(conv) }}
           </p>
         </div>
       } @else {
@@ -44,30 +103,29 @@
       }
     </div>
 
-    <!-- Typing Indicator -->
-    @if (conversation.isTyping) {
-      <app-typing-indicator
-        [name]="
-          (conversation.displayName && conversation.displayName.trim()) ||
-          conversation.username ||
-          ''
-        "
-      ></app-typing-indicator>
+    <!-- ── Typing indicator ──────────────────────────────── -->
+    @if (conv.isTyping) {
+      <div class="typing-row">
+        <app-typing-indicator
+          [name]="convDisplayName(conv)"
+        ></app-typing-indicator>
+      </div>
     }
 
-    <!-- Input Area -->
+    <!-- ── Message input ─────────────────────────────────── -->
     <app-message-input
       (messageSent)="onSendMessage($event)"
       (typingStarted)="onTypingStarted()"
       (typingStopped)="onTypingStopped()"
     ></app-message-input>
   } @else {
-    <div class="no-conversation-state" role="status" aria-live="polite">
-      <div class="empty-icon-wrap" aria-hidden="true">
+    <!-- ── No conversation selected ─────────────────────── -->
+    <div class="state-view" role="status" aria-live="polite">
+      <div class="state-icon" aria-hidden="true">
         <i class="pi pi-comments"></i>
       </div>
-      <h3 class="empty-title">{{ "chat.welcome_title" | translate }}</h3>
-      <p class="empty-subtitle">{{ "chat.welcome_subtitle" | translate }}</p>
+      <h2 class="state-title">{{ "chat.welcome_title" | translate }}</h2>
+      <p class="state-subtitle">{{ "chat.welcome_subtitle" | translate }}</p>
     </div>
   }
 </div>

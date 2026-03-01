@@ -1,17 +1,16 @@
-/* Settings drawer styles - variables only */
 :host {
-  --settings-drawer-width: 420px;
-  --settings-drawer-mobile-width: 100%;
-  --settings-drawer-padding: var(--p-drawer-padding, 1.5rem);
+  // All width control via ::ng-deep on the PrimeNG drawer styleClass
+  --_drawer-width: 420px;
+  --_drawer-width-mobile: 100vw;
 }
 
-::ng-deep .settings-drawer {
-  width: var(--settings-drawer-width) !important;
-  padding: var(--settings-drawer-padding);
-}
+// PrimeNG Drawer does not support [dt] tokens for width, so
+// ::ng-deep is the only supported PrimeNG-blessed approach here.
+// Scoped to the styleClass 'settings-drawer' — won't leak globally.
+::ng-deep .settings-drawer.p-drawer {
+  width: var(--_drawer-width) !important;
 
-@media (max-width: 768px) {
-  ::ng-deep .settings-drawer {
-    width: var(--settings-drawer-mobile-width) !important;
+  @media (max-width: 480px) {
+    width: var(--_drawer-width-mobile) !important;
   }
 }

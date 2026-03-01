@@ -4,34 +4,26 @@
     <div class="avatar-wrap">
       @if (user.profilePictureUrl) {
         <img
+          class="avatar-img"
           [src]="user.profilePictureUrl"
-          [alt]="(user.displayName && user.displayName.trim()) || user.username"
-          class="avatar"
+          [alt]="avatarAlt"
+          loading="lazy"
         />
       } @else {
         <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
       }
-      <div class="status-dot" aria-hidden="true"></div>
+      <span class="status-dot" role="img" aria-label="Online"></span>
     </div>
 
     <!-- User info -->
-    <div class="user-meta">
-      <span class="user-name">
-        {{
-          (user.displayName && user.displayName.trim()) ||
-            user.username ||
-            user.email
-        }}
-      </span>
+    <div class="user-info">
+      <span class="user-name">{{ userDisplayName }}</span>
       @if (user.jobTitle) {
         <span class="user-title">{{ user.jobTitle }}</span>
       }
     </div>
 
-    <!-- Spacer -->
-    <div class="spacer"></div>
-
-    <!-- Icon actions -->
+    <!-- Actions -->
     <div
       class="actions"
       role="group"
@@ -40,11 +32,11 @@
       <button
         class="action-btn"
         type="button"
-        (click)="openSettings()"
         [attr.aria-expanded]="settingsDrawer?.isVisible() ?? false"
         aria-controls="settings-drawer"
         [attr.aria-label]="'settings.open' | translate"
         [title]="'settings.open' | translate"
+        (click)="openSettings()"
       >
         <i class="pi pi-cog" aria-hidden="true"></i>
       </button>
@@ -52,10 +44,10 @@
       <button
         class="action-btn action-btn--danger"
         type="button"
-        (click)="logout()"
         [disabled]="isLoggingOut()"
         [attr.aria-label]="'global.btn_logout' | translate"
         [title]="'global.btn_logout' | translate"
+        (click)="logout()"
       >
         @if (isLoggingOut()) {
           <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>

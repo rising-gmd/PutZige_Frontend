@@ -1,20 +1,36 @@
+// ============================================================
+// styles.scss  —  Global stylesheet
+// Path: src/styles.scss
+//
+// ARCHITECTURE:
+//   1. Third-party imports  (fonts, icons)
+//   2. CSS Reset
+//   3. Global app tokens    (--app-*, --auth-*, --chat-*)
+//   4. Dark mode overrides  (.my-app-dark)
+//   5. Base element styles
+//   6. Utility classes
+//   7. PrimeNG global adjustments
+//   8. Chat feature overrides (overlays must be global)
+//
+// RULES:
+//   • --p-* tokens are NEVER set here. PrimeNG manages them.
+//   • Zero hardcoded hex in component SCSS. All hex lives here
+//     as named semantic tokens.
+//   • Dark mode = .my-app-dark on <html> (matches app.config.ts)
+// ============================================================
+
+// ── 1. Third-party ────────────────────────────────────────
 @use "@fontsource/outfit";
 @use "primeicons/primeicons.css";
 
-// ─── IMPORTANT ───────────────────────────────────────────────────────────────
-// --p-* variables are NOT defined here.
-// PrimeNG v21 manages all --p-* tokens via definePreset in theme/my-preset.ts.
-// Overriding --p-* here conflicts with the preset and causes components to
-// render with wrong colors (black backgrounds etc). Do not add them back.
-// Dark mode is handled by .my-app-dark on <html> — matches app.config.ts.
-// ─────────────────────────────────────────────────────────────────────────────
-
-// CSS Reset
-* {
+// ── 2. CSS Reset ──────────────────────────────────────────
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-// ─── LIGHT MODE TOKENS (default) ─────────────────────────────────────────────
+// ── 3. Global tokens (LIGHT MODE default) ─────────────────
 :root {
   // Typography
   --font-family-primary: "Outfit", sans-serif;
@@ -30,22 +46,28 @@
   --spacing-2xl: 3rem;
 
   // Border radius
+  --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
 
   // Shadows
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   // Transitions
   --transition-fast: 150ms ease-in-out;
   --transition-base: 250ms ease-in-out;
   --transition-slow: 350ms ease-in-out;
 
-  // Z-index
+  // Z-index scale
   --z-dropdown: 1000;
   --z-sticky: 1020;
   --z-fixed: 1030;
@@ -54,52 +76,158 @@
   --z-popover: 1060;
   --z-tooltip: 1070;
 
-  // App surface
+  // ── App surfaces (light) ──────────────────────────────
   --app-bg: #ffffff;
   --app-surface: #ffffff;
   --app-surface-100: #f3f4f6;
   --app-border: #e5e7eb;
 
-  // App text
+  // ── App text (light) ──────────────────────────────────
   --app-text: #111827;
   --app-text-muted: rgba(17, 24, 39, 0.7);
   --app-text-muted-weak: rgba(17, 24, 39, 0.55);
   --app-muted: #6b7280;
   --app-muted-strong: #9ca3af;
 
-  // App primary — for non-PrimeNG elements only
-  // PrimeNG components use var(--p-primary-*) from the preset
+  // ── App primary (NON-PrimeNG elements only) ───────────
+  // PrimeNG components use var(--p-primary-*) from preset
   --app-primary-start: #3b82f6;
   --app-primary-end: #2563eb;
   --app-on-primary: #ffffff;
 
-  // App card
+  // ── App card ──────────────────────────────────────────
   --app-card-bg-start: rgba(0, 0, 0, 0.03);
   --app-card-bg-end: rgba(0, 0, 0, 0.015);
   --app-card-border: rgba(0, 0, 0, 0.06);
   --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   --app-cta-border: rgba(0, 0, 0, 0.06);
 
-  // Semantic status
+  // ── Semantic status colors ────────────────────────────
   --app-success: #4ade80;
-  --app-danger: #fb7185;
+  --app-danger: #ef4444;
+  --app-warning: #f59e0b;
   --status-success: #10b981;
   --status-warning: #f59e0b;
   --status-expired: #f97316;
   --status-info: #3b82f6;
 
-  // Chat tokens — light
-  --chat-bg: #ffffff;
-  --chat-sidebar-bg: #f9fafb;
-  --chat-message-bg: #f3f4f6;
+  // ── Chat tokens (light) ───────────────────────────────
+  --chat-sidebar-bg: var(--app-surface);
+  --chat-sidebar-border: var(--app-border);
+  --chat-item-hover-bg: #f3f4f6;
+  --chat-item-active-bg: rgba(59, 130, 246, 0.1);
+  --chat-status-online-color: #22c55e;
+  --chat-badge-text: #ffffff;
   --chat-own-message-text: #ffffff;
   --chat-avatar-text: #ffffff;
-  --chat-item-hover-bg: rgba(0, 0, 0, 0.04);
-  --chat-item-active-bg: rgba(59, 130, 246, 0.12);
-  --chat-status-online: #059669;
-  --chat-badge-text: #ffffff;
 
-  // Auth page tokens — light
+  // Layout
+  --chat-sidebar-width: 320px;
+  --chat-sidebar-width-md: 340px;
+  --chat-sidebar-width-lg: 380px;
+  --chat-sidebar-width-xl: 400px;
+  --chat-header-height: 64px;
+  --chat-profile-card-height: 64px;
+
+  // Spacing (chat-specific)
+  --chat-space-1: 0.25rem;
+  --chat-space-2: 0.5rem;
+  --chat-space-3: 0.75rem;
+  --chat-space-4: 1rem;
+  --chat-space-5: 1.25rem;
+  --chat-space-6: 1.5rem;
+  --chat-space-8: 2rem;
+
+  // Avatar
+  --chat-avatar-size: 44px;
+  --chat-avatar-radius: 50%;
+  --chat-avatar-fallback-bg: var(--p-primary-500);
+  --chat-avatar-fallback-color: #ffffff;
+  --chat-avatar-font-size: 0.875rem;
+  --chat-avatar-font-weight: 700;
+
+  // Status dot
+  --chat-status-size: 11px;
+  --chat-status-border-width: 2px;
+  --chat-status-border-color: var(--app-surface);
+
+  // Badges
+  --chat-badge-bg: var(--p-primary-500);
+  --chat-badge-color: #ffffff;
+  --chat-badge-size: 20px;
+  --chat-badge-font-size: 0.7rem;
+  --chat-badge-font-weight: 700;
+  --chat-badge-radius: var(--radius-full);
+
+  // Bubbles
+  --chat-bubble-own-bg: var(--p-primary-500);
+  --chat-bubble-own-color: #ffffff;
+  --chat-bubble-own-radius: 18px 18px 4px 18px;
+  --chat-bubble-other-bg: #f3f4f6;
+  --chat-bubble-other-color: var(--app-text);
+  --chat-bubble-other-radius: 18px 18px 18px 4px;
+  --chat-bubble-max-width: 65%;
+  --chat-bubble-padding: 10px 14px;
+  --chat-bubble-font-size: 0.9375rem;
+  --chat-bubble-line-height: 1.5;
+
+  // Message status colors
+  --chat-status-sent-color: rgba(17, 24, 39, 0.4);
+  --chat-status-delivered-color: rgba(17, 24, 39, 0.6);
+  --chat-status-read-color: #22c55e;
+
+  // Timestamps
+  --chat-timestamp-color: #6b7280;
+  --chat-timestamp-size: 0.7rem;
+
+  // Date divider
+  --chat-divider-bg: #f3f4f6;
+  --chat-divider-color: #6b7280;
+  --chat-divider-radius: var(--radius-full);
+
+  // Message input
+  --chat-input-bar-bg: var(--app-surface);
+  --chat-input-bar-border: var(--app-border);
+  --chat-input-bar-padding: var(--chat-space-3) var(--chat-space-4);
+  --chat-input-radius: 24px;
+  --chat-input-focus-border: var(--p-primary-500);
+  --chat-input-padding: 10px 16px;
+  --chat-input-font-size: 0.9375rem;
+
+  // Chat header
+  --chat-header-bg: var(--app-surface);
+  --chat-header-border: var(--app-border);
+  --chat-header-padding-x: 1.25rem;
+
+  // Search
+  --chat-search-bg: #f3f4f6;
+  --chat-search-border: transparent;
+  --chat-search-border-focus: var(--p-primary-500);
+  --chat-search-radius: var(--radius-full);
+  --chat-search-height: 38px;
+
+  // Typing indicator
+  --chat-typing-dot-bg: #6b7280;
+  --chat-typing-dot-size: 7px;
+  --chat-typing-bg: #f3f4f6;
+  --chat-typing-radius: 18px 18px 18px 4px;
+
+  // Context menus (appended to body)
+  --chat-menu-bg: var(--app-surface);
+  --chat-menu-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+  --chat-menu-border: var(--app-border);
+  --chat-menu-radius: var(--radius-md);
+  --chat-menu-item-padding: 0.625rem 1.25rem;
+  --chat-menu-item-hover-bg: #f3f4f6;
+  --chat-menu-item-danger-color: var(--app-danger);
+
+  // Profile card
+  --chat-profile-bg: var(--chat-sidebar-bg);
+  --chat-profile-border: var(--app-border);
+  --chat-profile-avatar-size: 36px;
+
+  // ── Auth page tokens (light) ──────────────────────────
   --auth-viewport-bg: #f3f4f6;
   --auth-card-bg: #ffffff;
   --auth-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
@@ -111,52 +239,57 @@
   --auth-cta-bg-hover: #2563eb;
   --auth-cta-text: #ffffff;
 
-  // Brand tokens
+  // ── Brand (third-party) ───────────────────────────────
   --google-blue: #4285f4;
   --google-green: #34a853;
   --google-yellow: #fbbc05;
   --google-red: #ea4335;
 }
 
-// ─── DARK MODE TOKENS ─────────────────────────────────────────────────────────
-// Activated by adding .my-app-dark to <html>
-// Must match darkModeSelector: '.my-app-dark' in app.config.ts
-// PrimeNG switches its own --p-* tokens automatically.
-// We only override our own --app-*, --chat-*, --auth-* tokens here.
-// ─────────────────────────────────────────────────────────────────────────────
+// ── 4. DARK MODE ──────────────────────────────────────────
+// Activated by .my-app-dark on <html>
+// PrimeNG --p-* tokens flip automatically via the preset.
+// We only override our own --app-*, --chat-*, --auth-* here.
 .my-app-dark {
-  // App surface
+  // Surfaces
   --app-bg: #0f1720;
   --app-surface: #0f1720;
   --app-surface-100: #1f2937;
   --app-border: #374151;
 
-  // App text
+  // Text
   --app-text: #f3f4f6;
   --app-text-muted: rgba(255, 255, 255, 0.7);
   --app-text-muted-weak: rgba(255, 255, 255, 0.55);
   --app-muted: #9ca3af;
   --app-muted-strong: #6b7280;
 
-  // App card
+  // Cards
   --app-card-bg-start: rgba(255, 255, 255, 0.02);
   --app-card-bg-end: rgba(255, 255, 255, 0.01);
   --app-card-border: rgba(255, 255, 255, 0.06);
   --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  --app-cta-border: rgba(255, 255, 255, 0.06);
 
-  // Chat tokens — dark
-  --chat-bg: #0f1720;
-  --chat-sidebar-bg: #0b0b0b;
-  --chat-message-bg: #1f2937;
-  --chat-own-message-text: #ffffff;
-  --chat-avatar-text: #ffffff;
-  --chat-item-hover-bg: rgba(255, 255, 255, 0.03);
-  --chat-item-active-bg: rgba(59, 130, 246, 0.08);
-  --chat-status-online: #10b981;
-  --chat-badge-text: #ffffff;
+  // Chat overrides
+  --chat-item-hover-bg: rgba(255, 255, 255, 0.04);
+  --chat-item-active-bg: rgba(59, 130, 246, 0.12);
+  --chat-status-border-color: var(--app-bg);
+  --chat-bubble-other-bg: #1f2937;
+  --chat-divider-bg: #1f2937;
+  --chat-divider-color: #9ca3af;
+  --chat-search-bg: #1f2937;
+  --chat-typing-bg: #1f2937;
+  --chat-typing-dot-bg: #9ca3af;
+  --chat-menu-bg: #1f2937;
+  --chat-menu-border: #374151;
+  --chat-menu-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --chat-menu-item-hover-bg: rgba(255, 255, 255, 0.05);
+  --chat-status-sent-color: rgba(255, 255, 255, 0.4);
+  --chat-status-delivered-color: rgba(255, 255, 255, 0.6);
+  --chat-timestamp-color: #9ca3af;
 
-  // Auth page tokens — dark
+  // Auth overrides
   --auth-viewport-bg: #0b0b0b;
   --auth-card-bg: #111827;
   --auth-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
@@ -164,17 +297,15 @@
   --auth-card-border-default: #374151;
   --auth-card-text-default: #f3f4f6;
   --auth-card-placeholder-default: #6b7280;
-  --auth-cta-bg: #3b82f6;
-  --auth-cta-bg-hover: #2563eb;
-  --auth-cta-text: #ffffff;
 }
 
-// ─── BASE STYLES ──────────────────────────────────────────────────────────────
+// ── 5. Base element styles ────────────────────────────────
 
 html {
   font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
 }
 
 body {
@@ -186,6 +317,9 @@ body {
   overflow-x: hidden;
   background-color: var(--app-bg);
   color: var(--app-text);
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
 }
 
 h1,
@@ -194,9 +328,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-family-primary); // add this
+  font-family: var(--font-family-primary);
   font-weight: 600;
   line-height: 1.2;
+  margin: 0 0 0.5em;
 }
 
 p {
@@ -220,7 +355,7 @@ select {
   font-size: inherit;
 }
 
-// ─── UTILITIES ────────────────────────────────────────────────────────────────
+// ── 6. Utilities ──────────────────────────────────────────
 
 .sr-only {
   position: absolute;
@@ -234,35 +369,103 @@ select {
   border-width: 0;
 }
 
-// ─── PRIMENG GLOBAL ADJUSTMENTS ───────────────────────────────────────────────
-// Use sparingly — prefer preset tokens and [dt] scoped tokens.
-// Only add here when there is truly no other option.
+// ── 7. PrimeNG global adjustments ─────────────────────────
 
 // PrimeNG password wrapper
-.app-password .p-password .p-inputtext {
+.app-password p-password,
+.app-password .p-password {
+  display: block;
   width: 100%;
 }
 
-// Password strength panel — prevent layout shift
+// Password strength panel positioning
 .p-password-panel {
   position: fixed !important;
   z-index: var(--z-popover) !important;
 }
 
-// Auth page inputs — always light regardless of dark mode
-// These pages render on a light card background even in dark mode
-.register-page input.p-inputtext,
-.login-page input.p-inputtext,
-.register-page input.p-password-input.p-component.p-inputtext,
-.login-page input.p-password-input.p-component.p-inputtext {
-  background: var(--auth-card-surface-default) !important;
-  color: var(--auth-card-text-default) !important;
-  border-color: var(--auth-card-border-default) !important;
+// Auth page inputs — force light bg even in dark mode
+.register-page,
+.login-page {
+  input.p-inputtext,
+  input.p-password-input {
+    background: var(--auth-card-surface-default) !important;
+    color: var(--auth-card-text-default) !important;
+    border-color: var(--auth-card-border-default) !important;
+
+    &::placeholder {
+      color: var(--auth-card-placeholder-default) !important;
+    }
+  }
 }
 
-.register-page input.p-inputtext::placeholder,
-.login-page input.p-inputtext::placeholder,
-.register-page input.p-password-input.p-component.p-inputtext::placeholder,
-.login-page input.p-password-input.p-component.p-inputtext::placeholder {
-  color: var(--auth-card-placeholder-default) !important;
+// ── 8. Chat overlay styles (MUST be global — appended to body) ───
+
+// Chat context menus (PrimeNG Menu with popup=true)
+.chat-context-menu.p-menu {
+  min-width: 164px;
+  padding: 4px 0;
+  background: var(--chat-menu-bg);
+  border: 1px solid var(--chat-menu-border);
+  border-radius: var(--chat-menu-radius);
+  box-shadow: var(--chat-menu-shadow);
+  overflow: hidden;
+
+  .p-menu-list {
+    padding: 0;
+  }
+
+  .p-menuitem {
+    .p-menuitem-link {
+      padding: var(--chat-menu-item-padding);
+      border-radius: 0;
+      gap: var(--chat-space-3);
+      font-size: 0.9rem;
+      color: var(--app-text);
+      transition: background var(--transition-fast);
+
+      &:not(.p-disabled):hover {
+        background: var(--chat-menu-item-hover-bg);
+        color: var(--app-text);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--p-primary-500);
+        outline-offset: -2px;
+      }
+
+      .p-menuitem-icon {
+        font-size: 0.875rem;
+        color: var(--app-muted);
+      }
+
+      .p-menuitem-text {
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+    }
+
+    &.menu-item-danger .p-menuitem-link {
+      color: var(--app-danger);
+
+      .p-menuitem-icon {
+        color: var(--app-danger);
+      }
+
+      &:not(.p-disabled):hover {
+        background: rgba(239, 68, 68, 0.06);
+        color: var(--app-danger);
+      }
+    }
+  }
+
+  .p-menuitem-separator {
+    margin: 4px 0;
+    border-color: var(--app-border);
+  }
+}
+
+// Chat dialog (New Chat Modal)
+.p-dialog {
+  border-radius: var(--radius-lg) !important;
 }

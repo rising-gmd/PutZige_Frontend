@@ -2,35 +2,32 @@
   class="user-search-item"
   role="button"
   tabindex="0"
-  [attr.aria-label]="
-    'Start chat with ' +
-    ((user.displayName && user.displayName.trim()) || user.username)
-  "
+  [attr.aria-label]="'Start chat with ' + displayName"
   (click)="onSelect()"
   (keydown.enter)="onSelect()"
-  (keydown.space)="onSelect()"
+  (keydown.space)="$event.preventDefault(); onSelect()"
 >
-  <div class="user-avatar-container">
+  <!-- Avatar -->
+  <div class="avatar-wrap">
     @if (user.profilePictureUrl) {
       <img
+        class="avatar-img"
         [src]="user.profilePictureUrl"
-        [alt]="(user.displayName && user.displayName.trim()) || user.username"
-        class="user-avatar"
+        [alt]="displayName"
+        loading="lazy"
       />
     } @else {
-      <div class="user-avatar-fallback">{{ avatarText }}</div>
+      <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
     }
-
     @if (user.isOnline) {
-      <span class="status-dot online" aria-label="Online"></span>
+      <span class="status-dot" role="img" aria-label="Online"></span>
     }
   </div>
 
+  <!-- Details -->
   <div class="user-details">
-    <h4 class="user-name">
-      {{ (user.displayName && user.displayName.trim()) || user.username }}
-    </h4>
-    <p class="user-info">{{ user.jobTitle || user.email }}</p>
+    <h4 class="user-name">{{ displayName }}</h4>
+    <p class="user-meta">{{ user.jobTitle || user.email }}</p>
     @if (user.bio) {
       <p class="user-bio">{{ user.bio }}</p>
     }

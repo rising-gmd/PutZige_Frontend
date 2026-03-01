@@ -1,77 +1,152 @@
-.chat-area {
+@use "../../../../../styles/chat/chat-mixins" as mix;
+
+:host {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
   background: var(--app-bg);
 }
 
+// ── Chat header ───────────────────────────────────────────
 .chat-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--app-border);
-  background: var(--p-surface-50);
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-3);
+  padding: 0 var(--chat-header-padding-x);
+  height: var(--chat-header-height);
+  min-height: var(--chat-header-height);
+  border-bottom: 1px solid var(--chat-header-border);
+  background: var(--chat-header-bg);
+  flex-shrink: 0;
 }
 
-.user-info h3 {
-  margin: 0 0 4px 0;
-  font-size: 1.1rem;
-  color: var(--p-text-primary);
+// ── Avatar in header ──────────────────────────────────────
+.header-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
-.status.online {
-  color: var(--chat-status-online);
-}
-.status.offline {
-  color: var(--p-text-secondary);
+.header-avatar-img {
+  @include mix.chat-avatar(40px);
 }
 
-.messages-container {
+.header-avatar-fallback {
+  @include mix.chat-avatar-fallback(40px);
+  font-size: 0.8rem;
+}
+
+.header-status-dot {
+  @include mix.chat-status-dot;
+}
+
+// ── User info (name + status) ─────────────────────────────
+.header-user-info {
   flex: 1;
-  overflow: hidden;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.loading-state,
-.empty-state,
-.no-conversation-state {
-  height: 100%;
+.header-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--app-text);
+  @include mix.text-truncate;
+}
+
+.header-status {
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  &.online {
+    color: var(--chat-status-online-color);
+
+    &::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--chat-status-online-color);
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+  }
+
+  &.offline {
+    color: var(--app-muted);
+  }
+}
+
+// ── Header action buttons (right side) ───────────────────
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-1);
+  flex-shrink: 0;
+}
+
+.header-action-btn {
+  @include mix.icon-btn(36px);
+  font-size: 0.95rem;
+  border-radius: 50%;
+}
+
+// ── Messages area ─────────────────────────────────────────
+.messages-area {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+// ── Typing indicator row ─────────────────────────────────
+.typing-row {
+  padding: 0 var(--chat-space-5) var(--chat-space-2);
+  flex-shrink: 0;
+}
+
+// ── Empty / loading / no conversation states ─────────────
+.state-view {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 48px;
-  color: var(--p-text-secondary);
+  height: 100%;
+  gap: var(--chat-space-3);
+  padding: var(--chat-space-8);
+  color: var(--app-muted);
   text-align: center;
 }
 
-.empty-icon-wrap {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  background: var(--chat-item-active-bg);
+.state-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--app-surface-100);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--chat-space-2);
 
   i {
-    font-size: 1.5rem;
-    color: var(--app-primary-start);
+    font-size: 1.6rem;
+    color: var(--p-primary-400);
   }
 }
 
-.empty-title {
+.state-title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.0625rem;
   font-weight: 700;
   color: var(--app-text);
 }
 
-.empty-subtitle {
+.state-subtitle {
   margin: 0;
   font-size: 0.875rem;
   color: var(--app-muted);
-}
-
-.typing-indicator {
-  padding: 8px 20px;
 }

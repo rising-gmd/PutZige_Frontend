@@ -1,40 +1,25 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .app-input {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 100%;
 }
 
 .app-input__control {
+  // PrimeNG pInputText handles the base styling via --p-* tokens.
+  // We only add layout overrides here.
   width: 100%;
-  height: 44px;
-  border-radius: 8px;
-  padding: 0 0.75rem;
-  background: var(--auth-card-surface-default);
-  color: var(--auth-card-text-default);
-  border: 1px solid var(--auth-card-border-default);
-  transition: border-color var(--transition-fast);
 
-  &:focus {
-    outline: none;
-    border-color: var(--p-primary-500);
-  }
-
-  &::placeholder {
-    color: var(--auth-card-placeholder-default);
-  }
+  // These are needed only for auth page context where inputs must be light.
+  // The .register-page / .login-page override in styles.scss handles dark mode.
 }
 
-/* Target PrimeNG rendered input when present */
-input.app-input__control.p-inputtext,
-input.p-inputtext.app-input__control {
-  background: var(--auth-card-surface-default);
-  color: var(--auth-card-text-default);
-  border: 1px solid var(--auth-card-border-default);
-
-  &::placeholder {
-    color: var(--auth-card-placeholder-default);
-  }
-
-  &:focus {
-    border-color: var(--p-primary-500);
-  }
+// Error message spacing
+p-message {
+  display: block;
 }

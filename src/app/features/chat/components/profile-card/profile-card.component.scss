@@ -1,150 +1,77 @@
+@use "../../../../../styles/chat/chat-mixins" as mix;
+
 :host {
-  --_height: 64px;
-  --_padding-x: var(--spacing-md);
-  --_padding-y: var(--spacing-sm);
-  --_avatar-size: 34px;
-  --_avatar-radius: var(--radius-full);
-  --_status-size: 9px;
-  --_status-offset: 1px;
-  --_status-border: 2px;
-  --_name-size: 0.8rem;
-  --_title-size: 0.7rem;
-  --_btn-size: 30px;
-  --_btn-radius: var(--radius-md);
-  --_btn-color: var(--app-muted);
-  --_btn-hover-bg: var(--chat-item-hover-bg);
-  --_btn-hover-color: var(--app-text);
-  --_btn-danger-hover-color: var(--app-danger);
-  --_btn-danger-hover-bg: rgba(251, 113, 133, 0.08);
-  --_border-color: var(--app-border);
-  --_bg: var(--chat-sidebar-bg);
-  --_transition: var(--transition-fast);
   display: block;
+  flex-shrink: 0;
   margin-top: auto;
 }
 
 .profile-card {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--_padding-y) var(--_padding-x);
-  height: var(--_height);
-  border-top: 1px solid var(--_border-color);
-  background: var(--_bg);
-  width: 100%;
+  gap: var(--chat-space-3);
+  padding: 0 var(--chat-space-4);
+  height: var(--chat-profile-card-height);
+  border-top: 1px solid var(--chat-profile-border);
+  background: var(--chat-profile-bg);
 }
 
+// ── Avatar ────────────────────────────────────────────────
 .avatar-wrap {
   position: relative;
   flex-shrink: 0;
 }
 
-.avatar,
-.avatar-fallback {
-  width: var(--_avatar-size);
-  height: var(--_avatar-size);
-  border-radius: var(--_avatar-radius);
-}
-
-.avatar {
-  object-fit: cover;
+.avatar-img {
+  @include mix.chat-avatar(var(--chat-profile-avatar-size));
 }
 
 .avatar-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--app-primary-start),
-    var(--app-primary-end)
-  );
-  color: var(--app-on-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  @include mix.chat-avatar-fallback(var(--chat-profile-avatar-size));
+  font-size: 0.75rem;
 }
 
 .status-dot {
-  position: absolute;
-  bottom: var(--_status-offset);
-  right: var(--_status-offset);
-  width: var(--_status-size);
-  height: var(--_status-size);
-  border-radius: var(--radius-full);
-  background: var(--chat-status-online);
-  border: var(--_status-border) solid var(--_bg);
+  @include mix.chat-status-dot;
 }
 
-.user-meta {
+// ── User info ─────────────────────────────────────────────
+.user-info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  min-width: 0;
-  flex: 1;
 }
 
 .user-name {
-  font-size: var(--_name-size);
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--app-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include mix.text-truncate;
 }
 
 .user-title {
-  font-size: var(--_title-size);
+  font-size: 0.7rem;
   color: var(--app-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include mix.text-truncate;
 }
 
-.spacer {
-  flex: 1;
-}
-
+// ── Action buttons ────────────────────────────────────────
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--_btn-size);
-  height: var(--_btn-size);
-  border-radius: var(--_btn-radius);
-  border: none;
-  background: transparent;
-  color: var(--_btn-color);
-  cursor: pointer;
-  transition:
-    background var(--_transition),
-    color var(--_transition);
-  font-size: 0.9rem;
+  gap: var(--chat-space-1);
   flex-shrink: 0;
 }
 
-.action-btn:hover {
-  background: var(--_btn-hover-bg);
-  color: var(--_btn-hover-color);
-}
+.action-btn {
+  @include mix.icon-btn(30px);
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
 
-.action-btn:focus-visible {
-  outline: 2px solid var(--app-primary-start);
-  outline-offset: 2px;
-}
-
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.action-btn--danger:hover {
-  background: var(--_btn-danger-hover-bg);
-  color: var(--_btn-danger-hover-color);
+  &--danger:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--app-danger);
+  }
 }

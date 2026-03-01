@@ -1,79 +1,74 @@
+@use "../../../../styles/chat/chat-mixins" as mix;
+
+:host {
+  display: block;
+}
+
 .user-search-item {
   display: flex;
-  gap: var(--spacing-chat-md);
-  padding: var(--spacing-chat-md);
-  cursor: pointer;
+  align-items: center;
+  gap: var(--chat-item-gap);
+  padding: var(--chat-space-3) var(--chat-space-2);
   border-radius: var(--radius-md);
+  cursor: pointer;
   transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--chat-item-hover-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-500);
+    outline-offset: 2px;
+  }
 }
 
-.user-search-item:hover {
-  background: var(--chat-hover);
-}
-.user-search-item:focus-visible {
-  outline: 2px solid var(--p-primary-500);
-  outline-offset: 2px;
-}
-
-.user-avatar-container {
+// ── Avatar ────────────────────────────────────────────────
+.avatar-wrap {
   position: relative;
   flex-shrink: 0;
 }
-.user-avatar,
-.user-avatar-fallback {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+
+.avatar-img {
+  @include mix.chat-avatar;
 }
-.user-avatar {
-  object-fit: cover;
-}
-.user-avatar-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--chat-message-own);
-  color: var(--chat-message-text-own);
-  font-weight: 600;
-  font-size: 1rem;
+
+.avatar-fallback {
+  @include mix.chat-avatar-fallback;
 }
 
 .status-dot {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid var(--chat-sidebar-bg);
-}
-.status-dot.online {
-  background: var(--status-online);
+  @include mix.chat-status-dot;
 }
 
+// ── Details ───────────────────────────────────────────────
 .user-details {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
+
 .user-name {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--theme-text-primary);
+  color: var(--app-text);
+  @include mix.text-truncate;
 }
-.user-info {
+
+.user-meta {
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--theme-text-secondary);
+  font-size: 0.8125rem;
+  color: var(--app-muted);
+  @include mix.text-truncate;
 }
+
 .user-bio {
   margin: 0;
-  font-size: 0.8rem;
-  color: var(--theme-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  color: var(--app-muted);
+  opacity: 0.8;
+  @include mix.text-truncate;
 }

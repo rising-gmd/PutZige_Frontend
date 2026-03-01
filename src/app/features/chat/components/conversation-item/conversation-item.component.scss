@@ -1,108 +1,191 @@
+@use "../../../../../styles/chat/chat-mixins" as mix;
+
+:host {
+  display: block;
+}
+
+// ── Root item row ─────────────────────────────────────────
 .conversation-item {
   display: flex;
-  gap: 16px;
-  padding: 16px 20px;
+  align-items: center;
+  gap: var(--chat-item-gap);
+  padding: var(--chat-item-padding-y) var(--chat-item-padding-x);
   cursor: pointer;
-  transition: var(--transition-fast);
-  border-left: 3px solid transparent;
+  position: relative;
+  transition: background var(--transition-fast);
+  border-radius: 0;
+
+  &:hover {
+    background: var(--chat-item-hover-bg);
+
+    .item-menu-btn {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .timestamp {
+      opacity: 0;
+    }
+  }
+
+  &.active {
+    background: var(--chat-item-active-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-500);
+    outline-offset: -2px;
+  }
 }
 
-.conversation-item:hover {
-  background: var(--chat-item-hover-bg);
-}
-.conversation-item.active {
-  background: var(--chat-item-active-bg);
-  border-left-color: var(--p-primary-500);
-}
-
-.avatar-container {
+// ── Avatar column ─────────────────────────────────────────
+.avatar-wrap {
   position: relative;
   flex-shrink: 0;
 }
-.avatar-img,
-.avatar-fallback {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-}
+
 .avatar-img {
-  object-fit: cover;
+  @include mix.chat-avatar;
 }
+
 .avatar-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--p-primary-500),
-    var(--p-primary-600)
-  );
-  color: var(--chat-avatar-text);
-  font-weight: 600;
+  @include mix.chat-avatar-fallback;
 }
 
 .status-dot {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid var(--p-surface-50);
-}
-.status-dot.online {
-  background: var(--chat-status-online);
+  @include mix.chat-status-dot;
 }
 
-.conversation-details {
+// ── Content column ────────────────────────────────────────
+.item-content {
   flex: 1;
-  min-width: 0;
+  min-width: 0; // critical for text-overflow in flex children
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
-.header-row {
+
+// ── Top row: name + timestamp ─────────────────────────────
+.item-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--chat-space-2);
 }
-.user-name {
+
+.item-name {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9375rem; // 15px
   font-weight: 600;
-  color: var(--p-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--app-text);
+  @include mix.text-truncate;
+  flex: 1;
+  min-width: 0;
 }
+
 .timestamp {
   font-size: 0.75rem;
-  color: var(--p-text-secondary);
+  color: var(--app-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity var(--transition-fast);
 }
-.preview-row {
+
+// ── Bottom row: preview + badge ───────────────────────────
+.item-bottom {
   display: flex;
-  gap: 8px;
   align-items: center;
   justify-content: space-between;
+  gap: var(--chat-space-2);
+  min-height: 20px;
 }
-.message-preview {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--p-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+.item-preview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex: 1;
+  min-width: 0;
 }
-.typing-indicator {
-  color: var(--p-primary-400);
-  font-style: italic;
-}
-.unread-badge {
-  background: var(--p-primary-500);
-  color: var(--chat-badge-text);
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 600;
+
+.preview-icon {
   font-size: 0.7rem;
+  flex-shrink: 0;
+  color: var(--chat-status-delivered-color);
+
+  &.read {
+    color: var(--chat-status-read-color);
+  }
+}
+
+.preview-text {
+  margin: 0;
+  font-size: 0.8125rem; // 13px
+  color: var(--app-muted);
+  @include mix.text-truncate;
+  flex: 1;
+  min-width: 0;
+}
+
+.typing-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--p-primary-500);
+  font-style: italic;
+  @include mix.text-truncate;
+}
+
+// ── Unread badge ──────────────────────────────────────────
+.unread-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--chat-badge-size);
+  height: var(--chat-badge-size);
+  padding: 0 5px;
+  border-radius: var(--chat-badge-radius);
+  background: var(--chat-badge-bg);
+  color: var(--chat-badge-color);
+  font-size: var(--chat-badge-font-size);
+  font-weight: var(--chat-badge-font-weight);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+// ── 3-dot menu button (appears on hover) ─────────────────
+.item-actions {
+  position: absolute;
+  right: var(--chat-item-padding-x);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-1);
+}
+
+.item-menu-btn {
+  @include mix.icon-btn(28px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition-fast),
+    background var(--transition-fast);
+  font-size: 0.8rem;
+  border-radius: 50%;
+
+  // Keep visible when menu is open
+  &.menu-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// ── Reduced motion ────────────────────────────────────────
+@include mix.no-motion {
+  .conversation-item {
+    transition: none;
+  }
+  .item-menu-btn {
+    transition: none;
+  }
 }

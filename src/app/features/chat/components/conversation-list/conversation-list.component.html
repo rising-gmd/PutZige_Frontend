@@ -1,93 +1,104 @@
-<div class="conversation-list">
-  <div class="list-header">
-    <h2>Messages</h2>
-    <!-- FAB Button -->
-    <button
-      pButton
-      icon="pi pi-plus"
-      [rounded]="true"
-      class="fab-button"
-      aria-label="Start new conversation"
-      (click)="showNewChatModal()"
-    ></button>
-  </div>
+<!-- ============================================================
+  conversation-list.component.html
+  Path: src/app/features/chat/components/conversation-list/
+  ============================================================ -->
 
-  <div class="search-container">
-    <app-icon-field
+<header class="list-header">
+  <h1 class="list-title">Chats</h1>
+
+  <button
+    class="fab-btn"
+    type="button"
+    aria-label="Start new conversation"
+    (click)="showNewChatModal()"
+  >
+    <i class="pi pi-plus" aria-hidden="true"></i>
+  </button>
+</header>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-field">
+    <i class="pi pi-search search-icon" aria-hidden="true"></i>
+    <input
+      type="search"
       [value]="searchQuery()"
-      (valueChange)="onSearch($event)"
-      [placeholder]="'Search conversations or users...'"
-      [iconClass]="'pi pi-search'"
-      iconPosition="left"
-    ></app-icon-field>
+      (input)="onSearch($any($event.target).value)"
+      placeholder="Search conversations..."
+      aria-label="Search conversations or users"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    />
   </div>
+</div>
 
+<!-- Body -->
+<div class="list-body" role="listbox" aria-label="Conversations">
   @if (searchQuery() && searchResults().length > 0) {
-    <div class="search-results">
-      <p class="section-title">Search Results</p>
-      @for (user of searchResults(); track user.id) {
-        <div
-          class="search-result-item"
-          role="button"
-          tabindex="0"
-          (click)="onSelectUser(user)"
-          (keydown.enter)="onSelectUser(user)"
-        >
-          <div class="avatar-fallback">
-            {{
-              (
-                (user.displayName && user.displayName.trim()) ||
-                user.username
-              ).substring(0, 2) | uppercase
-            }}
-          </div>
-          <div class="user-details">
-            <h4>
-              {{
-                (user.displayName && user.displayName.trim()) || user.username
-              }}
-            </h4>
-            <p>{{ user.jobTitle || user.email }}</p>
-          </div>
+    <p class="section-label">People</p>
+
+    @for (user of searchResults(); track user.id) {
+      <div
+        class="search-result-item"
+        role="option"
+        tabindex="0"
+        [attr.aria-selected]="false"
+        [attr.aria-label]="
+          'Start conversation with ' +
+          (user.displayName?.trim() || user.username)
+        "
+        (click)="onSelectUser(user)"
+        (keydown.enter)="onSelectUser(user)"
+        (keydown.space)="$event.preventDefault(); onSelectUser(user)"
+      >
+        <div class="result-avatar" aria-hidden="true">
+          {{
+            (user.displayName?.trim() || user.username).substring(0, 2)
+              | uppercase
+          }}
         </div>
-      }
+        <div class="result-meta">
+          <h4>{{ user.displayName?.trim() || user.username }}</h4>
+          <p>{{ user.jobTitle || user.email }}</p>
+        </div>
+      </div>
+    }
+  } @else if (searchQuery() && searchResults().length === 0) {
+    <div class="state-container">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <p>No results for "{{ searchQuery() }}"</p>
+      <span>Try a different name or email</span>
+    </div>
+  } @else if (isLoading()) {
+    <div class="state-container" aria-busy="true" aria-live="polite">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      <p>Loading conversations...</p>
+    </div>
+  } @else if (!isLoading() && conversations().length === 0) {
+    <div class="state-container">
+      <i class="pi pi-comments" aria-hidden="true"></i>
+      <p>No conversations yet</p>
+      <span>Start a new chat with the + button</span>
     </div>
   } @else {
-    <div class="conversations-container">
-      @if (isLoading()) {
-        <div class="loading-state">
-          <i class="pi pi-spin pi-spinner"></i>
-          <p>Loading conversations...</p>
-        </div>
-      } @else if (!isLoading() && conversations().length === 0) {
-        <div class="empty-state">
-          <i class="pi pi-inbox"></i>
-          <p>No conversations yet</p>
-          <span>Search for users to start chatting</span>
-        </div>
-      } @else {
-        @if (conversations().length > 0) {
-          @for (
-            conversation of conversations();
-            track conversation.conversationId
-          ) {
-            <app-conversation-item
-              [conversation]="conversation"
-              [isActive]="
-                conversation.conversationId === activeConversationId()
-              "
-              (selected)="onSelectConversation($event)"
-            ></app-conversation-item>
-          }
-        }
-      }
-    </div>
+    @for (conversation of conversations(); track conversation.conversationId) {
+      <app-conversation-item
+        [conversation]="conversation"
+        [isActive]="conversation.conversationId === activeConversationId()"
+        (selected)="onSelectConversation($event)"
+        (viewProfile)="onViewProfile()"
+        (archive)="onArchive()"
+        (block)="onBlock()"
+        (deleteConv)="onDelete()"
+      ></app-conversation-item>
+    }
   }
-
-  <!-- New Chat Modal -->
-  <app-new-chat-modal
-    #newChatModal
-    (userSelected)="onUserSelected($event)"
-    (closed)="onModalClosed()"
-  ></app-new-chat-modal>
 </div>
+
+<!-- New Chat Modal -->
+<app-new-chat-modal
+  #newChatModal
+  (userSelected)="onUserSelected($event)"
+  (closed)="onModalClosed()"
+></app-new-chat-modal>

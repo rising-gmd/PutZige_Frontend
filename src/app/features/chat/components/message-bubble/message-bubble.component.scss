@@ -1,66 +1,144 @@
-.message-bubble {
+@use "../../../../../styles/chat/chat-mixins" as mix;
+
+:host {
+  display: block;
+}
+
+// ── Bubble row ────────────────────────────────────────────
+.bubble-row {
   display: flex;
-  margin-bottom: 6px;
-  animation: slideUp 0.15s ease-out;
+  align-items: flex-end;
+  gap: var(--chat-space-2);
+  margin-bottom: 2px;
+  position: relative;
+
+  // Own messages align right
+  &.own {
+    flex-direction: row-reverse;
+
+    .bubble-actions {
+      order: -1; // "…" appears to the LEFT of own bubbles
+    }
+  }
+
+  // Other messages align left
+  &.other {
+    flex-direction: row;
+  }
+
+  // Show actions on hover
+  &:hover .bubble-menu-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
-.message-bubble.own-message {
-  justify-content: flex-end;
-}
-
-.message-bubble.other-message {
-  justify-content: flex-start;
-}
-
-.message-content {
-  max-width: 68%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: var(--p-surface-100);
-  color: var(--p-text-primary);
+// ── Bubble ────────────────────────────────────────────────
+.bubble {
+  max-width: var(--chat-bubble-max-width);
+  padding: var(--chat-bubble-padding);
+  font-size: var(--chat-bubble-font-size);
+  line-height: var(--chat-bubble-line-height);
   word-break: break-word;
+  overflow-wrap: anywhere;
+  position: relative;
+
+  .own & {
+    background: var(--chat-bubble-own-bg);
+    color: var(--chat-bubble-own-color);
+    border-radius: var(--chat-bubble-own-radius);
+  }
+
+  .other & {
+    background: var(--chat-bubble-other-bg);
+    color: var(--chat-bubble-other-color);
+    border-radius: var(--chat-bubble-other-radius);
+  }
+
+  // Optimistic (sending state) — slightly transparent
+  .optimistic & {
+    opacity: 0.75;
+  }
 }
 
-.message-bubble.own-message .message-content {
-  background: linear-gradient(
-    135deg,
-    var(--p-primary-500),
-    var(--p-primary-600)
-  );
-  color: var(--chat-own-message-text);
-  border-radius: 12px 12px 4px 12px;
+.bubble-text {
+  display: block;
 }
 
-.message-bubble.other-message .message-content {
-  border-radius: 12px 12px 12px 4px;
-}
-
-.message-footer {
+// ── Timestamp + status row ────────────────────────────────
+.bubble-footer {
   display: flex;
-  gap: 6px;
   align-items: center;
-  margin-top: 6px;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: var(--chat-space-1);
   opacity: 0.85;
+}
+
+.bubble-time {
+  font-size: var(--chat-timestamp-size);
+  color: var(--chat-timestamp-color);
+
+  .own & {
+    color: rgba(255, 255, 255, 0.75);
+  }
+}
+
+.bubble-status {
+  font-size: 0.65rem;
+  line-height: 1;
+
+  &.sent {
+    color: rgba(255, 255, 255, 0.65);
+  }
+  &.delivered {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  &.read {
+    color: var(--chat-status-read-color);
+  }
+}
+
+// ── Actions ("…" button) ──────────────────────────────────
+.bubble-actions {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  padding-top: 6px;
+}
+
+.bubble-menu-btn {
+  @include mix.icon-btn(26px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition-fast),
+    background var(--transition-fast);
   font-size: 0.75rem;
+  border-radius: 50%;
+
+  &.menu-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
-.status-icon.read {
-  color: var(--p-primary-300);
-}
-.status-icon.delivered {
-  opacity: 0.85;
-}
-.status-icon.sent {
-  opacity: 0.65;
-}
-
-@keyframes slideUp {
+// ── Slide-in animation ────────────────────────────────────
+@keyframes bubble-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.bubble {
+  animation: bubble-in 0.15s ease-out;
+
+  @include mix.no-motion {
+    animation: none;
   }
 }

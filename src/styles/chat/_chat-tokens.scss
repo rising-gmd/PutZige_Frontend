@@ -1,0 +1,156 @@
+// ============================================================
+// _chat-tokens.scss
+// ALL chat feature CSS custom properties live here.
+// Zero hardcoded hex values — every value references either:
+//   • a --p-* PrimeNG token (auto dark-mode via preset)
+//   • a --app-* token from styles.scss (dark toggled by .my-app-dark)
+// When a user picks a different primary color in the future,
+// all --p-primary-* tokens update and the entire chat updates.
+// ============================================================
+
+:root {
+  // ── Spacing scale (chat-specific, supplements global) ──────
+  --chat-space-1: 0.25rem; // 4px
+  --chat-space-2: 0.5rem; // 8px
+  --chat-space-3: 0.75rem; // 12px
+  --chat-space-4: 1rem; // 16px
+  --chat-space-5: 1.25rem; // 20px
+  --chat-space-6: 1.5rem; // 24px
+  --chat-space-8: 2rem; // 32px
+
+  // ── Layout ─────────────────────────────────────────────────
+  --chat-sidebar-width: 320px;
+  --chat-sidebar-width-md: 340px;
+  --chat-sidebar-width-lg: 380px;
+  --chat-sidebar-width-xl: 400px;
+  --chat-header-height: 64px;
+  --chat-input-min-height: 60px;
+  --chat-profile-card-height: 64px;
+
+  // ── Sidebar surface ────────────────────────────────────────
+  --chat-sidebar-bg: var(--app-surface);
+  --chat-sidebar-border: var(--app-border);
+
+  // ── Conversation item ──────────────────────────────────────
+  --chat-item-padding-x: var(--chat-space-5);
+  --chat-item-padding-y: var(--chat-space-3);
+  --chat-item-gap: var(--chat-space-3);
+  --chat-item-radius: var(--radius-sm);
+  --chat-item-hover-bg: var(--app-surface-100);
+  --chat-item-active-bg: color-mix(
+    in srgb,
+    var(--p-primary-500) 10%,
+    transparent
+  );
+  --chat-item-active-border: var(--p-primary-500);
+
+  // ── Avatar ─────────────────────────────────────────────────
+  --chat-avatar-size: 44px;
+  --chat-avatar-radius: 50%;
+  --chat-avatar-fallback-bg: var(--p-primary-500);
+  --chat-avatar-fallback-color: #ffffff;
+  --chat-avatar-font-size: 0.875rem;
+  --chat-avatar-font-weight: 700;
+
+  // ── Status dot ─────────────────────────────────────────────
+  --chat-status-size: 11px;
+  --chat-status-border-width: 2px;
+  --chat-status-online-color: #22c55e; // single semantic constant, not brand
+  --chat-status-border-color: var(--app-surface);
+
+  // ── Unread badge ───────────────────────────────────────────
+  --chat-badge-bg: var(--p-primary-500);
+  --chat-badge-color: #ffffff;
+  --chat-badge-size: 20px;
+  --chat-badge-font-size: 0.7rem;
+  --chat-badge-font-weight: 700;
+  --chat-badge-radius: var(--radius-full);
+
+  // ── Message bubble ─────────────────────────────────────────
+  --chat-bubble-own-bg: var(--p-primary-500);
+  --chat-bubble-own-color: #ffffff;
+  --chat-bubble-own-radius: 18px 18px 4px 18px;
+  --chat-bubble-other-bg: var(--app-surface-100);
+  --chat-bubble-other-color: var(--app-text);
+  --chat-bubble-other-radius: 18px 18px 18px 4px;
+  --chat-bubble-max-width: 65%;
+  --chat-bubble-padding: 10px 14px;
+  --chat-bubble-font-size: 0.9375rem; // 15px — optimal chat readability
+  --chat-bubble-line-height: 1.5;
+
+  // ── Message status icons ───────────────────────────────────
+  --chat-status-sent-color: color-mix(
+    in srgb,
+    var(--app-text) 40%,
+    transparent
+  );
+  --chat-status-delivered-color: color-mix(
+    in srgb,
+    var(--app-text) 60%,
+    transparent
+  );
+  --chat-status-read-color: #22c55e;
+
+  // ── Message timestamp ──────────────────────────────────────
+  --chat-timestamp-color: var(--app-muted);
+  --chat-timestamp-size: 0.7rem;
+
+  // ── Date divider ───────────────────────────────────────────
+  --chat-divider-bg: var(--app-surface-100);
+  --chat-divider-color: var(--app-muted);
+  --chat-divider-radius: var(--radius-full);
+
+  // ── Message input ──────────────────────────────────────────
+  --chat-input-bg: var(--app-surface);
+  --chat-input-border: var(--app-border);
+  --chat-input-radius: 24px;
+  --chat-input-focus-border: var(--p-primary-500);
+  --chat-input-padding: 10px 16px;
+  --chat-input-font-size: 0.9375rem;
+  --chat-input-bar-bg: var(--app-surface);
+  --chat-input-bar-border: var(--app-border);
+  --chat-input-bar-padding: var(--chat-space-3) var(--chat-space-4);
+
+  // ── Chat header ────────────────────────────────────────────
+  --chat-header-bg: var(--app-surface);
+  --chat-header-border: var(--app-border);
+  --chat-header-padding-x: var(--chat-space-5);
+
+  // ── Search bar ─────────────────────────────────────────────
+  --chat-search-bg: var(--app-surface-100);
+  --chat-search-border: transparent;
+  --chat-search-border-focus: var(--p-primary-500);
+  --chat-search-radius: var(--radius-full);
+  --chat-search-padding: var(--chat-space-2) var(--chat-space-4);
+  --chat-search-height: 38px;
+
+  // ── Typing indicator ───────────────────────────────────────
+  --chat-typing-dot-bg: var(--app-muted);
+  --chat-typing-dot-size: 7px;
+  --chat-typing-bg: var(--app-surface-100);
+  --chat-typing-radius: var(--chat-bubble-other-radius);
+
+  // ── Context menu ───────────────────────────────────────────
+  --chat-menu-bg: var(--app-surface);
+  --chat-menu-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+  --chat-menu-border: var(--app-border);
+  --chat-menu-radius: var(--radius-md);
+  --chat-menu-item-padding: var(--chat-space-3) var(--chat-space-5);
+  --chat-menu-item-hover-bg: var(--app-surface-100);
+  --chat-menu-item-danger-color: var(--app-danger);
+
+  // ── Profile card ───────────────────────────────────────────
+  --chat-profile-bg: var(--chat-sidebar-bg);
+  --chat-profile-border: var(--app-border);
+  --chat-profile-avatar-size: 36px;
+}
+
+// Dark mode overrides — only what differs from light
+// PrimeNG --p-* tokens auto-flip. We just adjust our own.
+.my-app-dark {
+  --chat-status-border-color: var(--app-bg);
+  --chat-menu-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --chat-bubble-other-bg: #1f2937;
+}

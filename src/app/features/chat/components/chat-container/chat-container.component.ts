@@ -3,13 +3,13 @@ import {
   inject,
   OnInit,
   ChangeDetectionStrategy,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConversationListComponent } from '../conversation-list/conversation-list.component';
 import { ChatAreaComponent } from '../chat-area/chat-area.component';
 import { ProfileCardComponent } from '../profile-card/profile-card.component';
 import { ChatStateService } from '../../services/chat-state.service';
-import { AuthService } from '../../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-chat-container',
@@ -26,13 +26,15 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 })
 export class ChatContainerComponent implements OnInit {
   private readonly chatState = inject(ChatStateService);
-  private readonly authService = inject(AuthService);
+
+  /** Controls sidebar visibility on mobile */
+  readonly sidebarOpen = signal(false);
 
   async ngOnInit(): Promise<void> {
-    // Ensure chat state is fully initialized (current user, conversations,
-    // SignalR connection) before the UI allows selecting conversations.
-    // Awaiting here prevents race conditions where mark-as-read runs before
-    // currentUser is known.
     await this.chatState.initialize();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen.update((v) => !v);
   }
 }

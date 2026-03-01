@@ -1,48 +1,92 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+// ── Main layout grid ─────────────────────────────────────
 .chat-container {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: var(--chat-sidebar-width) 1fr;
   height: 100vh;
-  background: var(--chat-bg);
+  background: var(--app-bg);
   overflow: hidden;
 }
 
-.sidebar {
+// ── Sidebar panel ─────────────────────────────────────────
+.chat-sidebar {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-right: 1px solid var(--app-border);
-}
-
-.main-area {
-  height: 100%;
+  border-right: 1px solid var(--chat-sidebar-border);
+  background: var(--chat-sidebar-bg);
   overflow: hidden;
 }
 
+// ── Main chat area ────────────────────────────────────────
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  min-width: 0;
+}
+
+// ── Responsive breakpoints ────────────────────────────────
+
+// Large desktop
+@media (min-width: 1440px) {
+  .chat-container {
+    grid-template-columns: var(--chat-sidebar-width-xl) 1fr;
+  }
+}
+
+// Standard desktop
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .chat-container {
+    grid-template-columns: var(--chat-sidebar-width-lg) 1fr;
+  }
+}
+
+// Small desktop / large tablet
+@media (min-width: 769px) and (max-width: 1023px) {
+  .chat-container {
+    grid-template-columns: var(--chat-sidebar-width-md) 1fr;
+  }
+}
+
+// Mobile — sidebar hidden, main-area fills viewport
+// Switching sidebar/main visible is handled by JS state
 @media (max-width: 768px) {
   .chat-container {
     grid-template-columns: 1fr;
   }
 
-  .sidebar {
-    display: none;
+  .chat-sidebar {
+    // Mobile: sidebar overlays when open — controlled by .sidebar-open class
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85vw;
+    max-width: 360px;
+    height: 100%;
+    z-index: var(--z-modal);
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    box-shadow: var(--shadow-lg);
+    border-right: none;
+
+    &.sidebar-open {
+      transform: translateX(0);
+    }
+  }
+
+  .chat-main {
+    grid-column: 1;
   }
 }
 
-/* Responsive sidebar widths following Material guidance */
-@media (min-width: 1440px) {
-  .chat-container {
-    grid-template-columns: 400px 1fr;
-  }
-}
-
-@media (min-width: 1024px) and (max-width: 1439px) {
-  .chat-container {
-    grid-template-columns: 360px 1fr;
-  }
-}
-
-@media (max-width: 1023px) {
-  .chat-container {
-    grid-template-columns: 320px 1fr;
+@media (prefers-reduced-motion: reduce) {
+  .chat-sidebar {
+    transition: none;
   }
 }

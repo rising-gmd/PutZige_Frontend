@@ -20,15 +20,14 @@ export class UserSearchItemComponent {
   @Input({ required: true }) user!: UserSearchResult;
   @Output() selected = new EventEmitter<UserSearchResult>();
 
+  get displayName(): string {
+    return this.user.displayName?.trim() || this.user.username || '';
+  }
+
   get avatarText(): string {
-    const name = (
-      this.user.displayName?.trim() ||
-      this.user.username ||
-      ''
-    ).toString();
-    return name
+    return this.displayName
       .split(/\s+/)
-      .map((n: string) => n[0])
+      .map((w) => w.charAt(0))
       .join('')
       .slice(0, 2)
       .toUpperCase();

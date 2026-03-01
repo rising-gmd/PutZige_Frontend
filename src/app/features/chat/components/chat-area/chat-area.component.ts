@@ -1,3 +1,7 @@
+// ============================================================
+// chat-area.component.ts
+// Path: src/app/features/chat/components/chat-area/
+// ============================================================
 import {
   Component,
   inject,
@@ -6,22 +10,23 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { TypingIndicatorComponent } from '../typing-indicator/typing-indicator.component';
-import { TranslateModule } from '@ngx-translate/core';
 import { ChatStateService } from '../../services/chat-state.service';
 import { SignalRService } from '../../services/signalr.service';
+import { Conversation } from '../../models/conversation.model';
 
 @Component({
   selector: 'app-chat-area',
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     MessageListComponent,
     MessageInputComponent,
     TypingIndicatorComponent,
-    TranslateModule,
   ],
   templateUrl: './chat-area.component.html',
   styleUrls: ['./chat-area.component.scss'],
@@ -39,31 +44,43 @@ export class ChatAreaComponent {
 
   constructor() {
     effect(() => {
-      // re-run when activeMessages changes so OnPush components update
       this.activeMessages();
       this.cdr.markForCheck();
     });
   }
 
-  // ngOnInit intentionally left blank; marking-as-read is handled by ChatStateService.setActiveConversation
+  // ── Display helpers ──────────────────────────────────────
+
+  convDisplayName(conv: Conversation): string {
+    return conv.displayName?.trim() || conv.username || 'Unknown';
+  }
+
+  convInitials(conv: Conversation): string {
+    return this.convDisplayName(conv)
+      .split(/\s+/)
+      .map((w) => w.charAt(0))
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
+  // ── Event handlers ───────────────────────────────────────
 
   onSendMessage(messageText: string): void {
-    const conversation = this.activeConversation();
-    if (!conversation) return;
-
-    // Fire-and-forget: ChatStateService handles optimistic updates and errors
-    this.chatState.sendMessage(conversation.conversationId, messageText);
+    const conv = this.activeConversation();
+    if (!conv) return;
+    this.chatState.sendMessage(conv.conversationId, messageText);
   }
 
   onTypingStarted(): void {
-    const conversation = this.activeConversation();
-    if (!conversation) return;
-    this.signalR.notifyTyping(conversation.conversationId, true);
+    const conv = this.activeConversation();
+    if (!conv) return;
+    this.signalR.notifyTyping(conv.conversationId, true);
   }
 
   onTypingStopped(): void {
-    const conversation = this.activeConversation();
-    if (!conversation) return;
-    this.signalR.notifyTyping(conversation.conversationId, false);
+    const conv = this.activeConversation();
+    if (!conv) return;
+    this.signalR.notifyTyping(conv.conversationId, false);
   }
 }

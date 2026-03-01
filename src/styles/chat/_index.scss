@@ -1,0 +1,9 @@
+// ============================================================
+// src/styles/chat/_index.scss
+// Barrel file — import this in styles.scss with:
+//   @use 'styles/chat' as chat;
+// Or import individual partials where needed.
+// ============================================================
+@forward "chat-tokens";
+@forward "chat-mixins";
+@forward "chat-primeng-overrides";

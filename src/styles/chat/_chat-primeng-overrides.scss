@@ -1,0 +1,112 @@
+// ============================================================
+// _chat-primeng-overrides.scss
+// Path: src/styles/chat/
+//
+// PrimeNG component overrides for the chat feature.
+// These are deliberately in a GLOBAL stylesheet because PrimeNG
+// overlays (Menu, Dialog, Drawer) append to <body> and cannot
+// be styled from a component's encapsulated SCSS.
+//
+// All values use tokens — zero hardcoded hex.
+// ============================================================
+
+// ── Chat context menu (conversation item + message bubble) ──
+.chat-context-menu.p-menu {
+  min-width: 160px;
+  padding: var(--chat-space-2) 0;
+  background: var(--chat-menu-bg);
+  border: 1px solid var(--chat-menu-border);
+  border-radius: var(--chat-menu-radius);
+  box-shadow: var(--chat-menu-shadow);
+
+  .p-menu-list {
+    padding: 0;
+  }
+
+  // Menu items
+  .p-menuitem {
+    .p-menuitem-link {
+      padding: var(--chat-menu-item-padding);
+      border-radius: 0;
+      gap: var(--chat-space-3);
+      font-size: 0.9rem;
+      color: var(--app-text);
+      transition: background var(--transition-fast);
+
+      &:hover {
+        background: var(--chat-menu-item-hover-bg);
+        color: var(--app-text);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--p-primary-500);
+        outline-offset: -2px;
+      }
+
+      .p-menuitem-icon {
+        font-size: 0.875rem;
+        color: var(--app-muted);
+      }
+
+      .p-menuitem-text {
+        font-size: 0.9rem;
+        font-weight: 400;
+      }
+    }
+
+    // Danger items (Block, Delete)
+    &.menu-item-danger {
+      .p-menuitem-link {
+        color: var(--app-danger);
+
+        .p-menuitem-icon {
+          color: var(--app-danger);
+        }
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.06);
+          color: var(--app-danger);
+        }
+      }
+    }
+  }
+
+  // Separator
+  .p-menuitem-separator {
+    margin: var(--chat-space-2) 0;
+    border-top: 1px solid var(--app-border);
+  }
+}
+
+// ── New Chat Dialog ─────────────────────────────────────────
+.p-dialog {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+
+  .p-dialog-header {
+    padding: 1.25rem 1.5rem 1rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  .p-dialog-content {
+    padding: 0 1.5rem 1.25rem;
+  }
+
+  .p-dialog-footer {
+    padding: 0.75rem 1.5rem 1.25rem;
+  }
+}
+
+// ── Settings Drawer ─────────────────────────────────────────
+.settings-drawer.p-drawer {
+  .p-drawer-header {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  .p-drawer-content {
+    padding: 0 1.5rem 1.5rem;
+  }
+}

@@ -1,10 +1,16 @@
 <div class="chat-container">
-  <div class="sidebar">
+  <!-- Sidebar: conversation list + profile card -->
+  <aside
+    class="chat-sidebar"
+    [class.sidebar-open]="sidebarOpen()"
+    aria-label="Conversations panel"
+  >
     <app-conversation-list></app-conversation-list>
     <app-profile-card></app-profile-card>
-  </div>
+  </aside>
 
-  <div class="main-area">
+  <!-- Main area: chat -->
+  <main class="chat-main" aria-label="Chat area">
     <app-chat-area></app-chat-area>
-  </div>
+  </main>
 </div>

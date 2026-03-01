@@ -1,97 +1,180 @@
-.conversation-list {
+@use "../../../../../styles/chat/chat-mixins" as mix;
+
+:host {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto; /* allow profile-card to sit below */
-  min-height: 0; /* ensure proper scroll behavior in flex layouts */
-  background: var(--app-bg);
-  border-right: 1px solid var(--app-border);
-}
-.list-header {
-  padding: 24px 20px 16px;
-  border-bottom: 1px solid var(--app-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.list-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--p-text-primary);
-}
-.search-container {
-  padding: 16px;
-  border-bottom: 1px solid var(--app-border);
+  height: 100%;
+  min-height: 0;
   background: var(--chat-sidebar-bg);
-}
-.search-input {
-  width: 100%;
-  background: var(--p-surface-100);
-  border-color: var(--app-border);
-  color: var(--p-text-primary);
-  border-radius: 12px;
-  padding: 12px 16px;
-}
-.conversations-container {
-  flex: 1;
-  overflow-y: auto;
-}
-.loading-state,
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px;
-  color: var(--p-text-secondary);
-}
-.search-results {
-  padding: 8px 0;
-  overflow-y: auto;
-}
-.search-result-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px 16px;
-  cursor: pointer;
-}
-.avatar-fallback {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--p-primary-500),
-    var(--p-primary-600)
-  );
-  color: var(--chat-avatar-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.user-details h4 {
-  margin: 0;
-  font-size: 0.9rem;
-}
-.user-details p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--p-text-secondary);
+  overflow: hidden;
 }
 
-.fab-button {
-  --p-button-padding: 10px;
-  background: var(--p-primary-500) !important;
-  border: none !important;
-  border-radius: 999px;
+// ── Header ────────────────────────────────────────────────
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--chat-space-5) var(--chat-space-5) var(--chat-space-4);
+  flex-shrink: 0;
+}
+
+.list-title {
+  margin: 0;
+  font-size: 1.375rem; // 22px — matches target "Chats" heading
+  font-weight: 700;
+  color: var(--app-text);
+  letter-spacing: -0.02em;
+}
+
+// ── FAB new-chat button ───────────────────────────────────
+.fab-btn {
+  @include mix.icon-btn(34px);
+  background: var(--p-primary-500);
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.875rem;
 
   &:hover {
-    background: var(--p-primary-600) !important;
+    background: var(--p-primary-600);
+    color: #ffffff;
   }
 
   &:focus-visible {
     outline: 2px solid var(--p-primary-500);
     outline-offset: 2px;
+  }
+}
+
+// ── Search ────────────────────────────────────────────────
+.search-wrap {
+  padding: 0 var(--chat-space-4) var(--chat-space-3);
+  flex-shrink: 0;
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .search-icon {
+    position: absolute;
+    left: var(--chat-space-3);
+    color: var(--app-muted);
+    font-size: 0.875rem;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input {
+    width: 100%;
+    height: var(--chat-search-height);
+    padding: 0 var(--chat-space-4) 0 2.25rem;
+    background: var(--chat-search-bg);
+    border: 1px solid var(--chat-search-border);
+    border-radius: var(--chat-search-radius);
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--app-text);
+    transition: border-color var(--transition-fast);
+
+    &::placeholder {
+      color: var(--app-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--chat-search-border-focus);
+      background: var(--app-surface);
+    }
+  }
+}
+
+// ── Scrollable list ───────────────────────────────────────
+.list-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  @include mix.scrollbar-thin;
+}
+
+// ── Section label (search results / recent) ───────────────
+.section-label {
+  padding: var(--chat-space-3) var(--chat-space-5) var(--chat-space-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-muted);
+}
+
+// ── Inline search results (user rows) ────────────────────
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-item-gap);
+  padding: var(--chat-item-padding-y) var(--chat-item-padding-x);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--chat-item-hover-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-500);
+    outline-offset: -2px;
+  }
+}
+
+.result-avatar {
+  @include mix.chat-avatar-fallback;
+}
+
+.result-meta {
+  flex: 1;
+  min-width: 0;
+
+  h4 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--app-text);
+    @include mix.text-truncate;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--app-muted);
+    @include mix.text-truncate;
+  }
+}
+
+// ── Loading / empty states ────────────────────────────────
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--chat-space-3);
+  padding: var(--chat-space-8);
+  color: var(--app-muted);
+  text-align: center;
+
+  i {
+    font-size: 1.75rem;
+    opacity: 0.6;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  span {
+    font-size: 0.8125rem;
+    color: var(--app-muted);
   }
 }

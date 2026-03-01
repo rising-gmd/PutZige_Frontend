@@ -1,12 +1,33 @@
 <div class="message-list-viewport" #viewport>
-  <div class="message-list">
-    @for (m of messages; track m.id) {
-      <div class="message">
-        <div [class.own]="m.senderId === currentUserId">
-          {{ m.messageText }}
-        </div>
-        <div class="time">{{ m.sentAt | messageTime }}</div>
+  <div class="message-list" role="log" aria-live="polite" aria-label="Messages">
+    @for (group of messageGroups; track group.date) {
+      <!-- Date divider -->
+      <div
+        class="date-divider"
+        role="separator"
+        aria-label="Messages from {{ group.date }}"
+      >
+        <span>{{ group.date }}</span>
       </div>
+
+      <!-- Message group -->
+      @for (bubble of group.messages; track bubble.id) {
+        <div
+          class="message-group"
+          [class.own-group]="bubble.senderId === currentUserId"
+          [class.other-group]="bubble.senderId !== currentUserId"
+        >
+          <app-message-bubble
+            [message]="bubble"
+            [isOwnMessage]="bubble.senderId === currentUserId"
+            [showFooter]="true"
+            (forward)="onForward($event)"
+            (star)="onStar($event)"
+            (edit)="onEdit($event)"
+            (delete)="onDelete($event)"
+          ></app-message-bubble>
+        </div>
+      }
     }
   </div>
 </div>

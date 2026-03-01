@@ -1,49 +1,101 @@
-.search-section {
-  margin-bottom: var(--spacing-chat-lg);
+@use "../../../../styles/chat/chat-mixins" as mix;
+
+:host {
+  display: block;
 }
-.results-container {
-  max-height: 60vh;
+
+// ── Search section ────────────────────────────────────────
+.modal-search {
+  padding-bottom: var(--chat-space-4);
+
+  .search-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .search-icon {
+      position: absolute;
+      left: var(--chat-space-3);
+      color: var(--app-muted);
+      font-size: 0.875rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    input {
+      width: 100%;
+      height: 40px;
+      padding: 0 var(--chat-space-4) 0 2.25rem;
+      background: var(--app-surface-100);
+      border: 1px solid transparent;
+      border-radius: var(--chat-search-radius);
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--app-text);
+      transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+
+      &::placeholder {
+        color: var(--app-muted);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--p-primary-500);
+        background: var(--app-surface);
+      }
+    }
+  }
+}
+
+// ── Results container ─────────────────────────────────────
+.modal-results {
+  max-height: 56vh;
   overflow-y: auto;
-  margin: 0 calc(-1 * var(--spacing-chat-lg));
-  padding: 0 var(--spacing-chat-lg);
+  margin: 0 -1.25rem;
+  padding: 0 1.25rem;
+  @include mix.scrollbar-thin;
 }
-.section {
-  margin-bottom: var(--spacing-chat-xl);
-}
-.section-title {
+
+// ── Section header ────────────────────────────────────────
+.section-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-chat-sm);
-  margin: 0 0 var(--spacing-chat-md) 0;
-  padding: var(--spacing-chat-sm) var(--spacing-chat-md);
-  font-size: 0.85rem;
+  gap: var(--chat-space-2);
+  padding: var(--chat-space-2) 0 var(--chat-space-3);
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--theme-text-secondary);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
+  color: var(--app-muted);
 }
-.loading-state,
-.empty-state {
+
+// ── Loading / empty states ────────────────────────────────
+.modal-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-chat-md);
-  padding: var(--spacing-chat-xl);
-  color: var(--theme-text-secondary);
+  gap: var(--chat-space-3);
+  padding: var(--chat-space-8);
+  color: var(--app-muted);
   text-align: center;
-}
-.loading-state i,
-.empty-state i {
-  font-size: 2rem;
-  color: var(--theme-text-muted);
-}
-.empty-state p {
-  margin: 0;
-  font-weight: 500;
-  color: var(--theme-text-primary);
-}
-.empty-state span {
-  font-size: 0.85rem;
-  color: var(--theme-text-muted);
+
+  i {
+    font-size: 2rem;
+    opacity: 0.6;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--app-text);
+  }
+
+  span {
+    font-size: 0.8125rem;
+    color: var(--app-muted);
+  }
 }

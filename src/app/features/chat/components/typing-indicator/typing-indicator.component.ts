@@ -5,10 +5,22 @@ import { CommonModule } from '@angular/common';
   selector: 'app-typing-indicator',
   standalone: true,
   imports: [CommonModule],
-  template: '<div class="typing">{{ name }} is typing…</div>',
-  styles: [
-    '.typing { font-style: italic; color: var(--p-primary-400); padding: 8px 12px; }',
-  ],
+  template: `
+    <div
+      class="typing-indicator"
+      role="status"
+      aria-live="polite"
+      [attr.aria-label]="name + ' is typing'"
+    >
+      <span class="typing-name" aria-hidden="true">{{ name }}</span>
+      <div class="dots" aria-hidden="true">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  `,
+  styleUrls: ['./typing-indicator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TypingIndicatorComponent {

@@ -1,0 +1,65 @@
+@use "../../../../../styles/chat/chat-mixins" as mix;
+
+:host {
+  display: block;
+}
+
+.typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chat-space-2);
+  padding: 8px 14px;
+  background: var(--chat-typing-bg);
+  border-radius: var(--chat-typing-radius);
+  max-width: fit-content;
+}
+
+.typing-name {
+  font-size: 0.8125rem;
+  color: var(--app-muted);
+  font-style: italic;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dot {
+  width: var(--chat-typing-dot-size);
+  height: var(--chat-typing-dot-size);
+  border-radius: 50%;
+  background: var(--chat-typing-dot-bg);
+  animation: typing-bounce 1.2s ease-in-out infinite;
+
+  &:nth-child(1) {
+    animation-delay: 0s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@include mix.no-motion {
+  .dot {
+    animation: none;
+    opacity: 0.6;
+  }
+}

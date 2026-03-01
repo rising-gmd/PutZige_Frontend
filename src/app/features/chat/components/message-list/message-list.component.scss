@@ -1,40 +1,60 @@
-.message-list-viewport {
-  height: 100%;
-  width: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
+@use "../../../../../styles/chat/chat-mixins" as mix;
 
-.message-list {
-  padding: 16px;
+:host {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  height: 100%;
 }
 
+// ── Scrollable viewport ───────────────────────────────────
+.message-list-viewport {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  @include mix.scrollbar-thin;
+}
+
+// ── Inner list container ─────────────────────────────────
+.message-list {
+  padding: var(--chat-space-4) var(--chat-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 0; // gaps controlled per element below
+  min-height: 100%; // pushes messages to bottom naturally
+  justify-content: flex-end;
+}
+
+// ── Message group (same sender, consecutive) ─────────────
+.message-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--chat-space-3);
+
+  &.own-group {
+    align-items: flex-end;
+  }
+  &.other-group {
+    align-items: flex-start;
+  }
+}
+
+// ── Date divider ─────────────────────────────────────────
 .date-divider {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 16px 0;
+  margin: var(--chat-space-4) 0 var(--chat-space-3);
 
   span {
-    padding: 4px 12px;
-    background: var(--p-surface-100);
-    border-radius: 12px;
+    padding: 3px 12px;
+    background: var(--chat-divider-bg);
+    border-radius: var(--chat-divider-radius);
     font-size: 0.75rem;
-    color: var(--p-text-secondary-color);
     font-weight: 500;
-  }
-}
-
-.message-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  &.own-group {
-    align-items: flex-end;
+    color: var(--chat-divider-color);
+    white-space: nowrap;
   }
 }
