@@ -1,0 +1,37 @@
+// ============================================================
+// tokens/_typography.scss
+// Font family, size scale, weights, and line heights.
+// All values as CSS custom properties consumed by components
+// and base typography styles.
+// ============================================================
+
+:root {
+  --font-family-base: "Outfit", sans-serif;
+  --font-size-base: 16px;
+
+  // ── Size scale ────────────────────────────────────────────
+  //  Every raw font-size in component SCSS maps to one of these.
+  --font-size-2xs: 0.625rem; // 10px — badges, tiny labels
+  --font-size-xs: 0.6875rem; // 11px — timestamps, sub-labels
+  --font-size-sm: 0.75rem; // 12px — captions, date dividers
+  --font-size-md: 0.875rem; // 14px — secondary text, previews
+  --font-size-chat: 0.9375rem; // 15px — chat messages (optimal readability)
+  --font-size-base-rem: 1rem; // 16px — body default
+  --font-size-lg: 1.0625rem; // 17px — names, page emphasis
+  --font-size-xl: 1.125rem; // 18px — section headers
+  --font-size-2xl: 1.25rem; // 20px — page titles
+  --font-size-2xl-plus: 1.375rem; // 22px — "Chats" heading (chat sidebar)
+  --font-size-3xl: 1.5rem; // 24px — large headings
+
+  // ── Weights ───────────────────────────────────────────────
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  // ── Line heights ──────────────────────────────────────────
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.75;
+}

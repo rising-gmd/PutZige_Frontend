@@ -1,0 +1,30 @@
+// ============================================================
+// themes/_dark.scss
+// Dark mode — activated by .my-app-dark on <html>.
+//
+// RULE: Only override tokens whose value CHANGES in dark mode.
+// If a token is not listed here, it inherits from _light.scss.
+// PrimeNG --p-* tokens flip automatically via the preset's
+// darkModeSelector setting — do NOT touch them here.
+// ============================================================
+
+@use "../tokens/colors" as c;
+
+.my-app-dark {
+  // ── Surfaces ──────────────────────────────────────────────
+  --app-bg: #{c.$color-dark-bg};
+  --app-surface: #{c.$color-dark-bg};
+  --app-surface-100: #{c.$color-dark-surface};
+  --app-border: #{c.$color-gray-700};
+
+  // ── Text ──────────────────────────────────────────────────
+  --app-text: #{c.$color-gray-100};
+  --app-text-secondary: #{c.$color-gray-400};
+  --app-muted: #{c.$color-gray-400};
+  --app-muted-strong: #{c.$color-gray-500};
+
+  // ── Cards ─────────────────────────────────────────────────
+  --app-card-bg: #{c.$color-dark-surface};
+  --app-card-border: rgba(255, 255, 255, 0.06);
+  --app-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}

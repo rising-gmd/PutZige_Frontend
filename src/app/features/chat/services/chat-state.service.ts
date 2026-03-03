@@ -157,7 +157,15 @@ export class ChatStateService {
           UI_CONSTANTS.CONVERSATION_PAGE_SIZE,
         ),
       );
-      const mapped = (response.messages ?? []).map((m) => mapDtoToMessage(m));
+      const mapped = (response.messages ?? [])
+        .map((m) => mapDtoToMessage(m))
+        // Normalize ordering: ensure messages are oldest -> newest so UI
+        // rendering (which appends new messages to the end) displays the
+        // newest message at the bottom regardless of backend ordering.
+        .sort(
+          (a, b) => (a.sentAt?.getTime() ?? 0) - (b.sentAt?.getTime() ?? 0),
+        );
+
       this.messages.update((msgs) => ({ ...msgs, [conversationId]: mapped }));
     } catch (err: unknown) {
       this.error.set(extractErrorMessage(err));

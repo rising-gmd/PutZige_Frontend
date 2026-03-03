@@ -1,0 +1,42 @@
+// ============================================================
+// utilities/_utilities.scss
+// Global utility classes. Keep this list minimal.
+// Prefer component-scoped SCSS over utilities.
+// ============================================================
+
+// Screen-reader only — hides visually but remains accessible to AT
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// ── PrimeNG global adjustments ─────────────────────────────
+
+// Password strength panel — must be fixed to avoid layout shifts
+.p-password-panel {
+  position: fixed !important;
+  z-index: var(--z-popover) !important;
+}
+
+// Auth page inputs — force light surface even in dark mode
+// Scoped to .register-page and .login-page to avoid polluting other contexts
+.register-page,
+.login-page {
+  input.p-inputtext,
+  input.p-password-input {
+    background: var(--auth-card-surface-default) !important;
+    color: var(--auth-card-text-default) !important;
+    border-color: var(--auth-card-border-default) !important;
+
+    &::placeholder {
+      color: var(--auth-card-placeholder-default) !important;
+    }
+  }
+}

@@ -4,29 +4,30 @@
   display: block;
 }
 
-// ── Bubble row ────────────────────────────────────────────
+// ── Row ───────────────────────────────────────────────────
 .bubble-row {
   display: flex;
   align-items: flex-end;
-  gap: var(--chat-space-2);
+  gap: 6px;
   margin-bottom: 2px;
-  position: relative;
 
-  // Own messages align right
+  // OWN: right-align — reverse the row so bubble is on right
   &.own {
     flex-direction: row-reverse;
 
+    // "…" button is after bubble in DOM but flex-direction: row-reverse
+    // puts it visually to the LEFT of own bubbles — matches reference
     .bubble-actions {
-      order: -1; // "…" appears to the LEFT of own bubbles
+      // no extra order needed, row-reverse handles it
     }
   }
 
-  // Other messages align left
+  // OTHER: left-align (default flex row)
   &.other {
     flex-direction: row;
   }
 
-  // Show actions on hover
+  // Reveal "…" button on hover
   &:hover .bubble-menu-btn {
     opacity: 1;
     pointer-events: auto;
@@ -35,29 +36,30 @@
 
 // ── Bubble ────────────────────────────────────────────────
 .bubble {
-  max-width: var(--chat-bubble-max-width);
-  padding: var(--chat-bubble-padding);
-  font-size: var(--chat-bubble-font-size);
-  line-height: var(--chat-bubble-line-height);
+  max-width: 65%;
+  padding: 10px 14px;
+  font-size: var(--font-size-chat);
+  line-height: 1.5;
   word-break: break-word;
   overflow-wrap: anywhere;
-  position: relative;
 
+  // OWN: blue, right tail
   .own & {
-    background: var(--chat-bubble-own-bg);
-    color: var(--chat-bubble-own-color);
+    background: var(--p-primary-500);
+    color: var(--app-on-primary);
     border-radius: var(--chat-bubble-own-radius);
   }
 
+  // OTHER: gray, left tail
   .other & {
-    background: var(--chat-bubble-other-bg);
-    color: var(--chat-bubble-other-color);
+    background: var(--app-surface-100);
+    color: var(--app-text);
     border-radius: var(--chat-bubble-other-radius);
   }
 
-  // Optimistic (sending state) — slightly transparent
+  // Sending state — slightly faded
   .optimistic & {
-    opacity: 0.75;
+    opacity: 0.7;
   }
 }
 
@@ -65,57 +67,81 @@
   display: block;
 }
 
-// ── Timestamp + status row ────────────────────────────────
+// ── Footer: time + read receipt ───────────────────────────
 .bubble-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 3px;
-  margin-top: var(--chat-space-1);
-  opacity: 0.85;
+  margin-top: 4px;
 }
 
 .bubble-time {
-  font-size: var(--chat-timestamp-size);
-  color: var(--chat-timestamp-color);
+  font-size: var(--font-size-xs);
+
+  .other & {
+    color: var(--app-muted);
+  }
 
   .own & {
-    color: rgba(255, 255, 255, 0.75);
+    // color-mix: same pattern used in _chat-tokens.scss for on-primary overlays
+    color: color-mix(in srgb, var(--app-on-primary) 75%, transparent);
   }
 }
 
 .bubble-status {
-  font-size: 0.65rem;
+  font-size: var(--font-size-2xs);
   line-height: 1;
 
   &.sent {
-    color: rgba(255, 255, 255, 0.65);
+    color: color-mix(in srgb, var(--app-on-primary) 60%, transparent);
   }
   &.delivered {
-    color: rgba(255, 255, 255, 0.85);
+    color: color-mix(in srgb, var(--app-on-primary) 85%, transparent);
   }
   &.read {
-    color: var(--chat-status-read-color);
-  }
+    color: var(--app-online);
+  } // green double-check — semantic constant
 }
 
-// ── Actions ("…" button) ──────────────────────────────────
+// ── "…" actions ───────────────────────────────────────────
 .bubble-actions {
   display: flex;
   align-items: center;
   align-self: flex-start;
-  padding-top: 6px;
+  padding-top: 4px;
+  flex-shrink: 0;
 }
 
 .bubble-menu-btn {
-  @include mix.icon-btn(26px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
   opacity: 0;
   pointer-events: none;
   transition:
     opacity var(--transition-fast),
     background var(--transition-fast);
-  font-size: 0.75rem;
-  border-radius: 50%;
+  font-size: var(--font-size-sm);
+
+  &:hover {
+    background: var(--app-border);
+    color: var(--app-text);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+    outline: 2px solid var(--p-primary-500);
+    outline-offset: 2px;
+  }
 
   &.menu-open {
     opacity: 1;
@@ -123,7 +149,7 @@
   }
 }
 
-// ── Slide-in animation ────────────────────────────────────
+// ── Appear animation ──────────────────────────────────────
 @keyframes bubble-in {
   from {
     opacity: 0;
@@ -138,7 +164,7 @@
 .bubble {
   animation: bubble-in 0.15s ease-out;
 
-  @include mix.no-motion {
+  @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
 }

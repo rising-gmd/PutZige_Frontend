@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   background: var(--p-surface-50);
   border-bottom: 1px solid var(--app-border);
 }
@@ -11,6 +11,6 @@
   background: transparent;
   border: 1px solid var(--app-border);
   color: var(--p-text-primary);
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 6px 10px; // TODO: both 6px and 10px are off the 4pt grid — needs --space-1-5/--space-2-5 or design alignment to 8px/8px
+  border-radius: 6px; // TODO: 6px has no token — sits between --radius-sm (4px) and --radius-md (8px), intentional soft rounding
 }

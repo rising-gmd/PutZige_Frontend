@@ -1,0 +1,13 @@
+// ============================================================
+// tokens/_index.scss
+// Barrel — forwards all token partials.
+// @use 'styles/tokens' to load the entire token layer.
+// ============================================================
+
+@forward "colors";
+@forward "typography";
+@forward "spacing";
+@forward "radius";
+@forward "shadows";
+@forward "transitions";
+@forward "z-index";

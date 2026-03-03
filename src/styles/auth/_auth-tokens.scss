@@ -1,0 +1,47 @@
+// ============================================================
+// auth/_auth-tokens.scss
+// ALL auth feature CSS custom properties live here.
+//
+// Mirrors the same pattern as chat/_chat-tokens.scss.
+// Zero hardcoded hex — all values reference --app-* tokens or
+// explicit semantic constants via var().
+//
+// Dark mode overrides at the bottom.
+// ============================================================
+
+:root {
+  // ── Viewport background ───────────────────────────────────
+  --auth-viewport-bg: var(--app-surface-100);
+
+  // ── Card surface ──────────────────────────────────────────
+  --auth-card-bg: var(--app-surface);
+  --auth-card-shadow: var(--shadow-card);
+
+  // ── Input and field tokens ─────────────────────────────────
+  // Used by auth-page inputs that must stay light even in dark mode
+  --auth-card-surface-default: var(--app-surface);
+  --auth-card-border-default: var(--app-border);
+  --auth-card-text-default: var(--app-text);
+  --auth-card-placeholder-default: var(--app-muted-strong);
+
+  // ── CTA button ─────────────────────────────────────────────
+  // Mirrors --app-primary so it updates with runtime theming
+  --auth-cta-bg: var(--app-primary);
+  --auth-cta-bg-hover: var(--app-primary-hover);
+  --auth-cta-text: var(--app-on-primary);
+  --auth-cta-border: var(--app-card-border);
+}
+
+// Dark mode overrides — only tokens that differ from light
+.my-app-dark {
+  // Auth inputs must still appear "light" inside the dark card.
+  // These explicit values override the var() references above,
+  // keeping the auth form legible on the dark card background.
+  --auth-viewport-bg: #0b0b0b;
+  --auth-card-bg: #111827;
+  --auth-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --auth-card-surface-default: #1f2937;
+  --auth-card-border-default: #374151;
+  --auth-card-text-default: #f3f4f6;
+  --auth-card-placeholder-default: #6b7280;
+}

@@ -14,13 +14,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--chat-space-5) var(--chat-space-5) var(--chat-space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
   flex-shrink: 0;
 }
 
 .list-title {
   margin: 0;
-  font-size: 1.375rem; // 22px — matches target "Chats" heading
+  font-size: var(--font-size-2xl-plus); // 22px — matches target "Chats" heading
   font-weight: 700;
   color: var(--app-text);
   letter-spacing: -0.02em;
@@ -30,13 +30,13 @@
 .fab-btn {
   @include mix.icon-btn(34px);
   background: var(--p-primary-500);
-  color: #ffffff;
-  border-radius: 50%;
-  font-size: 0.875rem;
+  color: var(--app-on-primary);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-md);
 
   &:hover {
     background: var(--p-primary-600);
-    color: #ffffff;
+    color: var(--app-on-primary);
   }
 
   &:focus-visible {
@@ -47,7 +47,7 @@
 
 // ── Search ────────────────────────────────────────────────
 .search-wrap {
-  padding: 0 var(--chat-space-4) var(--chat-space-3);
+  padding: 0 var(--space-4) var(--space-3);
   flex-shrink: 0;
 }
 
@@ -58,9 +58,9 @@
 
   .search-icon {
     position: absolute;
-    left: var(--chat-space-3);
+    left: var(--space-3);
     color: var(--app-muted);
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     pointer-events: none;
     z-index: 1;
   }
@@ -68,12 +68,12 @@
   input {
     width: 100%;
     height: var(--chat-search-height);
-    padding: 0 var(--chat-space-4) 0 2.25rem;
+    padding: 0 var(--space-4) 0 2.25rem;
     background: var(--chat-search-bg);
     border: 1px solid var(--chat-search-border);
     border-radius: var(--chat-search-radius);
     font-family: inherit;
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     color: var(--app-text);
     transition: border-color var(--transition-fast);
 
@@ -99,8 +99,8 @@
 
 // ── Section label (search results / recent) ───────────────
 .section-label {
-  padding: var(--chat-space-3) var(--chat-space-5) var(--chat-space-2);
-  font-size: 0.75rem;
+  padding: var(--space-3) var(--space-5) var(--space-2);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -136,7 +136,7 @@
 
   h4 {
     margin: 0;
-    font-size: 0.9375rem;
+    font-size: var(--font-size-chat);
     font-weight: 600;
     color: var(--app-text);
     @include mix.text-truncate;
@@ -144,7 +144,7 @@
 
   p {
     margin: 0;
-    font-size: 0.8125rem;
+    font-size: var(--font-size-md);
     color: var(--app-muted);
     @include mix.text-truncate;
   }
@@ -156,25 +156,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--chat-space-3);
-  padding: var(--chat-space-8);
+  gap: var(--space-3);
+  padding: var(--space-8);
   color: var(--app-muted);
   text-align: center;
 
   i {
-    font-size: 1.75rem;
+    font-size: 1.75rem; // TODO: 1.75rem (28px) has no token — needs --font-size-4xl to complete the scale
     opacity: 0.6;
   }
 
   p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: var(--font-size-md);
     font-weight: 500;
     color: var(--app-text);
   }
 
   span {
-    font-size: 0.8125rem;
+    font-size: var(--font-size-md);
     color: var(--app-muted);
   }
 }

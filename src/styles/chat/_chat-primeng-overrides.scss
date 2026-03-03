@@ -13,7 +13,7 @@
 // ── Chat context menu (conversation item + message bubble) ──
 .chat-context-menu.p-menu {
   min-width: 160px;
-  padding: var(--chat-space-2) 0;
+  padding: var(--space-2) 0;
   background: var(--chat-menu-bg);
   border: 1px solid var(--chat-menu-border);
   border-radius: var(--chat-menu-radius);
@@ -28,8 +28,8 @@
     .p-menuitem-link {
       padding: var(--chat-menu-item-padding);
       border-radius: 0;
-      gap: var(--chat-space-3);
-      font-size: 0.9rem;
+      gap: var(--space-3);
+      font-size: var(--font-size-md);
       color: var(--app-text);
       transition: background var(--transition-fast);
 
@@ -44,12 +44,12 @@
       }
 
       .p-menuitem-icon {
-        font-size: 0.875rem;
+        font-size: var(--font-size-md);
         color: var(--app-muted);
       }
 
       .p-menuitem-text {
-        font-size: 0.9rem;
+        font-size: var(--font-size-md);
         font-weight: 400;
       }
     }
@@ -73,7 +73,7 @@
 
   // Separator
   .p-menuitem-separator {
-    margin: var(--chat-space-2) 0;
+    margin: var(--space-2) 0;
     border-top: 1px solid var(--app-border);
   }
 }
@@ -85,7 +85,7 @@
 
   .p-dialog-header {
     padding: 1.25rem 1.5rem 1rem;
-    font-size: 1.0625rem;
+    font-size: var(--font-size-lg);
     font-weight: 700;
   }
 
@@ -102,7 +102,7 @@
 .settings-drawer.p-drawer {
   .p-drawer-header {
     padding: 1.25rem 1.5rem;
-    font-size: 1.0625rem;
+    font-size: var(--font-size-lg);
     font-weight: 700;
   }
 

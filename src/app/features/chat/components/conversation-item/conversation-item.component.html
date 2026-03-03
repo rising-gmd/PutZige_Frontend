@@ -3,14 +3,13 @@
   [class.active]="isActive"
   role="option"
   [attr.aria-selected]="isActive"
-  [attr.aria-label]="itemAriaLabel"
+  [attr.aria-label]="ariaLabel"
   tabindex="0"
   (click)="onSelect()"
   (keydown.enter)="onSelect()"
   (keydown.space)="$event.preventDefault(); onSelect()"
 >
-  <!-- Avatar -->
-  <div class="avatar-wrap">
+  <div class="avatar-container">
     @if (conversation.profilePictureUrl) {
       <img
         class="avatar-img"
@@ -19,81 +18,60 @@
         loading="lazy"
       />
     } @else {
-      <div class="avatar-fallback" aria-hidden="true">{{ avatarInitials }}</div>
+      <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
     }
-
     @if (conversation.isOnline) {
-      <span class="status-dot" role="img" aria-label="Online"></span>
+      <div class="status-dot online" role="img" aria-label="Online"></div>
     }
   </div>
 
-  <!-- Content -->
-  <div class="item-content">
-    <!-- Name + Timestamp -->
-    <div class="item-top">
-      <h4 class="item-name">{{ displayName }}</h4>
-      <span
-        class="timestamp"
-        aria-label="Last message {{ conversation.lastActivity | relativeTime }}"
-      >
-        {{ conversation.lastActivity | conversationTime }}
-      </span>
+  <div class="conversation-details">
+    <div class="header-row">
+      <h4 class="user-name">{{ displayName }}</h4>
+      <span class="timestamp">{{
+        conversation.lastActivity | conversationTime
+      }}</span>
     </div>
-
-    <!-- Preview + Badge -->
-    <div class="item-bottom">
-      <div class="item-preview">
-        @if (conversation.isTyping) {
-          <p class="typing-text" aria-live="polite">typing...</p>
-        } @else {
-          @if (showReadIcon) {
-            <i
-              class="pi {{ readIconClass }} preview-icon"
-              [class.read]="conversation.lastMessageReadAt"
-              aria-hidden="true"
-            ></i>
-          }
-          <p class="preview-text">{{ lastMessagePreview }}</p>
-        }
-      </div>
-
+    <div class="preview-row">
+      @if (conversation.isTyping) {
+        <span class="typing-indicator" aria-live="polite">typing...</span>
+      } @else {
+        <p class="message-preview">{{ lastMessagePreview }}</p>
+      }
       @if (conversation.unreadCount > 0) {
-        <span
+        <div
           class="unread-badge"
           role="status"
-          [attr.aria-label]="conversation.unreadCount + ' unread messages'"
+          [attr.aria-label]="conversation.unreadCount + ' unread'"
         >
           {{ conversation.unreadCount > 99 ? "99+" : conversation.unreadCount }}
-        </span>
+        </div>
       }
     </div>
   </div>
 
-  <!-- 3-dot hover menu -->
-  <div class="item-actions">
+  <div
+    class="item-actions"
+    tabindex="-1"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
     <button
-      #menuTrigger
       class="item-menu-btn"
-      [class.menu-open]="menuVisible"
       type="button"
       [attr.aria-label]="'More options for ' + displayName"
-      [attr.aria-expanded]="menuVisible"
       aria-haspopup="menu"
       (click)="toggleMenu($event)"
-      (keydown.enter)="toggleMenu($event)"
     >
       <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
     </button>
-  </div>
 
-  <!-- Context menu -->
-  <p-menu
-    #itemMenu
-    [model]="menuItems"
-    [popup]="true"
-    styleClass="chat-context-menu"
-    appendTo="body"
-    (onShow)="menuVisible = true"
-    (onHide)="menuVisible = false"
-  ></p-menu>
+    <p-menu
+      #itemMenu
+      [model]="menuItems"
+      [popup]="true"
+      styleClass="chat-context-menu"
+      appendTo="body"
+    ></p-menu>
+  </div>
 </div>

@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-2xl);
+  padding: var(--space-12);
 }
 
 .verify-card {
@@ -26,13 +26,13 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--space-4);
 }
 
 /* Icon states */
 .verify-icon {
   font-size: 64px;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--space-2);
 }
 
 /* Success state - green checkmark */
@@ -63,7 +63,7 @@
 /* Typography */
 .verify-card h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--font-size-3xl);
   font-weight: 600;
   color: var(--p-text-primary);
   letter-spacing: -0.02em;
@@ -72,20 +72,20 @@
 .muted {
   color: var(--p-text-secondary);
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--font-size-chat);
   line-height: 1.5;
 }
 
 .redirect-text {
   color: var(--p-text-500);
-  margin-top: var(--spacing-xs);
-  font-size: 0.875rem;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-md);
 }
 
 .error-message {
   color: var(--p-text-secondary);
-  margin-bottom: var(--spacing-md);
-  font-size: 0.95rem;
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-chat);
   line-height: 1.5;
 }
 
@@ -93,7 +93,7 @@
 app-button.cta {
   display: block;
   width: 100%;
-  margin-top: var(--spacing-sm);
+  margin-top: var(--space-2);
 }
 
 app-button.cta ::ng-deep .p-button {
@@ -119,10 +119,10 @@ app-button.cta ::ng-deep .p-button:disabled {
 /* Back link */
 .back-link {
   display: block;
-  margin-top: var(--spacing-md);
+  margin-top: var(--space-4);
   color: var(--p-text-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: var(--font-size-md);
   transition: color 0.2s ease;
 }
 
@@ -132,10 +132,10 @@ app-button.cta ::ng-deep .p-button:disabled {
 
 /* Footer note */
 .footer-note {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--auth-card-border-default);
-  font-size: 0.825rem;
+  font-size: var(--font-size-sm);
   color: var(--p-text-500);
 }
 
@@ -151,7 +151,7 @@ app-button.cta ::ng-deep .p-button:disabled {
 /* Responsive */
 @media (max-width: 720px) {
   .verify-center {
-    padding: var(--spacing-lg);
+    padding: var(--space-6);
   }
 
   .verify-card {
@@ -163,6 +163,6 @@ app-button.cta ::ng-deep .p-button:disabled {
   }
 
   .verify-card h1 {
-    font-size: 1.25rem;
+    font-size: var(--font-size-2xl);
   }
 }

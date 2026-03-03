@@ -1,0 +1,51 @@
+// ============================================================
+// tokens/_colors.scss
+// Raw Sass color palette → CSS custom properties.
+//
+// RULE: Sass vars ($color-*) are used internally in Sass logic
+//       and in theme files. Never reference $color-* in component SCSS.
+//       Components always use var(--app-*) or var(--chat-*) semantic tokens.
+// ============================================================
+
+// ── Raw palette ────────────────────────────────────────────
+$color-white: #ffffff;
+$color-black: #000000;
+
+// Grays
+$color-gray-50: #f9fafb;
+$color-gray-100: #f3f4f6;
+$color-gray-200: #e5e7eb;
+$color-gray-300: #d1d5db;
+$color-gray-400: #9ca3af;
+$color-gray-500: #6b7280;
+$color-gray-600: #4b5563;
+$color-gray-700: #374151;
+$color-gray-800: #1f2937;
+$color-gray-900: #111827;
+
+// Blues (default brand)
+$color-blue-400: #60a5fa;
+$color-blue-500: #3b82f6;
+$color-blue-600: #2563eb;
+
+// Greens (semantic — online, success, read receipts)
+$color-green-400: #4ade80;
+$color-green-500: #22c55e;
+$color-green-600: #16a34a;
+
+// Reds (danger)
+$color-red-400: #f87171;
+$color-red-500: #ef4444;
+
+// Yellows (warning)
+$color-yellow-500: #f59e0b;
+
+// Oranges (expired state)
+$color-orange-500: #f97316;
+
+// Cyans (status-info fallback)
+$color-blue-info: #3b82f6;
+
+// Dark surfaces
+$color-dark-bg: #0f1720;
+$color-dark-surface: #1f2937;

@@ -9,8 +9,8 @@
 
 .message-input-container {
   display: flex;
-  gap: 8px;
-  padding: 12px;
+  gap: var(--space-2);
+  padding: var(--space-3);
   align-items: flex-end;
   border-top: 1px solid var(--app-border);
   background: var(--app-bg);
@@ -20,19 +20,21 @@
 
 .message-input {
   flex: 1;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px var(--space-3); // TODO: 10px is off the 4pt grid — needs --space-2-5 or design alignment to 8px/12px
+  border-radius: var(--radius-md);
   border: 1px solid var(--app-border);
   /* Use PrimeNG surface token with white fallback to ensure theme compatibility */
   background: var(--app-bg);
   resize: none;
   max-height: 120px;
-  font-size: 0.95rem; // rem — respects user browser font-size preference
+  font-size: var(
+    --font-size-chat
+  ); // rem — respects user browser font-size preference
   line-height: 1.5;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--p-surface-300) transparent;
-  transition: border-color 150ms ease;
+  transition: border-color var(--transition-fast);
 
   &:focus-visible {
     // WCAG 2.2 compliant — never outline: none

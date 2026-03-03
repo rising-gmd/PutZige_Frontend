@@ -1,22 +1,22 @@
 /* Settings component — premium, variable-driven styles */
 :host {
-  --_padding: var(--spacing-lg);
-  --_gap: var(--spacing-xl);
-  --_section-gap: var(--spacing-md);
+  --_padding: var(--space-6);
+  --_gap: var(--space-8);
+  --_section-gap: var(--space-4);
   --_divider: var(--app-border);
   --_title-color: var(--app-text);
   --_subtitle-color: var(--app-muted);
-  --_icon-color: var(--app-primary-start);
-  --_icon-size: 1.1rem;
-  --_label-size: 0.875rem;
-  --_hint-size: 0.775rem;
+  --_icon-color: var(--app-primary);
+  --_icon-size: var(--font-size-lg);
+  --_label-size: var(--font-size-md);
+  --_hint-size: var(--font-size-xs);
   --_hint-color: var(--app-muted);
   --_saving-color: var(--app-muted);
   --_toggle-icon-color: var(--app-muted);
-  --_toggle-icon-size: 0.85rem;
+  --_toggle-icon-size: var(--font-size-sm);
   --_toggle-handle-size: var(--_toggle-icon-size);
   /* Prominent page title size requested by design */
-  --_title-size: 1.25rem;
+  --_title-size: var(--font-size-2xl);
   /* small icon offset for alignment */
   --_icon-offset: 3px;
   --_title-size: var(--_label-size);
@@ -36,7 +36,7 @@
 .settings-header {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--space-1);
 }
 
 .settings-title {
@@ -68,7 +68,7 @@
 .section-meta {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--space-2);
 }
 
 .section-icon {
@@ -103,7 +103,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--space-4);
   flex-wrap: wrap;
 }
 
@@ -132,7 +132,7 @@
 .toggle-wrapper {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--space-2);
   min-width: fit-content;
   flex-shrink: 0;
 }
@@ -153,7 +153,7 @@
 .saving-indicator {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--space-1);
   font-size: var(--_hint-size);
   color: var(--_saving-color);
   animation: fadeIn var(--transition-fast) ease-in-out;

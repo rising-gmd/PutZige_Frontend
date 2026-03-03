@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   gap: var(--chat-item-gap);
-  padding: var(--chat-space-3) var(--chat-space-2);
+  padding: var(--space-3) var(--space-2);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: background var(--transition-fast);
@@ -52,7 +52,7 @@
 
 .user-name {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: var(--font-size-chat);
   font-weight: 600;
   color: var(--app-text);
   @include mix.text-truncate;
@@ -60,14 +60,14 @@
 
 .user-meta {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: var(--font-size-md);
   color: var(--app-muted);
   @include mix.text-truncate;
 }
 
 .user-bio {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   color: var(--app-muted);
   opacity: 0.8;
   @include mix.text-truncate;

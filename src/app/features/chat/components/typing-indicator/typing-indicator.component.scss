@@ -7,15 +7,15 @@
 .typing-indicator {
   display: inline-flex;
   align-items: center;
-  gap: var(--chat-space-2);
-  padding: 8px 14px;
+  gap: var(--space-2);
+  padding: var(--space-2) 14px; // TODO: 14px is off the 4pt grid — needs --space-3-5 or design alignment to 12px/16px
   background: var(--chat-typing-bg);
   border-radius: var(--chat-typing-radius);
   max-width: fit-content;
 }
 
 .typing-name {
-  font-size: 0.8125rem;
+  font-size: var(--font-size-md);
   color: var(--app-muted);
   font-style: italic;
 }
@@ -23,13 +23,13 @@
 .dots {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .dot {
   width: var(--chat-typing-dot-size);
   height: var(--chat-typing-dot-size);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--chat-typing-dot-bg);
   animation: typing-bounce 1.2s ease-in-out infinite;
 

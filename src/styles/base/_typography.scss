@@ -1,0 +1,55 @@
+// ============================================================
+// base/_typography.scss
+// Base element typography. Headings, paragraphs, links, inputs.
+// Values come entirely from --font-* tokens — no hardcoded sizes.
+// ============================================================
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 0.5em;
+}
+
+p {
+  margin-bottom: var(--space-4);
+}
+
+a {
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+// ── Focus ring (WCAG 2.2 AA) ─────────────────────────────
+:focus-visible {
+  outline: 3px solid var(--p-primary-500, var(--app-primary));
+  outline-offset: 2px;
+}
+
+// ── Reduced motion ─────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,52 @@
+// ============================================================
+// themes/_light.scss
+// Light mode — default (no class required on <html>).
+//
+// Maps Sass color vars to semantic --app-* CSS properties.
+// Only --app-* tokens live here. --chat-* and --auth-* live in
+// their own feature token files.
+//
+// RULE: --p-* tokens are NEVER set here. PrimeNG manages them.
+// ============================================================
+
+@use "../tokens/colors" as c;
+
+:root {
+  // ── Surfaces ──────────────────────────────────────────────
+  --app-bg: #{c.$color-white};
+  --app-surface: #{c.$color-white};
+  --app-surface-100: #{c.$color-gray-100};
+  --app-border: #{c.$color-gray-200};
+
+  // ── Text ──────────────────────────────────────────────────
+  --app-text: #{c.$color-gray-900};
+  --app-text-secondary: #{c.$color-gray-500};
+  --app-muted: #{c.$color-gray-500};
+  --app-muted-strong: #{c.$color-gray-400}; // used for subtle hint text
+
+  // ── Brand — NON-PrimeNG elements only ─────────────────────
+  // PrimeNG components use var(--p-primary-*) from the preset.
+  // These govern custom gradients, icon tints, and non-PrimeNG CTAs.
+  // ThemeService.applyTheme() overrides these at runtime via
+  // document.documentElement.style.setProperty().
+  --app-primary: #{c.$color-blue-500};
+  --app-primary-hover: #{c.$color-blue-600};
+  --app-on-primary: #{c.$color-white};
+
+  // ── Semantic status ───────────────────────────────────────
+  --app-success: #{c.$color-green-500};
+  --app-danger: #{c.$color-red-500};
+  --app-warning: #{c.$color-yellow-500};
+  --app-online: #{c.$color-green-500}; // online status dot + read receipts
+
+  // Per-feature status variants used by verify-email and future features
+  --status-success: #{c.$color-green-600};
+  --status-warning: #{c.$color-yellow-500};
+  --status-expired: #{c.$color-orange-500};
+  --status-info: #{c.$color-blue-info};
+
+  // ── Cards ─────────────────────────────────────────────────
+  --app-card-bg: #{c.$color-white};
+  --app-card-border: rgba(0, 0, 0, 0.06);
+  --app-card-shadow: var(--shadow-card);
+}

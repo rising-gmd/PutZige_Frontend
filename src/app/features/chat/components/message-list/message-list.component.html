@@ -1,30 +1,23 @@
+<!-- Path: src/app/features/chat/components/message-list/message-list.component.html -->
+
 <div class="message-list-viewport" #viewport>
   <div class="message-list" role="log" aria-live="polite" aria-label="Messages">
     @for (group of messageGroups; track group.date) {
       <!-- Date divider -->
-      <div
-        class="date-divider"
-        role="separator"
-        aria-label="Messages from {{ group.date }}"
-      >
+      <div class="date-divider" role="separator">
         <span>{{ group.date }}</span>
       </div>
 
-      <!-- Message group -->
-      @for (bubble of group.messages; track bubble.id) {
+      <!-- Messages in this date group -->
+      @for (msg of group.messages; track msg.id) {
         <div
           class="message-group"
-          [class.own-group]="bubble.senderId === currentUserId"
-          [class.other-group]="bubble.senderId !== currentUserId"
+          [class.own-group]="msg.senderId === currentUserId"
+          [class.other-group]="msg.senderId !== currentUserId"
         >
           <app-message-bubble
-            [message]="bubble"
-            [isOwnMessage]="bubble.senderId === currentUserId"
-            [showFooter]="true"
-            (forward)="onForward($event)"
-            (star)="onStar($event)"
-            (edit)="onEdit($event)"
-            (delete)="onDelete($event)"
+            [message]="msg"
+            [isOwnMessage]="msg.senderId === currentUserId"
           ></app-message-bubble>
         </div>
       }

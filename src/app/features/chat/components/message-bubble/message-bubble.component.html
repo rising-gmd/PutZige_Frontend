@@ -4,14 +4,18 @@
   [class.other]="!isOwnMessage"
   [class.optimistic]="message.isOptimistic"
 >
-  <!-- "…" context menu trigger -->
-  <div class="bubble-actions">
+  <!-- "…" context menu button (hidden until hover) -->
+  <div
+    class="bubble-actions"
+    tabindex="-1"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
     <button
-      #menuTrigger
       class="bubble-menu-btn"
       [class.menu-open]="menuVisible"
       type="button"
-      [attr.aria-label]="'Message options'"
+      aria-label="Message options"
       [attr.aria-expanded]="menuVisible"
       aria-haspopup="menu"
       (click)="toggleMenu($event)"
@@ -30,18 +34,16 @@
     ></p-menu>
   </div>
 
-  <!-- The bubble itself -->
+  <!-- Bubble -->
   <div class="bubble" role="article" [attr.aria-label]="bubbleAriaLabel">
     <span class="bubble-text">{{ message.messageText }}</span>
 
-    @if (showFooter) {
-      <div class="bubble-footer" aria-hidden="true">
-        <span class="bubble-time">{{ message.sentAt | messageTime }}</span>
+    <div class="bubble-footer" aria-hidden="true">
+      <span class="bubble-time">{{ message.sentAt | messageTime }}</span>
 
-        @if (isOwnMessage) {
-          <i class="pi {{ statusIcon }} bubble-status {{ statusClass }}"></i>
-        }
-      </div>
-    }
+      @if (isOwnMessage) {
+        <i class="pi {{ statusIcon }} bubble-status {{ statusClass }}"></i>
+      }
+    </div>
   </div>
 </div>

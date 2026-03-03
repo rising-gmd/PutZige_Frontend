@@ -1,0 +1,18 @@
+// ============================================================
+// tokens/_z-index.scss
+// No magic z-index numbers anywhere in the codebase.
+// If you need a z-index, it must come from here.
+// ============================================================
+
+:root {
+  --z-base: 0;
+  --z-above: 1;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-toast: 1070;
+  --z-tooltip: 1080;
+}

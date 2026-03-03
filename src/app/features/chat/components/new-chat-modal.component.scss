@@ -6,7 +6,7 @@
 
 // ── Search section ────────────────────────────────────────
 .modal-search {
-  padding-bottom: var(--chat-space-4);
+  padding-bottom: var(--space-4);
 
   .search-field {
     position: relative;
@@ -15,9 +15,9 @@
 
     .search-icon {
       position: absolute;
-      left: var(--chat-space-3);
+      left: var(--space-3);
       color: var(--app-muted);
-      font-size: 0.875rem;
+      font-size: var(--font-size-md);
       pointer-events: none;
       z-index: 1;
     }
@@ -25,12 +25,12 @@
     input {
       width: 100%;
       height: 40px;
-      padding: 0 var(--chat-space-4) 0 2.25rem;
+      padding: 0 var(--space-4) 0 2.25rem;
       background: var(--app-surface-100);
       border: 1px solid transparent;
       border-radius: var(--chat-search-radius);
       font-family: inherit;
-      font-size: 0.9rem;
+      font-size: var(--font-size-md);
       color: var(--app-text);
       transition:
         border-color var(--transition-fast),
@@ -62,9 +62,9 @@
 .section-header {
   display: flex;
   align-items: center;
-  gap: var(--chat-space-2);
-  padding: var(--chat-space-2) 0 var(--chat-space-3);
-  font-size: 0.75rem;
+  gap: var(--space-2);
+  padding: var(--space-2) 0 var(--space-3);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -77,25 +77,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--chat-space-3);
-  padding: var(--chat-space-8);
+  gap: var(--space-3);
+  padding: var(--space-8);
   color: var(--app-muted);
   text-align: center;
 
   i {
-    font-size: 2rem;
+    font-size: 2rem; // TODO: 2rem (32px) has no token — needs --font-size-4xl to complete the scale
     opacity: 0.6;
   }
 
   p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: var(--font-size-md);
     font-weight: 500;
     color: var(--app-text);
   }
 
   span {
-    font-size: 0.8125rem;
+    font-size: var(--font-size-md);
     color: var(--app-muted);
   }
 }

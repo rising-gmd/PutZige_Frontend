@@ -1,20 +1,21 @@
 @use "../../../../../styles/chat/chat-mixins" as mix;
 
+// ── Host ─────────────────────────────────────────────────
 :host {
   display: block;
 }
 
-// ── Root item row ─────────────────────────────────────────
+// ── Item row ─────────────────────────────────────────────
 .conversation-item {
   display: flex;
   align-items: center;
   gap: var(--chat-item-gap);
-  padding: var(--chat-item-padding-y) var(--chat-item-padding-x);
+  padding: 10px 16px; // TODO: 10px is off the 4pt grid — needs --space-2-5 or design alignment to 8px/12px
   cursor: pointer;
   position: relative;
   transition: background var(--transition-fast);
-  border-radius: 0;
 
+  // Hover: background + reveal 3-dot button
   &:hover {
     background: var(--chat-item-hover-bg);
 
@@ -24,10 +25,11 @@
     }
 
     .timestamp {
-      opacity: 0;
+      visibility: hidden;
     }
   }
 
+  // Active / selected state
   &.active {
     background: var(--chat-item-active-bg);
   }
@@ -38,101 +40,108 @@
   }
 }
 
-// ── Avatar column ─────────────────────────────────────────
-.avatar-wrap {
+// ── Avatar ────────────────────────────────────────────────
+.avatar-container {
   position: relative;
   flex-shrink: 0;
 }
 
 .avatar-img {
-  @include mix.chat-avatar;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--chat-avatar-radius);
+  object-fit: cover;
+  display: block;
 }
 
 .avatar-fallback {
-  @include mix.chat-avatar-fallback;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--chat-avatar-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--p-primary-500);
+  color: var(--app-on-primary);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  user-select: none;
 }
 
+// ── Online status dot ─────────────────────────────────────
 .status-dot {
-  @include mix.chat-status-dot;
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--app-surface);
+
+  &.online {
+    background: var(--chat-status-online-color);
+  }
 }
 
-// ── Content column ────────────────────────────────────────
-.item-content {
+// ── Text content ──────────────────────────────────────────
+.conversation-details {
   flex: 1;
-  min-width: 0; // critical for text-overflow in flex children
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 3px; // TODO: 3px is off the 4pt grid — optical micro-spacer, needs --space-0-75
 }
 
-// ── Top row: name + timestamp ─────────────────────────────
-.item-top {
+.header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--chat-space-2);
+  gap: var(--space-2);
 }
 
-.item-name {
+.user-name {
   margin: 0;
-  font-size: 0.9375rem; // 15px
+  font-size: var(--font-size-chat);
   font-weight: 600;
   color: var(--app-text);
-  @include mix.text-truncate;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   flex: 1;
   min-width: 0;
 }
 
 .timestamp {
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   color: var(--app-muted);
   white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity var(--transition-fast);
 }
 
-// ── Bottom row: preview + badge ───────────────────────────
-.item-bottom {
+.preview-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--chat-space-2);
-  min-height: 20px;
+  gap: 6px; // TODO: 6px is off the 4pt grid — optical micro-spacer, needs --space-1-5
+  min-height: 18px;
 }
 
-.item-preview {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-}
-
-.preview-icon {
-  font-size: 0.7rem;
-  flex-shrink: 0;
-  color: var(--chat-status-delivered-color);
-
-  &.read {
-    color: var(--chat-status-read-color);
-  }
-}
-
-.preview-text {
+.message-preview {
   margin: 0;
-  font-size: 0.8125rem; // 13px
+  font-size: var(--font-size-md);
   color: var(--app-muted);
-  @include mix.text-truncate;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   flex: 1;
   min-width: 0;
 }
 
-.typing-text {
-  margin: 0;
-  font-size: 0.8125rem;
+.typing-indicator {
+  font-size: var(--font-size-md);
   color: var(--p-primary-500);
   font-style: italic;
-  @include mix.text-truncate;
 }
 
 // ── Unread badge ──────────────────────────────────────────
@@ -140,52 +149,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--chat-badge-size);
-  height: var(--chat-badge-size);
+  min-width: 20px;
+  height: 20px;
   padding: 0 5px;
   border-radius: var(--chat-badge-radius);
-  background: var(--chat-badge-bg);
-  color: var(--chat-badge-color);
-  font-size: var(--chat-badge-font-size);
-  font-weight: var(--chat-badge-font-weight);
+  background: var(--p-primary-500);
+  color: var(--app-on-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
   flex-shrink: 0;
   line-height: 1;
 }
 
-// ── 3-dot menu button (appears on hover) ─────────────────
+// ── 3-dot menu button ─────────────────────────────────────
 .item-actions {
   position: absolute;
-  right: var(--chat-item-padding-x);
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: var(--chat-space-1);
 }
 
 .item-menu-btn {
-  @include mix.icon-btn(28px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
   opacity: 0;
   pointer-events: none;
   transition:
     opacity var(--transition-fast),
     background var(--transition-fast);
-  font-size: 0.8rem;
-  border-radius: 50%;
+  font-size: var(--font-size-sm);
 
-  // Keep visible when menu is open
-  &.menu-open {
+  &:hover {
+    background: var(--app-border);
+    color: var(--app-text);
+  }
+
+  &:focus-visible {
     opacity: 1;
     pointer-events: auto;
+    outline: 2px solid var(--p-primary-500);
+    outline-offset: 2px;
   }
 }
 
 // ── Reduced motion ────────────────────────────────────────
-@include mix.no-motion {
+@media (prefers-reduced-motion: reduce) {
   .conversation-item {
-    transition: none;
-  }
-  .item-menu-btn {
     transition: none;
   }
 }

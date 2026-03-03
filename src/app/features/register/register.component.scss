@@ -4,7 +4,7 @@
   grid-template-columns: 60% 40%;
   width: 100%;
   height: 100vh; /* lock to viewport height */
-  gap: 2rem;
+  gap: var(--space-8);
   align-items: center; /* vertical centering of grid cells */
   justify-items: center; /* horizontal centering inside each grid cell */
   overflow: hidden; /* prevent children from causing page scroll */
@@ -38,11 +38,11 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 3rem;
+  padding: var(--space-12);
   width: 100%;
   max-width: 480px;
   background: var(--auth-card-surface, var(--app-surface));
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   margin: auto; /* centers horizontally and vertically within the grid cell */
   place-self: center; /* ensure centering inside the grid cell */
@@ -59,10 +59,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: 10px; // TODO: 10px has no token — sits between --radius-md (8px) and --radius-lg (12px), intentional design midpoint
   background: var(--auth-card-surface, var(--app-surface));
   border: 1px solid var(--auth-card-border, var(--app-border));
   cursor: pointer;
@@ -74,18 +74,18 @@
 
 .divider {
   text-align: center;
-  margin: 1rem 0;
+  margin: var(--space-4) 0;
   color: var(--app-muted);
 }
 .divider span {
   background: var(--auth-card-surface, var(--app-surface));
-  padding: 0 0.5rem;
+  padding: 0 var(--space-2);
 }
 
 .register-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 .register-card app-input,
 .register-card app-password {
@@ -95,8 +95,8 @@
 .register-card .app-input__control,
 .register-card .p-password .p-inputtext {
   height: 44px;
-  border-radius: 8px;
-  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
   background: var(--auth-card-surface, var(--app-surface));
   border: 1px solid var(--auth-card-border, var(--app-border));
 }
@@ -106,7 +106,7 @@
 }
 
 .terms {
-  font-size: 0.9rem;
+  font-size: var(--font-size-md);
   color: var(--app-muted-strong);
   margin-top: 0.25rem;
 }
@@ -114,8 +114,8 @@
   margin-right: 0.5rem;
 }
 .signin {
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
+  margin-top: var(--space-3);
+  font-size: var(--font-size-md);
   text-align: center;
 }
 
@@ -126,12 +126,12 @@
 }
 .register-card app-button.btn-full button {
   width: 100%;
-  border-radius: 24px;
-  padding: 0.75rem 1rem;
+  border-radius: var(--radius-2xl);
+  padding: var(--space-3) var(--space-4);
   background: linear-gradient(
     90deg,
-    var(--app-primary-start) 0%,
-    var(--app-primary-end) 100%
+    var(--app-primary) 0%,
+    var(--app-primary-hover) 100%
   );
   border: none;
   color: var(--app-surface);
@@ -140,13 +140,13 @@
 @media (max-width: 1200px) {
   .register-page {
     grid-template-columns: 1fr;
-    padding: 1rem;
+    padding: var(--space-4);
   }
   .register-visual {
     display: none;
   }
   .register-card {
-    padding: 2rem 1rem;
+    padding: var(--space-8) var(--space-4);
     max-width: 640px;
     transform: none; /* remove nudge on smaller screens */
   }

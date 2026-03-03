@@ -9,8 +9,8 @@
 .profile-card {
   display: flex;
   align-items: center;
-  gap: var(--chat-space-3);
-  padding: 0 var(--chat-space-4);
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
   height: var(--chat-profile-card-height);
   border-top: 1px solid var(--chat-profile-border);
   background: var(--chat-profile-bg);
@@ -28,7 +28,7 @@
 
 .avatar-fallback {
   @include mix.chat-avatar-fallback(var(--chat-profile-avatar-size));
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
 }
 
 .status-dot {
@@ -45,14 +45,14 @@
 }
 
 .user-name {
-  font-size: 0.8125rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--app-text);
   @include mix.text-truncate;
 }
 
 .user-title {
-  font-size: 0.7rem;
+  font-size: var(--font-size-xs);
   color: var(--app-muted);
   @include mix.text-truncate;
 }
@@ -61,17 +61,18 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--chat-space-1);
+  gap: var(--space-1);
   flex-shrink: 0;
 }
 
 .action-btn {
   @include mix.icon-btn(30px);
-  font-size: 0.875rem;
+  font-size: var(--font-size-md);
   border-radius: var(--radius-md);
 
   &--danger:hover {
-    background: rgba(239, 68, 68, 0.08);
+    // color-mix: same pattern used in _chat-tokens.scss for translucent danger overlays
+    background: color-mix(in srgb, var(--app-danger) 8%, transparent);
     color: var(--app-danger);
   }
 }

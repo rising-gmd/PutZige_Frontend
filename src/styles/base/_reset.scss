@@ -1,0 +1,32 @@
+// ============================================================
+// base/_reset.scss
+// Minimal CSS reset. Sets box-sizing and removes unwanted
+// browser defaults. Does not style any elements beyond layout.
+// ============================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--font-size-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-base);
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
+}

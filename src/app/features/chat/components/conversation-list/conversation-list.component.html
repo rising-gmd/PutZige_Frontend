@@ -46,7 +46,7 @@
         [attr.aria-selected]="false"
         [attr.aria-label]="
           'Start conversation with ' +
-          (user.displayName?.trim() || user.username)
+          (user.displayName.trim() || user.username)
         "
         (click)="onSelectUser(user)"
         (keydown.enter)="onSelectUser(user)"
@@ -54,12 +54,12 @@
       >
         <div class="result-avatar" aria-hidden="true">
           {{
-            (user.displayName?.trim() || user.username).substring(0, 2)
+            (user.displayName.trim() || user.username).substring(0, 2)
               | uppercase
           }}
         </div>
         <div class="result-meta">
-          <h4>{{ user.displayName?.trim() || user.username }}</h4>
+          <h4>{{ user.displayName.trim() || user.username }}</h4>
           <p>{{ user.jobTitle || user.email }}</p>
         </div>
       </div>

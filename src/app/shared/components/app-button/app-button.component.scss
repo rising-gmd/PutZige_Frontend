@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center; /* center label + spinner as a unit */
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 .app-button__host {
   display: inline-block;
@@ -25,15 +25,15 @@
   text-align: center;
 }
 .app-button__spinner {
-  margin-left: 0.32rem;
+  margin-left: 0.32rem; // TODO: 0.32rem (≈5px) is an optical offset — no token; needs --space-1-25 or design decision
   pointer-events: none;
-  font-size: 0.8rem; /* slightly smaller than label */
+  font-size: 0.8rem; // TODO: 0.8rem (12.8px) has no token — sits between --font-size-sm (12px) and --font-size-md (14px)
   display: inline-flex;
   align-items: center;
   line-height: 1; /* rely on flex centering */
   vertical-align: middle;
   transform: translateY(2px); /* nudge down for better visual centering */
-  margin-top: 3px; /* small negative margin to tweak pixel alignment */
+  margin-top: 3px; // TODO: 3px is an optical pixel-alignment nudge — off the 4pt grid, no token
 }
 
 /* Full-width buttons: ensure inner content stays centered */
@@ -57,11 +57,11 @@ button:not([disabled]) {
   cursor: pointer;
 }
 .app-button--small {
-  padding: 0.375rem 0.75rem;
+  padding: 0.375rem var(--space-3); // TODO: 0.375rem (6px) vertical padding is off the 4pt grid — needs --space-1-5 or design alignment to 4px/8px
 }
 .app-button--normal {
-  padding: 0.5rem 1rem;
+  padding: var(--space-2) var(--space-4);
 }
 .app-button--large {
-  padding: 0.75rem 1.25rem;
+  padding: var(--space-3) var(--space-5);
 }

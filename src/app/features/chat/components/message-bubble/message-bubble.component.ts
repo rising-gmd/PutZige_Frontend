@@ -1,4 +1,3 @@
-import { MenuItem } from 'primeng/api';
 import {
   Component,
   Input,
@@ -9,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Menu, MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { Message } from '../../models/message.model';
 import { MessageTimePipe } from '../../../../shared/pipes/message-time.pipe';
 
@@ -23,7 +23,6 @@ import { MessageTimePipe } from '../../../../shared/pipes/message-time.pipe';
 export class MessageBubbleComponent {
   @Input({ required: true }) message!: Message;
   @Input({ required: true }) isOwnMessage!: boolean;
-  @Input() showFooter = true;
 
   @Output() forward = new EventEmitter<Message>();
   @Output() star = new EventEmitter<Message>();
@@ -34,7 +33,7 @@ export class MessageBubbleComponent {
 
   menuVisible = false;
 
-  // ── Read receipt icon ────────────────────────────────────
+  // ── Read receipt ──────────────────────────────────────
 
   get statusIcon(): string {
     if (this.message.isOptimistic) return 'pi-clock';
@@ -54,7 +53,7 @@ export class MessageBubbleComponent {
     return `${who}: ${this.message.messageText}`;
   }
 
-  // ── Context menu ─────────────────────────────────────────
+  // ── Context menu ──────────────────────────────────────
 
   get menuItems(): MenuItem[] {
     const items: MenuItem[] = [

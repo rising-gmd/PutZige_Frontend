@@ -1,9 +1,8 @@
-@use "../../../../../styles/chat/chat-mixins" as mix;
-
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
 // ── Scrollable viewport ───────────────────────────────────
@@ -14,47 +13,65 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-  @include mix.scrollbar-thin;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--app-border);
+    border-radius: var(--radius-sm);
+  }
 }
 
-// ── Inner list container ─────────────────────────────────
+// ── Inner list ────────────────────────────────────────────
 .message-list {
-  padding: var(--chat-space-4) var(--chat-space-5);
+  padding: var(--space-4) var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: 0; // gaps controlled per element below
-  min-height: 100%; // pushes messages to bottom naturally
-  justify-content: flex-end;
+  gap: 0;
 }
 
-// ── Message group (same sender, consecutive) ─────────────
-.message-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--chat-space-3);
-
-  &.own-group {
-    align-items: flex-end;
-  }
-  &.other-group {
-    align-items: flex-start;
-  }
-}
-
-// ── Date divider ─────────────────────────────────────────
+// ── Date divider ──────────────────────────────────────────
 .date-divider {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: var(--chat-space-4) 0 var(--chat-space-3);
+  margin: var(--space-4) 0 10px; // TODO: 10px bottom margin is off the 4pt grid — needs --space-2-5 or design alignment to 8px/12px
 
   span {
-    padding: 3px 12px;
-    background: var(--chat-divider-bg);
+    padding: 3px var(--space-3); // TODO: 3px top/bottom is off the 4pt grid — optical pill padding, needs --space-0-75
+    background: var(--app-surface-100);
     border-radius: var(--chat-divider-radius);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     font-weight: 500;
-    color: var(--chat-divider-color);
+    color: var(--app-muted);
     white-space: nowrap;
   }
+}
+
+// ── Message group ─────────────────────────────────────────
+// Each group is a single message (no grouping by sender yet)
+// app-message-bubble has display: block, so we just control alignment here
+.message-group {
+  display: flex;
+  margin-bottom: 2px;
+
+  // OWN messages: push to right side
+  &.own-group {
+    justify-content: flex-end;
+  }
+
+  // OTHER messages: left side (default)
+  &.other-group {
+    justify-content: flex-start;
+  }
+
+  // app-message-bubble itself is display:block; its .bubble-row handles
+  // internal flex direction (row-reverse for own). The group just
+  // controls which end of the container it hugs.
 }

@@ -1,7 +1,3 @@
-// ============================================================
-// chat-area.component.ts
-// Path: src/app/features/chat/components/chat-area/
-// ============================================================
 import {
   Component,
   inject,
