@@ -8,11 +8,16 @@ import {
   viewChildren,
   ElementRef,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Store } from '@ngrx/store';
 import { ConversationItemComponent } from '../conversation-item/conversation-item.component';
 import { NewChatModalComponent } from '../new-chat-modal.component';
-import { ChatStateService } from '../../services/chat-state.service';
+import { chatFeature } from '../../../../store/chat/chat.reducer';
+import { ChatActions } from '../../../../store/chat/chat.actions';
+import { selectSortedConversations } from '../../../../store/chat/chat.selectors';
 import { User } from '../../models/user.model';
 import { UserSearchResult } from '../../models/new-chat.models';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -50,15 +55,29 @@ export class ConversationListComponent {
     viewChildren<ElementRef<HTMLDivElement>>('searchResult');
 
   // Services ─────────────────────────────────────────────────────────────────
-  private readonly chatState = inject(ChatStateService);
+  private readonly store = inject(Store);
   private readonly notify = inject(NotificationService);
   private readonly confirmationService = inject(ConfirmationService);
 
-  // ── State ──────────────────────────────────────────────────────────────────
-  readonly conversations = this.chatState.sortedConversations;
-  readonly activeConversationId = this.chatState.activeConversationId;
-  readonly isLoading = this.chatState.isLoadingConversations;
-  readonly searchResults = this.chatState.searchResults;
+  // ── State ───────────────────────────────────────────────────
+  readonly conversations = toSignal(
+    this.store.select(selectSortedConversations),
+    { initialValue: [] },
+  );
+  readonly activeConversationId = toSignal(
+    this.store.select(chatFeature.selectActiveConversationId),
+    { initialValue: null },
+  );
+  readonly isLoading = toSignal(
+    this.store
+      .select(chatFeature.selectLoadingStatus)
+      .pipe(map((status) => status === 'loading')),
+    { initialValue: false },
+  );
+  readonly searchResults = toSignal(
+    this.store.select(chatFeature.selectSearchResults),
+    { initialValue: [] },
+  );
   readonly searchQuery = signal('');
 
   // ── Outputs ────────────────────────────────────────────────────────────────
@@ -88,27 +107,34 @@ export class ConversationListComponent {
    */
   onSearch(query: string): void {
     this.searchQuery.set(query);
-    if (query.trim().length >= 2) {
-      this.chatState.searchUsers(query);
-    }
+    // Guard delegated to the searchUsers$ effect (debounceTime + length check).
+    this.store.dispatch(ChatActions.searchQueryChanged({ query }));
   }
 
   onSelectConversation(conversationId: string): void {
-    this.chatState.setActiveConversation(conversationId);
+    this.store.dispatch(ChatActions.conversationSelected({ conversationId }));
   }
 
   onSelectUser(user: User): void {
-    this.chatState.startConversation(user);
+    // The startConversation$ effect handles fast-path (existing) vs slow-path (new) automatically.
+    this.store.dispatch(ChatActions.newConversationStarted({ user }));
     this.searchQuery.set('');
   }
 
   onUserSelected(user: UserSearchResult): void {
-    const conv = this.chatState
-      .conversations()
-      .find((c) => c.userId === user.id);
-    if (conv) {
-      this.chatState.setActiveConversation(conv.conversationId);
-    }
+    // Delegate to the same effect path — it will find the existing conversation or create one.
+    this.store.dispatch(
+      ChatActions.newConversationStarted({
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          displayName: user.displayName?.trim() || user.username,
+          profilePictureUrl: user.profilePictureUrl,
+          isOnline: user.isOnline,
+        },
+      }),
+    );
   }
 
   // ── Context menu handlers ──────────────────────────────────────────────────

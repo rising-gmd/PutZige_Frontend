@@ -17,6 +17,12 @@ export interface Message {
   readonly isOptimistic?: boolean;
   /** Temporary client-side id used for optimistic messages */
   readonly tempId?: string;
+  /**
+   * Explicit send status for optimistic messages.
+   * Set to 'sending' on optimistic add, 'sent'/'delivered'/'read' on ack,
+   * 'failed' on send failure. Undefined for messages loaded from history.
+   */
+  readonly status?: MessageStatus;
 }
 
 /**

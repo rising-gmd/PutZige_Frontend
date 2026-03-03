@@ -1,11 +1,21 @@
 import {
   ApplicationConfig,
+  isDevMode,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
   importProvidersFrom,
   LOCALE_ID,
   APP_INITIALIZER,
 } from '@angular/core';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { chatFeature } from './store/chat/chat.reducer';
+import { messagesFeature } from './store/messages/messages.reducer';
+import { presenceFeature } from './store/presence/presence.reducer';
+import { ChatEffects } from './store/chat/chat.effects';
+import { MessagesEffects } from './store/messages/messages.effects';
+import { PresenceEffects } from './store/presence/presence.effects';
 import { provideRouter } from '@angular/router';
 import {
   provideHttpClient,
@@ -25,6 +35,9 @@ import MyPreset from './theme/my-preset';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 import { API_CONFIG } from './core/config/api.config';
+import { STORAGE_KEYS } from './core/constants/storage-keys.constants';
+import { I18N_CONFIG } from './core/constants/i18n.constants';
+import { NGRX_DEVTOOLS_CONFIG } from './core/constants/app.constants';
 import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -39,11 +52,12 @@ export function initializeApp(
     // Initialize auth state by asking the backend (/auth/me)
     await firstValueFrom(authService.checkAuthStatus());
 
-    const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+    const savedLang =
+      localStorage.getItem(STORAGE_KEYS.LANGUAGE) || I18N_CONFIG.DEFAULT_LANG;
 
-    translate.setFallbackLang('en');
+    translate.setFallbackLang(I18N_CONFIG.DEFAULT_LANG);
 
-    translate.addLangs(['en', 'es', 'de']);
+    translate.addLangs([...I18N_CONFIG.SUPPORTED_LANGS]);
 
     return firstValueFrom(translate.use(savedLang))
       .then(() => {
@@ -52,7 +66,9 @@ export function initializeApp(
 
       .catch((err) => {
         console.error('Failed to load translations:', err);
-        return firstValueFrom(translate.use('en')).then(() => undefined);
+        return firstValueFrom(translate.use(I18N_CONFIG.DEFAULT_LANG)).then(
+          () => undefined,
+        );
       });
   };
 }
@@ -81,10 +97,22 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    // ── NgRx Store ───────────────────────────────────────────────────────────
+    provideStore({
+      [chatFeature.name]: chatFeature.reducer,
+      [messagesFeature.name]: messagesFeature.reducer,
+      [presenceFeature.name]: presenceFeature.reducer,
+    }),
+    provideEffects([ChatEffects, MessagesEffects, PresenceEffects]),
+    provideStoreDevtools({
+      maxAge: NGRX_DEVTOOLS_CONFIG.MAX_AGE,
+      logOnly: !isDevMode(), // Restrict extension to only logging in production.
+      connectInZone: true,
+    }),
     // ngx-translate configuration
     importProvidersFrom(
       TranslateModule.forRoot({
-        defaultLanguage: 'en',
+        defaultLanguage: I18N_CONFIG.DEFAULT_LANG,
         loader: {
           provide: TranslateLoader,
           useFactory: HttpLoaderFactory,
@@ -102,7 +130,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: LOCALE_ID,
       useFactory: (translate: TranslateService) =>
-        translate.currentLang || 'en',
+        translate.currentLang || I18N_CONFIG.DEFAULT_LANG,
       deps: [TranslateService],
     },
     {
@@ -121,6 +149,8 @@ export const appConfig: ApplicationConfig = {
 export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
   return {
     getTranslation: (lang: string): Observable<Record<string, string>> =>
-      http.get<Record<string, string>>(`./assets/i18n/${lang}.json`),
+      http.get<Record<string, string>>(
+        `${I18N_CONFIG.ASSETS_PATH}/${lang}.json`,
+      ),
   } as TranslateLoader;
 }

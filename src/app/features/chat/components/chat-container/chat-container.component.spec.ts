@@ -1,8 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
 import { ChatContainerComponent } from './chat-container.component';
 import { API_CONFIG } from '../../../../core/config/api.config';
-import { ChatStateService } from '../../services/chat-state.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
+import { chatFeature } from '../../../../store/chat/chat.reducer';
+import { messagesFeature } from '../../../../store/messages/messages.reducer';
+import { presenceFeature } from '../../../../store/presence/presence.reducer';
 
 describe('ChatContainerComponent', () => {
   let fixture: ComponentFixture<ChatContainerComponent>;
@@ -11,6 +15,13 @@ describe('ChatContainerComponent', () => {
     TestBed.configureTestingModule({
       imports: [ChatContainerComponent],
       providers: [
+        provideStore({
+          [chatFeature.name]: chatFeature.reducer,
+          [messagesFeature.name]: messagesFeature.reducer,
+          [presenceFeature.name]: presenceFeature.reducer,
+        }),
+        // No effects registered — unit test, no side effects wanted.
+        provideEffects([]),
         {
           provide: API_CONFIG,
           useValue: {
@@ -18,10 +29,6 @@ describe('ChatContainerComponent', () => {
             version: 'v1',
             production: false,
           },
-        },
-        {
-          provide: ChatStateService,
-          useValue: { initialize: async () => Promise.resolve() },
         },
         { provide: AuthService, useValue: { getAccessToken: () => null } },
       ],

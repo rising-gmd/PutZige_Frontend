@@ -1,15 +1,19 @@
-import {
-  Component,
-  inject,
-  ChangeDetectionStrategy,
-  effect,
-} from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { Store } from '@ngrx/store';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { TypingIndicatorComponent } from '../typing-indicator/typing-indicator.component';
-import { ChatStateService } from '../../services/chat-state.service';
 import { SignalRService } from '../../services/signalr.service';
+import { chatFeature } from '../../../../store/chat/chat.reducer';
+import { CHAT_CONSTANTS } from '../../../../core/constants/chat.constants';
+import { MessageActions } from '../../../../store/messages/messages.actions';
+import { selectActiveConversation } from '../../../../store/chat/chat.selectors';
+import {
+  selectActiveMessages,
+  selectIsMessageLoading,
+} from '../../../../store/messages/messages.selectors';
 import { DsAvatarComponent } from '../../../../design-system/primitives/avatar/ds-avatar.component';
 import { DsIconButtonComponent } from '../../../../design-system/composites/icon-button/ds-icon-button.component';
 import { DsEmptyStateComponent } from '../../../../design-system/primitives/empty-state/ds-empty-state.component';
@@ -31,27 +35,43 @@ import { DsEmptyStateComponent } from '../../../../design-system/primitives/empt
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatAreaComponent {
-  private readonly chatState = inject(ChatStateService);
+  private readonly store = inject(Store);
   private readonly signalR = inject(SignalRService);
 
-  readonly activeConversation = this.chatState.activeConversation;
-  readonly activeMessages = this.chatState.activeMessages;
-  readonly currentUser = this.chatState.currentUser;
-  readonly isLoading = this.chatState.isLoadingMessages;
-
-  constructor() {
-    // Logging side-effect only — signals with OnPush make markForCheck() unnecessary.
-    // Retained solely so the effect keeps the TS import checker happy until the
-    // logger service is wired in (INC-XXXX).
-    effect(() => void this.activeMessages());
-  }
+  readonly activeConversation = toSignal(
+    this.store.select(selectActiveConversation),
+    { initialValue: null },
+  );
+  readonly activeMessages = toSignal(this.store.select(selectActiveMessages), {
+    initialValue: [],
+  });
+  readonly currentUser = toSignal(
+    this.store.select(chatFeature.selectCurrentUser),
+    { initialValue: null },
+  );
+  readonly isLoading = toSignal(this.store.select(selectIsMessageLoading), {
+    initialValue: false,
+  });
 
   // ── Event handlers ───────────────────────────────────────
 
   onSendMessage(messageText: string): void {
     const conv = this.activeConversation();
-    if (!conv) return;
-    this.chatState.sendMessage(conv.conversationId, messageText);
+    const user = this.currentUser();
+    if (!conv || !user) return;
+
+    // tempId stays in the component so the optimistic placeholder is
+    // immediately identifiable without a round-trip.
+    const tempId = `${CHAT_CONSTANTS.TEMP_MESSAGE_ID_PREFIX}${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
+    this.store.dispatch(
+      MessageActions.sendRequested({
+        tempId,
+        conversationId: conv.conversationId,
+        text: messageText,
+        senderId: user.id,
+        receiverId: conv.userId,
+      }),
+    );
   }
 
   onTypingStarted(): void {

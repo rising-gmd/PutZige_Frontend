@@ -6,11 +6,13 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
 import { SettingsDrawerComponent } from '../settings-drawer/settings-drawer.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ChatStateService } from '../../services/chat-state.service';
+import { chatFeature } from '../../../../store/chat/chat.reducer';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { DsAvatarComponent } from '../../../../design-system/primitives/avatar/ds-avatar.component';
 import { DsIconButtonComponent } from '../../../../design-system/composites/icon-button/ds-icon-button.component';
@@ -29,7 +31,7 @@ import { DsIconButtonComponent } from '../../../../design-system/composites/icon
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileCardComponent {
-  private readonly chatState = inject(ChatStateService);
+  private readonly store = inject(Store);
   private readonly auth = inject(AuthService);
   private readonly notify = inject(NotificationService);
   private readonly translate = inject(TranslateService);
@@ -37,7 +39,12 @@ export class ProfileCardComponent {
   private readonly drawerRef =
     viewChild<SettingsDrawerComponent>('settingsDrawer');
 
-  readonly currentUser = this.chatState.currentUser;
+  readonly currentUser = toSignal(
+    this.store.select(chatFeature.selectCurrentUser),
+    {
+      initialValue: null,
+    },
+  );
   readonly isLoggingOut = signal(false);
 
   /** Used for aria-label only — ds-avatar derives its own display label internally. */

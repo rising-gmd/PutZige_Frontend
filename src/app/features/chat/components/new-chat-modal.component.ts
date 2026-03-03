@@ -18,10 +18,9 @@ import {
   switchMap,
   of,
   catchError,
-  exhaustMap,
-  from,
 } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
 import { UserSearchItemComponent } from './user-search-item.component';
 import { NewChatService } from '../services/new-chat.service';
 import {
@@ -30,8 +29,7 @@ import {
   RecentContactsData,
   SuggestedUsersData,
 } from '../models/new-chat.models';
-import { ChatStateService } from '../services/chat-state.service';
-import { User } from '../models';
+import { ChatActions } from '../../../store/chat/chat.actions';
 
 @Component({
   selector: 'app-new-chat-modal',
@@ -49,9 +47,8 @@ import { User } from '../models';
 })
 export class NewChatModalComponent implements OnInit {
   private readonly newChatService = inject(NewChatService);
-  private readonly chatState = inject(ChatStateService);
+  private readonly store = inject(Store);
   private readonly searchSubject$ = new Subject<string>();
-  private readonly startConversationSubject$ = new Subject<User>();
 
   readonly userSelected = output<UserSearchResult>();
   readonly closed = output<void>();
@@ -66,17 +63,6 @@ export class NewChatModalComponent implements OnInit {
 
   constructor() {
     this.setupSearchDebounce();
-
-    this.startConversationSubject$
-      .pipe(
-        debounceTime(300),
-        exhaustMap((user) => from(this.chatState.startConversation(user))),
-        takeUntilDestroyed(),
-      )
-      .subscribe({
-        next: () => this.hide(),
-        error: (err) => console.error('Start conversation failed', err),
-      });
   }
 
   ngOnInit(): void {
@@ -109,19 +95,28 @@ export class NewChatModalComponent implements OnInit {
   }
 
   onUserSelected(user: UserSearchResult): void {
-    // Emit immediately so parent can optimistically navigate if desired
+    // Notify parent in case it needs to react (e.g. optimistic navigation).
     this.userSelected.emit(user);
 
-    // Start conversation via debounced/exhaust-mapped stream to avoid races
-    this.startConversationSubject$.next({
-      id: user.id,
-      username: user.username,
-      email: user.email ?? '',
-      displayName:
-        (user.displayName && user.displayName.trim()) || user.username,
-      profilePictureUrl: user.profilePictureUrl,
-      isOnline: user.isOnline ?? false,
-    } as User);
+    // Dispatch to the store — the startConversation$ effect handles fast-path
+    // (conversation already exists) vs slow-path (create via API).
+    // selectAfterCreate$ then selects the conversation automatically.
+    this.store.dispatch(
+      ChatActions.newConversationStarted({
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email ?? '',
+          displayName: user.displayName?.trim() || user.username,
+          profilePictureUrl: user.profilePictureUrl,
+          isOnline: user.isOnline ?? false,
+        },
+      }),
+    );
+
+    // Close immediately — the effect is non-blocking and the conversation
+    // will appear in the list as soon as the API responds.
+    this.hide();
   }
 
   onClose(): void {

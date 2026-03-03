@@ -6,10 +6,11 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
 import { ConversationListComponent } from '../conversation-list/conversation-list.component';
 import { ChatAreaComponent } from '../chat-area/chat-area.component';
 import { ProfileCardComponent } from '../profile-card/profile-card.component';
-import { ChatStateService } from '../../services/chat-state.service';
+import { ChatActions } from '../../../../store/chat/chat.actions';
 
 @Component({
   selector: 'app-chat-container',
@@ -25,13 +26,14 @@ import { ChatStateService } from '../../services/chat-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatContainerComponent implements OnInit {
-  private readonly chatState = inject(ChatStateService);
+  private readonly store = inject(Store);
 
   /** Controls sidebar visibility on mobile */
   readonly sidebarOpen = signal(false);
 
-  async ngOnInit(): Promise<void> {
-    await this.chatState.initialize();
+  ngOnInit(): void {
+    // Triggers getCurrentUser + getConversations + SignalR connect via effects.
+    this.store.dispatch(ChatActions.pageOpened());
   }
 
   toggleSidebar(): void {
