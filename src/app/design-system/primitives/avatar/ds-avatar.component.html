@@ -1,0 +1,26 @@
+<div
+  class="ds-avatar"
+  [class]="'ds-avatar--' + size()"
+  role="img"
+  [attr.aria-label]="user().name"
+>
+  @if (user().profilePictureUrl) {
+    <img
+      class="ds-avatar__img"
+      [src]="user().profilePictureUrl"
+      [alt]="user().name"
+      loading="lazy"
+    />
+  } @else {
+    <span class="ds-avatar__initials" aria-hidden="true">{{ initials() }}</span>
+  }
+
+  @if (showOnline()) {
+    <span
+      class="ds-avatar__status"
+      [class.ds-avatar__status--online]="isOnline()"
+      role="img"
+      [attr.aria-label]="isOnline() ? 'Online' : 'Offline'"
+    ></span>
+  }
+</div>

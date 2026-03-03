@@ -1,4 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DarkModeService } from '../../theme/dark-mode.service';
 
 @Component({
@@ -6,6 +11,7 @@ import { DarkModeService } from '../../theme/dark-mode.service';
   standalone: true,
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
   private readonly darkMode = inject(DarkModeService);

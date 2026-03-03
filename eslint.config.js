@@ -19,7 +19,8 @@ module.exports = defineConfig([
         "error",
         {
           type: "attribute",
-          prefix: "app",
+          // "ds" prefix reserved for design-system primitives & composites
+          prefix: ["app", "ds"],
           style: "camelCase",
         },
       ],
@@ -27,7 +28,8 @@ module.exports = defineConfig([
         "error",
         {
           type: "element",
-          prefix: "app",
+          // "ds" prefix reserved for design-system primitives & composites
+          prefix: ["app", "ds"],
           style: "kebab-case",
         },
       ],

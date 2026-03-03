@@ -17,9 +17,9 @@ import {
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MessageModule } from 'primeng/message';
-import { AppInputComponent } from '../../shared/components/app-input/app-input.component';
-import { AppPasswordComponent } from '../../shared/components/app-password/app-password.component';
-import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
+import { AppInputComponent } from '../../design-system/primitives/input/app-input.component';
+import { AppPasswordComponent } from '../../design-system/primitives/password/app-password.component';
+import { AppButtonComponent } from '../../design-system/primitives/button/app-button.component';
 import { RegisterService } from './register.service';
 import type { RegisterResponse } from './register.service';
 import type { ApiResponse } from '../../core/models/api.model';

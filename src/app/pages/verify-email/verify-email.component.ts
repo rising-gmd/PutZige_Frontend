@@ -13,7 +13,7 @@ import { ROUTE_PATHS } from '../../core/constants/route.constants';
 import { UI_CONSTANTS } from '../../core/constants/ui.constants';
 import type { ApiResponse } from '../../core/models/api.model';
 import { AuthApiService } from '../../features/auth/services/auth-api.service';
-import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
+import { AppButtonComponent } from '../../design-system/primitives/button/app-button.component';
 import { NotificationService } from '../../shared/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { mapResponseCode } from '../../core/i18n/response-code-map';

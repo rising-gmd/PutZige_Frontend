@@ -1,0 +1,73 @@
+// ============================================================
+// design-system/primitives/avatar/ds-avatar.component.scss
+// Uses global --p-* and --app-* tokens only.
+// Never references chat-specific tokens — this is a cross-feature primitive.
+// ============================================================
+
+:host {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ds-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: visible; // allow status dot to bleed outside the circle
+  background-color: var(--p-primary-500);
+  color: var(--app-on-primary, #ffffff);
+  font-weight: 700;
+  user-select: none;
+  flex-shrink: 0;
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  &--md {
+    width: 44px;
+    height: 44px;
+    font-size: 0.875rem;
+  }
+
+  &--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1rem;
+  }
+
+  // ── Image ───────────────────────────────────────────────
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+  }
+
+  // ── Initials fallback ────────────────────────────────────
+  &__initials {
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  // ── Online status dot ────────────────────────────────────
+  &__status {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid var(--app-surface, #1f2937);
+    background-color: var(--app-surface-400, #6b7280); // offline: grey
+
+    &--online {
+      background-color: var(--app-online, #22c55e);
+    }
+  }
+}

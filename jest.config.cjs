@@ -2,7 +2,7 @@ module.exports = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns: ['/node_modules/', '/e2e/', '/.github/'], 
+  testPathIgnorePatterns: ['/node_modules/', '/e2e/', '/.github/'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json', 'mjs'],
   transform: {
     '^.+\\.(ts|js|html)$': [
@@ -12,6 +12,9 @@ module.exports = {
         stringifyContentPathRegex: '\\.(html|svg)$',
       },
     ],
+  },
+  moduleNameMapper: {
+    '^@app/(.*)$': '<rootDir>/src/app/$1',
   },
   collectCoverage: true,
   coverageDirectory: '<rootDir>/coverage/jest',

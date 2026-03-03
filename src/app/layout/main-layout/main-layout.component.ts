@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {}
