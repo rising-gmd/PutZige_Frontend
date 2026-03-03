@@ -20,15 +20,10 @@ import { MessageActions, MessageApiActions } from './messages.actions';
 import { selectLoadedConversationIds } from './messages.selectors';
 import { selectConversationEntities } from '../chat/chat.selectors';
 import { extractErrorMessage } from '../../core/utils/error.util';
-import { parseDate } from '../../core/utils/date.util';
 import {
-  MessageDto,
-  SendMessageResponse,
-} from '../../features/chat/models/api-response.model';
-import {
-  Message,
-  MessageStatus,
-} from '../../features/chat/models/message.model';
+  mapMessageDtoToMessage,
+  mapSendResponseToMessage,
+} from '../../features/chat/mappers';
 
 @Injectable()
 export class MessagesEffects {
@@ -94,7 +89,7 @@ export class MessagesEffects {
     this.actions$.pipe(
       ofType(MessageActions.sendRequested),
       concatMap(({ tempId, conversationId, text }) =>
-        from(this.signalR.sendMessage(conversationId, text)).pipe(
+        from(this.signalR.sendMessage(conversationId, text, tempId)).pipe(
           // SignalR success — ACK arrives via WebSocket, no action needed here.
           concatMap(() => EMPTY),
           catchError(() =>
@@ -102,7 +97,7 @@ export class MessagesEffects {
             this.chatApi
               .sendMessage({ conversationId, messageText: text })
               .pipe(
-                map((response: SendMessageResponse) =>
+                map((response) =>
                   MessageApiActions.sendSuccess({
                     tempId,
                     message: mapSendResponseToMessage(response),
@@ -147,47 +142,4 @@ export class MessagesEffects {
       ),
     ),
   );
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Map a backend MessageDto (ISO string dates) to the runtime Message model
- * (Date objects). `conversationId` is passed explicitly because the DTO
- * does not include it — it belongs to the route context.
- */
-function mapMessageDtoToMessage(
-  dto: MessageDto,
-  conversationId: string,
-): Message {
-  return {
-    id: dto.id,
-    senderId: dto.senderId,
-    receiverId: dto.receiverId,
-    messageText: dto.messageText,
-    conversationId,
-    sentAt: parseDate(dto.sentAt) ?? new Date(),
-    deliveredAt:
-      dto.deliveredAt != null
-        ? (parseDate(dto.deliveredAt) ?? undefined)
-        : undefined,
-    readAt:
-      dto.readAt != null ? (parseDate(dto.readAt) ?? undefined) : undefined,
-  };
-}
-
-/**
- * Map a REST SendMessageResponse (used only on SignalR fallback) to a
- * Message entity ready for the store.
- */
-function mapSendResponseToMessage(response: SendMessageResponse): Message {
-  return {
-    id: response.messageId,
-    senderId: response.senderId,
-    receiverId: response.receiverId,
-    messageText: response.messageText,
-    conversationId: response.conversationId,
-    sentAt: parseDate(response.sentAt) ?? new Date(),
-    status: MessageStatus.SENT,
-  };
 }

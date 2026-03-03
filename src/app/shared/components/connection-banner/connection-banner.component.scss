@@ -1,0 +1,62 @@
+// connection-banner.component.scss
+// ─────────────────────────────────────────────────────────────────────────────
+// Sticky notification strip displayed when the SignalR hub is degraded.
+// Uses design-token variables so it adapts to both light and dark themes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+.connection-banner {
+  // Stick below the header so it stays visible while the user scrolls.
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-banner, 100);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2, 0.5rem) var(--spacing-4, 1rem);
+
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 500;
+  text-align: center;
+
+  // ── Status variants ──────────────────────────────────────────────────────
+
+  &--reconnecting {
+    background-color: var(--color-warning-bg, #fef3c7);
+    color: var(--color-warning-text, #92400e);
+    border-bottom: 1px solid var(--color-warning-border, #fcd34d);
+  }
+
+  &--disconnected {
+    background-color: var(--color-error-bg, #fee2e2);
+    color: var(--color-error-text, #991b1b);
+    border-bottom: 1px solid var(--color-error-border, #fca5a5);
+  }
+
+  // ── Layout ───────────────────────────────────────────────────────────────
+
+  &__content {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2, 0.5rem);
+  }
+
+  // ── Spinner ──────────────────────────────────────────────────────────────
+
+  &__spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: banner-spin 0.75s linear infinite;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes banner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

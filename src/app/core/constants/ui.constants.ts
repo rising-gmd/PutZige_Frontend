@@ -1,6 +1,10 @@
 export const UI_CONSTANTS = {
   MESSAGE_GROUP_THRESHOLD_MS: 2 * 60 * 1000, // 2 minutes
   TYPING_DEBOUNCE_MS: 2000,
+  /** Auto-clear typing indicator if server sends no StopTyping within this window. */
+  TYPING_CLEAR_TIMEOUT_MS: 4_000,
+  /** Show disconnect toast only after the hub has been gone this long (ms). */
+  DISCONNECT_TOAST_DELAY_MS: 6_000,
   SEND_RESET_DELAY_MS: 400,
   SEARCH_DEBOUNCE_MS: 300,
   CONVERSATION_PAGE_SIZE: 50,

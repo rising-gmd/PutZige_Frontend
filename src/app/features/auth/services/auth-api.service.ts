@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpBackend } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../core/config/api.config';
+import { UNWRAP_API_RESPONSE } from '../../../core/interceptors/api-response-unwrap.interceptor';
 import type { ApiResponse } from '../../../core/models/api.model';
 import type {
   LoginRequest,
@@ -11,6 +11,9 @@ import type {
   RefreshTokenResponse,
   AuthUser,
 } from '../../../core/models/auth.model';
+
+/** Shorthand for the opt-in context that unwraps ApiResponse<T> envelopes. */
+const unwrap = new HttpContext().set(UNWRAP_API_RESPONSE, true);
 
 /**
  * AuthApiService wraps auth-related HTTP calls.
@@ -28,49 +31,30 @@ export class AuthApiService {
    * Login with credentials
    */
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http
-      .post<ApiResponse<LoginResponse>>(API_ENDPOINTS.AUTH.LOGIN, credentials)
-      .pipe(
-        map((response) => {
-          if (!response.success || !response.data) {
-            throw new Error(response.message || 'Login failed');
-          }
-          return response.data;
-        }),
-      );
+    return this.http.post<LoginResponse>(
+      API_ENDPOINTS.AUTH.LOGIN,
+      credentials,
+      { context: unwrap },
+    );
   }
 
   /** Get current authenticated user using cookie-based auth. */
   me(): Observable<AuthUser> {
-    return this.http
-      .get<
-        ApiResponse<AuthUser>
-      >(API_ENDPOINTS.AUTH.ME, { withCredentials: true })
-      .pipe(
-        map((resp) => {
-          if (!resp.success || !resp.data)
-            throw new Error(resp.message || 'Unauthorized');
-          return resp.data;
-        }),
-      );
+    return this.http.get<AuthUser>(API_ENDPOINTS.AUTH.ME, {
+      withCredentials: true,
+      context: unwrap,
+    });
   }
 
   /**
    * Refresh access token
    */
   refreshToken(request: RefreshTokenRequest): Observable<RefreshTokenResponse> {
-    return this.http
-      .post<
-        ApiResponse<RefreshTokenResponse>
-      >(API_ENDPOINTS.AUTH.REFRESH, request)
-      .pipe(
-        map((response) => {
-          if (!response.success || !response.data) {
-            throw new Error(response.message || 'Token refresh failed');
-          }
-          return response.data;
-        }),
-      );
+    return this.http.post<RefreshTokenResponse>(
+      API_ENDPOINTS.AUTH.REFRESH,
+      request,
+      { context: unwrap },
+    );
   }
 
   /**
@@ -95,17 +79,11 @@ export class AuthApiService {
    * Server must authenticate the request via cookie and return a short-lived token.
    */
   negotiate(): Observable<{ accessToken: string; expiresIn: number }> {
-    return this.http
-      .post<
-        ApiResponse<{ accessToken: string; expiresIn: number }>
-      >(API_ENDPOINTS.SIGNALR.NEGOTIATE, null, { withCredentials: true })
-      .pipe(
-        map((resp) => {
-          if (!resp.success || !resp.data)
-            throw new Error(resp.message || 'Negotiate failed');
-          return resp.data;
-        }),
-      );
+    return this.http.post<{ accessToken: string; expiresIn: number }>(
+      API_ENDPOINTS.SIGNALR.NEGOTIATE,
+      null,
+      { withCredentials: true, context: unwrap },
+    );
   }
 
   /**

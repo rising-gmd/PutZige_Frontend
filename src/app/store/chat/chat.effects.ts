@@ -12,7 +12,6 @@ import {
   map,
   of,
   switchMap,
-  tap,
 } from 'rxjs';
 import { ChatApiService } from '../../features/chat/services/chat-api.service';
 import { SignalRService } from '../../features/chat/services/signalr.service';
@@ -25,11 +24,11 @@ import {
 } from './chat.actions';
 import { MessageWebSocketActions } from '../messages/messages.actions';
 import { PresenceActions } from '../presence/presence.actions';
+import { ConnectionActions } from '../connection/connection.actions';
 import { selectAllConversations } from './chat.selectors';
 import { extractErrorMessage } from '../../core/utils/error.util';
-import { Conversation } from '../../features/chat/models/conversation.model';
 import { ConversationResponse } from '../../features/chat/services/chat-api.service';
-import { User } from '../../features/chat/models/user.model';
+import { mapConversationResponseToModel } from '../../features/chat/mappers';
 
 @Injectable()
 export class ChatEffects {
@@ -88,22 +87,19 @@ export class ChatEffects {
 
   /**
    * Start the SignalR hub connection when the chat page opens.
-   * Failure to connect is non-fatal — the app continues with REST polling.
+   * Dispatches `ConnectionActions.connected` on first successful start.
+   * Failure to connect is non-fatal — the app degrades gracefully.
    */
-  readonly connectSignalR$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(ChatActions.pageOpened),
-        exhaustMap(() =>
-          from(this.signalR.startConnection()).pipe(
-            catchError(() => of(null)), // Connection failures are non-fatal here.
-          ),
+  readonly connectSignalR$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ChatActions.pageOpened),
+      exhaustMap(() =>
+        from(this.signalR.startConnection()).pipe(
+          map(() => ConnectionActions.connected()),
+          catchError(() => of(ConnectionActions.disconnected())),
         ),
-        tap(() => {
-          /* Connection managed by SignalRService internally. */
-        }),
       ),
-    { dispatch: false },
+    ),
   );
 
   // ── User Search ──────────────────────────────────────────────────────────
@@ -263,27 +259,4 @@ export class ChatEffects {
       ),
     ),
   );
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Build a full Conversation entity from the lean API response + the User
- * object that was already in the store (from search results / contacts list).
- * This avoids a second API round-trip to hydrate display fields.
- */
-function mapConversationResponseToModel(
-  response: ConversationResponse,
-  user: User,
-): Conversation {
-  return {
-    conversationId: response.conversationId,
-    userId: user.id,
-    username: user.username,
-    displayName: user.displayName,
-    profilePictureUrl: user.profilePictureUrl,
-    isOnline: user.isOnline,
-    unreadCount: 0,
-    lastActivity: response.lastActivity,
-  };
 }

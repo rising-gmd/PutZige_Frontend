@@ -1,0 +1,29 @@
+<!--
+  Connection status banner
+  ========================
+  • role="status"        → implicit ARIA live region; polite by default
+  • aria-live="polite"   → screen-reader announces when the user is idle
+  • aria-atomic="true"   → re-reads the full message on every change
+  • Hidden with [hidden]  so the DOM node stays mounted (preserving ARIA state)
+    but the element is invisible while connected. CSS must not override
+    `display:none` for [hidden] — the banner SCSS avoids that.
+-->
+@if (showBanner()) {
+  <div
+    class="connection-banner"
+    [ngClass]="'connection-banner--' + status()"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <span class="connection-banner__content">
+      @if (status() === "reconnecting") {
+        <span class="connection-banner__spinner" aria-hidden="true"></span>
+      }
+
+      <span class="connection-banner__message">
+        {{ "connection.status." + status() | translate }}
+      </span>
+    </span>
+  </div>
+}

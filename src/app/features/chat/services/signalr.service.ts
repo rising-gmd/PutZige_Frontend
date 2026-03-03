@@ -1,6 +1,5 @@
-import { Injectable, signal, inject } from '@angular/core';
+﻿import { Injectable, signal, inject } from '@angular/core';
 import {
-  HubConnection,
   HubConnectionBuilder,
   HubConnectionState,
   LogLevel,
@@ -10,24 +9,30 @@ import { Message } from '../models/message.model';
 import { UserStatus } from '../models/user.model';
 import { Conversation } from '../models';
 import { API_CONFIG, ApiConfig } from '../../../core/config/api.config';
-import { parseDate } from '../../../core/utils/date.util';
-import { MessageSentPayload, SignalREvents } from './signalr-events.constants';
+import { SignalREvents, MessageSentPayload } from './signalr-events.constants';
+import { TypedHubConnection } from './typed-hub.types';
+import {
+  mapReceiveMessagePayload,
+  mapMessageDeliveredPayload,
+  mapMessageReadPayload,
+  mapMessageSentPayload,
+  mapUserStatusPayload,
+  mapTypingPayload,
+  mapConversationCreatedPayload,
+} from '../mappers';
 
 @Injectable({ providedIn: 'root' })
 export class SignalRService {
-  // API config may not be provided in some tests; make injection optional to
-  // avoid breaking TestBed setups that don't provide the token.
   private readonly apiConfig = inject(API_CONFIG, { optional: true }) as
     | ApiConfig
     | undefined;
-  private hubConnection?: HubConnection;
-  private eventHandlers: {
-    event: string;
-    handler: (...args: unknown[]) => void;
-  }[] = [];
+
+  private hub?: TypedHubConnection;
 
   readonly isConnected = signal(false);
   readonly connectionId = signal<string | null>(null);
+
+  //  Inbound event streams
 
   private readonly messageReceived$ = new Subject<Message>();
   private readonly messageDelivered$ = new Subject<{
@@ -51,6 +56,12 @@ export class SignalRService {
   }>();
   private readonly conversationCreated$ = new Subject<Conversation>();
 
+  //  Connection lifecycle streams
+
+  private readonly reconnecting$ = new Subject<void>();
+  private readonly reconnected$ = new Subject<string | null>();
+  private readonly disconnected$ = new Subject<void>();
+
   readonly onMessageReceived = this.messageReceived$.asObservable();
   readonly onMessageDelivered = this.messageDelivered$.asObservable();
   readonly onMessageRead = this.messageRead$.asObservable();
@@ -60,34 +71,102 @@ export class SignalRService {
   readonly onUserTyping = this.userTyping$.asObservable();
   readonly onUserStoppedTyping = this.userStoppedTyping$.asObservable();
   readonly onConversationCreated = this.conversationCreated$.asObservable();
+  /** Emits when the hub begins an automatic reconnect attempt. */
+  readonly onReconnecting = this.reconnecting$.asObservable();
+  /** Emits the new connectionId (or null) when the hub successfully reconnects. */
+  readonly onReconnected = this.reconnected$.asObservable();
+  /** Emits when the hub connection is permanently closed. */
+  readonly onDisconnected = this.disconnected$.asObservable();
+
+  //  Typed event handlers
+  // Arrow-function class fields are bound to this and stored as refs so the
+  // same reference is passed to both on() and off().
+
+  private readonly handleReceiveMessage = (
+    p: Parameters<typeof mapReceiveMessagePayload>[0],
+  ) => {
+    const msg = mapReceiveMessagePayload(p);
+    if (msg) this.messageReceived$.next(msg);
+  };
+
+  private readonly handleMessageDelivered = (
+    p: Parameters<typeof mapMessageDeliveredPayload>[0],
+  ) => {
+    const d = mapMessageDeliveredPayload(p);
+    if (d) this.messageDelivered$.next(d);
+  };
+
+  private readonly handleMessageSent = (p: MessageSentPayload) => {
+    const payload = mapMessageSentPayload(p);
+    if (payload) this.messageSent$.next(payload);
+  };
+
+  private readonly handleMessageRead = (
+    p: Parameters<typeof mapMessageReadPayload>[0],
+  ) => {
+    const r = mapMessageReadPayload(p);
+    if (r) this.messageRead$.next(r);
+  };
+
+  private readonly handleUserOnline = (
+    p: Parameters<typeof mapUserStatusPayload>[0],
+  ) => {
+    const status = mapUserStatusPayload(p, true);
+    if (status) this.userOnline$.next(status);
+  };
+
+  private readonly handleUserOffline = (
+    p: Parameters<typeof mapUserStatusPayload>[0],
+  ) => {
+    const status = mapUserStatusPayload(p, false);
+    if (status) this.userOffline$.next(status);
+  };
+
+  private readonly handleUserTyping = (
+    p: Parameters<typeof mapTypingPayload>[0],
+  ) => {
+    const typing = mapTypingPayload(p);
+    if (typing) this.userTyping$.next(typing);
+  };
+
+  private readonly handleUserStoppedTyping = (
+    p: Parameters<typeof mapTypingPayload>[0],
+  ) => {
+    const typing = mapTypingPayload(p);
+    if (typing) this.userStoppedTyping$.next(typing);
+  };
+
+  private readonly handleConversationCreated = (
+    p: Parameters<typeof mapConversationCreatedPayload>[0],
+  ) => {
+    const conv = mapConversationCreatedPayload(p);
+    if (conv) this.conversationCreated$.next(conv);
+  };
+
+  //  Connection lifecycle
 
   async startConnection(): Promise<void> {
-    if (this.hubConnection?.state === HubConnectionState.Connected) return;
+    if (this.hub?.state === HubConnectionState.Connected) return;
 
-    if (!this.apiConfig) {
-      // In unit tests the API config is often not provided. Fail fast by
-      // warning and skipping connection setup rather than throwing.
-      return;
-    }
+    // Tests that omit the API_CONFIG token skip hub setup.
+    if (!this.apiConfig) return;
 
     const hubUrl = `${this.apiConfig.baseUrl}/api/${this.apiConfig.version}/hubs/chat`;
 
-    const builder = new HubConnectionBuilder()
-      .withUrl(hubUrl, {
-        withCredentials: true,
-      })
+    const rawHub = new HubConnectionBuilder()
+      .withUrl(hubUrl, { withCredentials: true })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(LogLevel.Information);
+      .configureLogging(LogLevel.Information)
+      .build();
 
-    this.hubConnection = builder.build();
-
+    this.hub = new TypedHubConnection(rawHub);
     this.registerEventHandlers();
     this.registerConnectionHandlers();
 
     try {
-      await this.hubConnection.start();
+      await this.hub.start();
       this.isConnected.set(true);
-      this.connectionId.set(this.hubConnection.connectionId ?? null);
+      this.connectionId.set(this.hub.connectionId ?? null);
     } catch (err) {
       this.isConnected.set(false);
       throw err;
@@ -96,324 +175,91 @@ export class SignalRService {
 
   async stopConnection(): Promise<void> {
     this.unregisterEventHandlers();
-
     try {
-      await this.hubConnection?.stop();
+      await this.hub?.stop();
     } finally {
       this.isConnected.set(false);
       this.connectionId.set(null);
-      this.hubConnection = undefined;
+      this.hub = undefined;
     }
   }
 
+  /**
+   * Send a message via the hub.
+   * @param tempId Client-generated id echoed back by the server in its ACK
+   *               for optimistic-message reconciliation.
+   */
   async sendMessage(
     conversationId: string,
     messageText: string,
+    tempId?: string,
   ): Promise<void> {
-    if (
-      !this.hubConnection ||
-      this.hubConnection.state !== HubConnectionState.Connected
-    ) {
+    if (this.hub?.state !== HubConnectionState.Connected) {
       throw new Error('SignalR not connected');
     }
-
-    await this.hubConnection.invoke('SendMessage', conversationId, messageText);
+    await this.hub.invoke('SendMessage', conversationId, messageText, tempId);
   }
 
   async notifyTyping(conversationId: string, isTyping: boolean): Promise<void> {
-    if (
-      !this.hubConnection ||
-      this.hubConnection.state !== HubConnectionState.Connected
-    )
-      return;
-    const method = isTyping ? 'StartTyping' : 'StopTyping';
-    await this.hubConnection.invoke(method, conversationId);
+    if (this.hub?.state !== HubConnectionState.Connected) return;
+    await this.hub.invoke(
+      isTyping ? 'StartTyping' : 'StopTyping',
+      conversationId,
+    );
   }
 
+  //  Private helpers
+
   private registerEventHandlers(): void {
-    if (!this.hubConnection) return;
-
-    this.unregisterEventHandlers();
-
-    const register = (event: string, handler: (...args: unknown[]) => void) => {
-      this.hubConnection!.on(event, handler);
-      this.eventHandlers.push({ event, handler });
-    };
-
-    register(SignalREvents.ReceiveMessage, (payload: unknown) => {
-      const msg = this.parseMessage(payload);
-      if (msg) this.messageReceived$.next(msg);
-    });
-
-    register(SignalREvents.MessageDelivered, (payload: unknown) => {
-      const p = this.parseDelivered(payload);
-      if (p) this.messageDelivered$.next(p);
-    });
-
-    register(SignalREvents.MessageSent, (payload: unknown) => {
-      const p = this.parseMessageSent(payload);
-      if (p) this.messageSent$.next(p);
-    });
-
-    register(SignalREvents.MessageRead, (payload: unknown) => {
-      const p = this.parseRead(payload);
-      if (p) this.messageRead$.next(p);
-    });
-
-    register(SignalREvents.UserOnline, (status: unknown) => {
-      const s = this.parseUserStatus(status, true);
-      if (s) this.userOnline$.next(s);
-    });
-
-    register(SignalREvents.UserOffline, (status: unknown) => {
-      const s = this.parseUserStatus(status, false);
-      if (s) this.userOffline$.next(s);
-    });
-
-    register(SignalREvents.UserTyping, (payload: unknown) => {
-      const t = this.parseTyping(payload);
-      if (t) this.userTyping$.next(t);
-    });
-
-    register(SignalREvents.UserStoppedTyping, (payload: unknown) => {
-      const t = this.parseTyping(payload);
-      if (t) this.userStoppedTyping$.next(t);
-    });
-
-    register(SignalREvents.ConversationCreated, (payload: unknown) => {
-      const conv = this.parseConversation(payload);
-      if (conv) this.conversationCreated$.next(conv);
-    });
+    if (!this.hub) return;
+    this.hub.on(SignalREvents.ReceiveMessage, this.handleReceiveMessage);
+    this.hub.on(SignalREvents.MessageDelivered, this.handleMessageDelivered);
+    this.hub.on(SignalREvents.MessageSent, this.handleMessageSent);
+    this.hub.on(SignalREvents.MessageRead, this.handleMessageRead);
+    this.hub.on(SignalREvents.UserOnline, this.handleUserOnline);
+    this.hub.on(SignalREvents.UserOffline, this.handleUserOffline);
+    this.hub.on(SignalREvents.UserTyping, this.handleUserTyping);
+    this.hub.on(SignalREvents.UserStoppedTyping, this.handleUserStoppedTyping);
+    this.hub.on(
+      SignalREvents.ConversationCreated,
+      this.handleConversationCreated,
+    );
   }
 
   private unregisterEventHandlers(): void {
-    if (!this.hubConnection) {
-      this.eventHandlers = [];
-      return;
-    }
-
-    for (const { event, handler } of this.eventHandlers) {
-      try {
-        this.hubConnection.off(event, handler);
-      } catch {
-        // ignore
-      }
-    }
-
-    this.eventHandlers = [];
-  }
-
-  private parseMessage(payload: unknown): Message | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-    // Accept either `id` (legacy) or `messageId` (server SendMessageResponse)
-    const id =
-      typeof p['id'] === 'string'
-        ? (p['id'] as string)
-        : typeof p['messageId'] === 'string'
-          ? (p['messageId'] as string)
-          : undefined;
-    const senderId =
-      typeof p['senderId'] === 'string' ? (p['senderId'] as string) : undefined;
-    const receiverId =
-      typeof p['receiverId'] === 'string'
-        ? (p['receiverId'] as string)
-        : undefined;
-    const messageText =
-      typeof p['messageText'] === 'string'
-        ? (p['messageText'] as string)
-        : undefined;
-    const sentAtValue = p['sentAt'];
-    const deliveredAtValue = p['deliveredAt'];
-    const readAtValue = p['readAt'];
-    const conversationId =
-      typeof p['conversationId'] === 'string'
-        ? (p['conversationId'] as string)
-        : undefined;
-
-    if (!id || !senderId || !receiverId || !messageText) return null;
-
-    const parsedSent = parseDate(sentAtValue);
-    const sentAt = parsedSent ?? new Date();
-    const deliveredAt = parseDate(deliveredAtValue) ?? undefined;
-    const readAt = parseDate(readAtValue) ?? undefined;
-
-    const unreadCount =
-      typeof p['unreadCount'] === 'number' ? (p['unreadCount'] as number) : 0;
-
-    return {
-      id,
-      senderId,
-      receiverId,
-      messageText,
-      sentAt,
-      deliveredAt,
-      readAt,
-      conversationId,
-      unreadCount,
-    };
-  }
-
-  private parseDelivered(
-    payload: unknown,
-  ): { messageId: string; deliveredAt: Date } | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-
-    const messageId = p['messageId'];
-    const deliveredAtValue = p['deliveredAt'];
-
-    if (typeof messageId !== 'string') return null;
-
-    let deliveredAt: Date;
-    if (typeof deliveredAtValue === 'string') {
-      deliveredAt = new Date(deliveredAtValue);
-    } else if (deliveredAtValue instanceof Date) {
-      deliveredAt = deliveredAtValue;
-    } else {
-      return null;
-    }
-
-    return { messageId, deliveredAt };
-  }
-
-  private parseRead(
-    payload: unknown,
-  ): { messageId: string; readAt: Date } | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-
-    const messageId = p['messageId'];
-    const readAtValue = p['readAt'];
-
-    if (typeof messageId !== 'string') return null;
-
-    let readAt: Date;
-    if (typeof readAtValue === 'string') {
-      readAt = new Date(readAtValue);
-    } else if (readAtValue instanceof Date) {
-      readAt = readAtValue;
-    } else {
-      return null;
-    }
-
-    return { messageId, readAt };
-  }
-
-  private parseUserStatus(
-    payload: unknown,
-    isOnline: boolean,
-  ): UserStatus | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-
-    const userIdValue = p['userId'];
-    const lastSeenValue = p['lastSeen'];
-
-    if (typeof userIdValue !== 'string') return null;
-
-    const userId = userIdValue;
-    const lastSeen = parseDate(lastSeenValue) ?? undefined;
-
-    return { userId, isOnline, lastSeen };
-  }
-
-  private parseTyping(
-    payload: unknown,
-  ): { userId: string; conversationId: string } | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-
-    const userIdValue = p['userId'];
-    const conversationIdValue = p['conversationId'];
-
-    if (
-      typeof userIdValue !== 'string' ||
-      typeof conversationIdValue !== 'string'
-    )
-      return null;
-
-    return { userId: userIdValue, conversationId: conversationIdValue };
-  }
-
-  private parseConversation(payload: unknown): Conversation | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-    if (typeof p['conversationId'] !== 'string') return null;
-
-    return {
-      conversationId: p['conversationId'] as string,
-      userId: (p['userId'] as string) ?? '',
-      username: (p['username'] as string) ?? '',
-      displayName: (p['displayName'] as string) ?? undefined,
-      profilePictureUrl: (p['profilePictureUrl'] as string) ?? undefined,
-      isOnline: (p['isOnline'] as boolean) ?? false,
-      unreadCount: 0,
-      isPinned: false,
-      lastActivity: (p['lastActivity'] as string) ?? new Date().toISOString(),
-      isTyping: false,
-    } as Conversation;
-  }
-
-  private parseMessageSent(payload: unknown): MessageSentPayload | null {
-    if (!payload || typeof payload !== 'object') return null;
-    const p = payload as Record<string, unknown>;
-
-    const conversationId = p['conversationId'];
-    const messageId = p['messageId'];
-    const senderId = p['senderId'];
-    const receiverId = p['receiverId'];
-    const messageText = p['messageText'];
-    const sentAt = p['sentAt'];
-
-    if (
-      typeof conversationId !== 'string' ||
-      typeof messageId !== 'string' ||
-      typeof senderId !== 'string' ||
-      typeof receiverId !== 'string' ||
-      typeof messageText !== 'string'
-    )
-      return null;
-
-    return {
-      conversationId,
-      messageId,
-      senderId,
-      receiverId,
-      messageText,
-      sentAt: sentAt as string | Date,
-    };
+    if (!this.hub) return;
+    this.hub.off(SignalREvents.ReceiveMessage, this.handleReceiveMessage);
+    this.hub.off(SignalREvents.MessageDelivered, this.handleMessageDelivered);
+    this.hub.off(SignalREvents.MessageSent, this.handleMessageSent);
+    this.hub.off(SignalREvents.MessageRead, this.handleMessageRead);
+    this.hub.off(SignalREvents.UserOnline, this.handleUserOnline);
+    this.hub.off(SignalREvents.UserOffline, this.handleUserOffline);
+    this.hub.off(SignalREvents.UserTyping, this.handleUserTyping);
+    this.hub.off(SignalREvents.UserStoppedTyping, this.handleUserStoppedTyping);
+    this.hub.off(
+      SignalREvents.ConversationCreated,
+      this.handleConversationCreated,
+    );
   }
 
   private registerConnectionHandlers(): void {
-    if (!this.hubConnection) return;
+    if (!this.hub) return;
 
-    this.hubConnection.onreconnecting(() => {
+    this.hub.onreconnecting(() => {
       this.isConnected.set(false);
+      this.reconnecting$.next();
     });
 
-    this.hubConnection.onreconnected((connectionId) => {
+    this.hub.onreconnected((id) => {
       this.isConnected.set(true);
-      this.connectionId.set(connectionId ?? null);
+      this.connectionId.set(id ?? null);
+      this.reconnected$.next(id ?? null);
     });
 
-    this.hubConnection.onclose(() => {
+    this.hub.onclose(() => {
       this.isConnected.set(false);
       this.connectionId.set(null);
+      this.disconnected$.next();
     });
-  }
-
-  private static extractErrorMessageLocal(err: unknown): string {
-    if (!err) return String(err);
-    if (typeof err === 'string') return err;
-    if (typeof err === 'object') {
-      const e = err as Record<string, unknown>;
-      if (typeof e['message'] === 'string') return e['message'];
-    }
-    try {
-      return String(err);
-    } catch {
-      return 'Unknown error';
-    }
   }
 }

@@ -174,5 +174,14 @@
     "timezone_saved": "Timezone updated successfully",
     "save_error": "Failed to save. Please try again.",
     "load_error": "Could not load preferences. Using local defaults."
+  },
+  "connection": {
+    "status": {
+      "reconnecting": "Verbindung wird wiederhergestellt…",
+      "disconnected": "Verbindung unterbrochen. Nachrichten werden möglicherweise nicht zugestellt."
+    },
+    "toast": {
+      "disconnected": "Sie wurden getrennt. Bitte überprüfen Sie Ihre Internetverbindung."
+    }
   }
 }

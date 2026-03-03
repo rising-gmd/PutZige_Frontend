@@ -13,9 +13,11 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { chatFeature } from './store/chat/chat.reducer';
 import { messagesFeature } from './store/messages/messages.reducer';
 import { presenceFeature } from './store/presence/presence.reducer';
+import { connectionFeature } from './store/connection/connection.reducer';
 import { ChatEffects } from './store/chat/chat.effects';
 import { MessagesEffects } from './store/messages/messages.effects';
 import { PresenceEffects } from './store/presence/presence.effects';
+import { ConnectionEffects } from './store/connection/connection.effects';
 import { provideRouter } from '@angular/router';
 import {
   provideHttpClient,
@@ -41,6 +43,7 @@ import { NGRX_DEVTOOLS_CONFIG } from './core/constants/app.constants';
 import { apiBaseUrlInterceptor } from './core/interceptors/api-base-url.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { apiResponseUnwrapInterceptor } from './core/interceptors/api-response-unwrap.interceptor';
 import { MessageService } from 'primeng/api';
 import { AuthService } from './core/services/auth/auth.service';
 import { ThemeService } from './core/services/theme.service';
@@ -84,6 +87,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         apiBaseUrlInterceptor,
         authInterceptor,
+        apiResponseUnwrapInterceptor,
         errorInterceptor,
       ]),
     ),
@@ -104,8 +108,14 @@ export const appConfig: ApplicationConfig = {
       [chatFeature.name]: chatFeature.reducer,
       [messagesFeature.name]: messagesFeature.reducer,
       [presenceFeature.name]: presenceFeature.reducer,
+      [connectionFeature.name]: connectionFeature.reducer,
     }),
-    provideEffects([ChatEffects, MessagesEffects, PresenceEffects]),
+    provideEffects([
+      ChatEffects,
+      MessagesEffects,
+      PresenceEffects,
+      ConnectionEffects,
+    ]),
     provideStoreDevtools({
       maxAge: NGRX_DEVTOOLS_CONFIG.MAX_AGE,
       logOnly: !isDevMode(), // Restrict extension to only logging in production.

@@ -96,15 +96,17 @@ export const messagesFeature = createFeature({
 
     // ── SignalR ACK: reconcile optimistic → real after server confirms ───────
 
-    // Mirror ChatStateService.handleIncomingMessage optimistic reconciliation.
-    // Matching by messageText+senderId because the server ACK does not carry tempId.
+    // Server echoes tempId back in the ACK (preferred path — O(1) lookup).
+    // Fallback to messageText+senderId match for legacy ACKs without tempId.
     on(MessageWebSocketActions.messageSentAck, (state, { payload }) => {
-      const optimistic = Object.values(state.entities).find(
-        (m) =>
-          m?.isOptimistic &&
-          m.messageText === payload.messageText &&
-          m.senderId === payload.senderId,
-      );
+      const optimistic =
+        (payload.tempId ? state.entities[payload.tempId] : undefined) ??
+        Object.values(state.entities).find(
+          (m) =>
+            m?.isOptimistic &&
+            m.messageText === payload.messageText &&
+            m.senderId === payload.senderId,
+        );
 
       if (!optimistic) return state;
 
