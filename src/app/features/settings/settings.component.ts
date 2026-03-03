@@ -18,6 +18,7 @@ import { UI_CONSTANTS } from '../../core/constants/ui.constants';
 import { NotificationService } from '../../shared/services/notification.service';
 import { LocalStorageService } from '../../core/services/local-storage.service';
 import { STORAGE_KEYS } from '../../core/constants/storage-keys.constants';
+import { DsThemeSelectorComponent } from '../../design-system/composites/theme-selector/ds-theme-selector.component';
 
 @Component({
   selector: 'app-settings',
@@ -28,6 +29,7 @@ import { STORAGE_KEYS } from '../../core/constants/storage-keys.constants';
     SelectModule,
     ToggleSwitchModule,
     TranslateModule,
+    DsThemeSelectorComponent,
   ],
   templateUrl: './settings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

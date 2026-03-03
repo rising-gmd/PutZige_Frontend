@@ -4,7 +4,7 @@
   ============================================================ -->
 
 <header class="list-header">
-  <h1 class="list-title">Chats</h1>
+  <h1 class="list-title">{{ "chat.list_title" | translate }}</h1>
 
   <ds-icon-button
     #fabBtn
@@ -20,7 +20,7 @@
   <ds-search-input
     #searchInput
     [value]="searchQuery()"
-    placeholder="Search conversations… (Ctrl+K)"
+    [placeholder]="'chat.search_placeholder' | translate"
     [debounceMs]="300"
     (valueChange)="onSearch($event)"
     (cleared)="onSearch('')"
@@ -47,7 +47,7 @@
 <!-- Body -->
 <div class="list-body" role="listbox" aria-label="Conversations">
   @if (searchQuery() && searchResults().length > 0) {
-    <p class="section-label">People</p>
+    <p class="section-label">{{ "chat.search_people_label" | translate }}</p>
 
     @for (user of searchResults(); track user.id; let i = $index) {
       <div
@@ -57,8 +57,8 @@
         tabindex="0"
         [attr.aria-selected]="false"
         [attr.aria-label]="
-          'Start conversation with ' +
-          (user.displayName.trim() || user.username)
+          'chat.search_start_conversation'
+            | translate: { name: user.displayName.trim() || user.username }
         "
         (click)="onSelectUser(user)"
         (keydown.enter)="onSelectUser(user)"
@@ -80,25 +80,28 @@
   } @else if (searchQuery() && searchResults().length === 0) {
     <ds-empty-state
       icon="pi-search"
-      [title]="'No results for &quot;' + searchQuery() + '&quot;'"
-      subtitle="Try a different name or email"
+      [title]="
+        'chat.search_no_results_title' | translate: { query: searchQuery() }
+      "
+      [subtitle]="'chat.search_no_results_subtitle' | translate"
     />
   } @else if (isLoading()) {
     <ds-empty-state
       icon="pi-spin pi-spinner"
-      title="Loading conversations..."
+      [title]="'chat.loading_conversations' | translate"
     />
   } @else if (!isLoading() && conversations().length === 0) {
     <ds-empty-state
       icon="pi-comments"
-      title="No conversations yet"
-      subtitle="Start a new chat with the + button"
+      [title]="'chat.no_conversations_title' | translate"
+      [subtitle]="'chat.no_conversations_subtitle' | translate"
     />
   } @else {
     @for (conversation of conversations(); track conversation.conversationId) {
       <app-conversation-item
         [conversation]="conversation"
         [isActive]="conversation.conversationId === activeConversationId()"
+        [currentUserId]="currentUserId()"
         (selected)="onSelectConversation($event)"
         (viewProfile)="onViewProfile($event)"
         (archive)="onArchive($event)"

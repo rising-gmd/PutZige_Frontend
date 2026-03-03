@@ -60,6 +60,12 @@
   --chat-badge-font-weight: var(--font-weight-bold);
   --chat-badge-radius: var(--radius-full);
 
+  //  Bubble row
+  --chat-bubble-row-gap: var(--space-2);
+  // 2px intentional micro-spacer — groups consecutive messages visually
+  --chat-bubble-margin-y: 2px;
+  --chat-bubble-menu-btn-size: 26px;
+
   //  Message bubble
   --chat-bubble-own-bg: var(--p-primary-500);
   --chat-bubble-own-color: var(--app-on-primary);
@@ -126,6 +132,59 @@
   --chat-typing-bg: var(--app-surface-100);
   --chat-typing-radius: var(--chat-bubble-other-radius);
 
+  //  Media attachments in message bubbles
+  --chat-media-radius: var(--radius-md);
+  --chat-media-grid-gap: var(--space-1);
+  --chat-media-image-min: 160px;
+  --chat-media-image-max: 240px;
+  --chat-media-overlay-bg: rgba(0, 0, 0, 0.4);
+  --chat-media-overlay-hover-bg: rgba(0, 0, 0, 0.55);
+  // Always white — icon sits on a dark translucent overlay (theme-independent)
+  --chat-media-icon-color: #fff;
+  --chat-media-duration-bg: rgba(0, 0, 0, 0.5);
+  --chat-media-video-height: 160px;
+  --chat-media-more-font: var(--font-size-lg);
+
+  //  File attachment chip in bubbles
+  --chat-file-chip-bg: color-mix(
+    in srgb,
+    var(--p-primary-500) 10%,
+    var(--app-surface)
+  );
+  --chat-file-chip-border: color-mix(
+    in srgb,
+    var(--p-primary-500) 25%,
+    transparent
+  );
+  --chat-file-chip-radius: var(--radius-md);
+  --chat-file-min-width: 220px;
+  --chat-file-max-width: 280px;
+  --chat-file-meta-gap: 2px; // optical micro-spacer — intentionally off 4pt grid
+
+  //  Audio player stub in bubbles
+  --chat-audio-bg: color-mix(in srgb, var(--app-surface-100) 70%, transparent);
+  --chat-audio-radius: var(--radius-2xl);
+  --chat-audio-track-bg: var(--app-border);
+  --chat-audio-track-fill: var(--p-primary-500);
+  --chat-audio-track-height: 3px;
+  --chat-audio-min-width: 200px;
+
+  //  Message input action buttons (emoji / attachment / mic)
+  --chat-input-action-size: 36px;
+  --chat-input-action-color: var(--app-muted);
+  --chat-input-action-hover-bg: var(--app-surface-100);
+  --chat-input-action-hover-color: var(--p-primary-500);
+
+  //  Settings drawer premium overrides
+  --settings-drawer-header-height: 64px;
+  --settings-drawer-header-border: var(--app-border);
+  --settings-drawer-body-bg: var(--app-bg);
+  --settings-drawer-radius: var(--radius-xl);
+  --settings-drawer-shadow:
+    -8px 0 32px rgba(0, 0, 0, 0.12), -2px 0 8px rgba(0, 0, 0, 0.06);
+  // Semi-transparent backdrop for the settings drawer overlay
+  --chat-drawer-mask-bg: rgba(0, 0, 0, 0.35);
+
   //  Context menu
   --chat-menu-bg: var(--app-surface);
   --chat-menu-shadow: var(--shadow-menu);
@@ -148,4 +207,7 @@
   --chat-status-border-color: var(--app-bg);
   --chat-menu-shadow:
     0 4px 24px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --settings-drawer-shadow:
+    -8px 0 40px rgba(0, 0, 0, 0.5), -2px 0 12px rgba(0, 0, 0, 0.4);
+  --chat-drawer-mask-bg: rgba(0, 0, 0, 0.5);
 }

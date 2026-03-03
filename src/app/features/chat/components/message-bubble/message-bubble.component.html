@@ -38,6 +38,167 @@
   <div class="bubble" role="article" [attr.aria-label]="bubbleAriaLabel">
     <span class="bubble-text">{{ message.messageText }}</span>
 
+    <!--
+      Attachment block — UI stubs only; backend integration is a separate milestone.
+      p-image: free zoom/rotate modal via PrimeNG.
+      p-chip:  compact file display with icon + label.
+      p-button text+rounded: lightweight audio/video controls.
+      @switch on AttachmentType ensures a compile error if a new type is added
+      without updating this template.
+    -->
+    <!--
+      Attachments: images rendered in a separate capped grid (max 4).
+      Excess images are summarised by the "+N" overflow badge on the last tile.
+      All other types (video, audio, file) render below in a standard column.
+    -->
+    @if (message.attachments?.length) {
+      @if (visibleImages.length) {
+        <div
+          class="bubble-media"
+          [class.bubble-media--grid]="hasMultipleImages"
+        >
+          @for (img of visibleImages; track img.id; let last = $last) {
+            <div
+              class="bubble-img-wrap"
+              [class.image-has-overflow]="last && hiddenImageCount > 0"
+            >
+              <!-- p-image provides free zoom/rotate/close on click -->
+              <p-image
+                [src]="img.url"
+                [alt]="img.fileName ?? 'Image'"
+                [preview]="true"
+                styleClass="bubble-img"
+              />
+              @if (last && hiddenImageCount > 0) {
+                <div class="image-overflow-badge" aria-hidden="true">
+                  +{{ hiddenImageCount }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (nonImageAttachments.length) {
+        <div class="bubble-media">
+          @for (att of nonImageAttachments; track att.id) {
+            @switch (att.type) {
+              @case (AttachmentType.VIDEO) {
+                <div
+                  class="bubble-video"
+                  role="img"
+                  [attr.aria-label]="att.fileName ?? 'Video attachment'"
+                >
+                  <img
+                    class="bubble-video-thumb"
+                    [src]="att.thumbnailUrl ?? att.url"
+                    [alt]="att.fileName ?? 'Video thumbnail'"
+                    [attr.width]="att.width ?? 240"
+                    [attr.height]="att.height ?? 160"
+                    loading="lazy"
+                  />
+                  <div class="bubble-video-overlay" aria-hidden="true">
+                    <i class="pi pi-play-circle"></i>
+                  </div>
+                  @if (att.durationSecs) {
+                    <span class="bubble-media-duration">{{
+                      formatDuration(att.durationSecs)
+                    }}</span>
+                  }
+                </div>
+              }
+
+              @case (AttachmentType.AUDIO) {
+                <div
+                  class="bubble-audio"
+                  role="group"
+                  [attr.aria-label]="att.fileName ?? 'Audio message'"
+                >
+                  <p-button
+                    icon="pi pi-play"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="secondary"
+                    size="small"
+                    ariaLabel="Play audio"
+                    styleClass="audio-play-btn"
+                  />
+                  <div class="audio-track" aria-hidden="true">
+                    <span class="audio-track-fill"></span>
+                  </div>
+                  <span class="bubble-media-duration">
+                    {{
+                      att.durationSecs
+                        ? formatDuration(att.durationSecs)
+                        : "--:--"
+                    }}
+                  </span>
+                </div>
+              }
+
+              @case (AttachmentType.FILE) {
+                <!--
+                  File card: [icon + meta] row, then [Download + Preview] action row.
+                -->
+                <div
+                  class="bubble-file"
+                  role="group"
+                  [attr.aria-label]="'File: ' + (att.fileName ?? 'Download')"
+                >
+                  <div class="bubble-file-info">
+                    <i
+                      class="pi pi-file-pdf bubble-file-icon"
+                      aria-hidden="true"
+                    ></i>
+                    <div class="bubble-file-meta">
+                      <span class="bubble-file-name">{{
+                        att.fileName ?? "File"
+                      }}</span>
+                      @if (att.fileSize) {
+                        <span class="bubble-file-size">{{
+                          formatSize(att.fileSize)
+                        }}</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="bubble-file-actions">
+                    <p-button
+                      [label]="'messaging.action_download' | translate"
+                      icon="pi pi-download"
+                      [text]="true"
+                      severity="secondary"
+                      size="small"
+                      [ariaLabel]="
+                        ('messaging.action_download' | translate) +
+                        ' ' +
+                        (att.fileName ?? '')
+                      "
+                    />
+                    <p-button
+                      [label]="'messaging.action_preview' | translate"
+                      icon="pi pi-eye"
+                      [text]="true"
+                      severity="secondary"
+                      size="small"
+                      [ariaLabel]="
+                        ('messaging.action_preview' | translate) +
+                        ' ' +
+                        (att.fileName ?? '')
+                      "
+                    />
+                  </div>
+                </div>
+              }
+
+              @default {
+                <!-- IMAGE type is rendered in the image grid above. -->
+              }
+            }
+          }
+        </div>
+      }
+    }
+
     <div class="bubble-footer" aria-hidden="true">
       <time
         class="bubble-time"

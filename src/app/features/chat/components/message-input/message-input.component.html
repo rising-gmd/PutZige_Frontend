@@ -1,4 +1,30 @@
 <div class="message-input-container" role="form" aria-label="Compose message">
+  <!--
+    Left actions: emoji + attach.
+    Stubs — click handlers wired when features are implemented.
+    pTooltip provides discoverable labels without cluttering the layout.
+  -->
+  <div
+    class="input-actions input-actions--left"
+    role="group"
+    aria-label="Message attachments"
+  >
+    <ds-icon-button
+      icon="pi-face-smile"
+      ariaLabel="Insert emoji"
+      variant="ghost"
+      pTooltip="Emoji"
+      tooltipPosition="top"
+    />
+    <ds-icon-button
+      icon="pi-paperclip"
+      ariaLabel="Attach file"
+      variant="ghost"
+      pTooltip="Attach file"
+      tooltipPosition="top"
+    />
+  </div>
+
   <textarea
     pTextarea
     class="message-input"
@@ -18,14 +44,37 @@
     [disabled]="isSending()"
   ></textarea>
 
-  <p-button
-    class="send-button"
-    icon="pi pi-send"
-    [loading]="isSending()"
-    [disabled]="!messageText().trim() || isSending()"
-    [attr.aria-label]="'messaging.send_button' | translate"
-    (onClick)="onSend()"
-  />
+  <!--
+    Right actions: mic (visible when textarea is empty) + send.
+    Swapping mic ↔ send on input is a WhatsApp/Telegram UX convention
+    — mic-only users can still send voice by tapping when text is empty.
+  -->
+  <div
+    class="input-actions input-actions--right"
+    role="group"
+    aria-label="Send message"
+  >
+    @if (!messageText().trim()) {
+      <ds-icon-button
+        icon="pi-microphone"
+        ariaLabel="Record voice message"
+        variant="ghost"
+        pTooltip="Voice message"
+        tooltipPosition="top"
+      />
+    }
+
+    <p-button
+      class="send-button"
+      icon="pi pi-send"
+      [loading]="isSending()"
+      [disabled]="!messageText().trim() || isSending()"
+      [attr.aria-label]="'messaging.send_button' | translate"
+      pTooltip="Send (Enter)"
+      tooltipPosition="top"
+      (onClick)="onSend()"
+    />
+  </div>
 
   <!-- Links to textarea via aria-describedby — announced on focus by screen readers -->
   <span id="send-hint" class="sr-only">

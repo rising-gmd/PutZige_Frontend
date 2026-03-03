@@ -97,7 +97,10 @@ export function formatConversationTime(
   if (!date) return EMPTY_STRING;
 
   if (isInDayForTimeZone(date, timeZoneId, DATE_THRESHOLDS.ZERO)) {
-    return formatInTimeZone(date, timeZoneId, DATE_FORMATS.TIME);
+    // Show relative distance ("10 minutes", "3 hours") for today's conversations.
+    // date-fns prefixes with "about", "less than", "almost", "over" — strip for brevity.
+    const raw = formatDistanceToNow(date, { addSuffix: false });
+    return raw.replace(/^(about|less than|almost|over) /, '');
   }
   if (isInDayForTimeZone(date, timeZoneId, DATE_THRESHOLDS.ONE)) {
     return DATE_LABELS.YESTERDAY;

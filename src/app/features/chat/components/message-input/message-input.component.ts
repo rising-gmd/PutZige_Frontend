@@ -11,6 +11,8 @@ import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { DsIconButtonComponent } from '../../../../design-system/composites/icon-button/ds-icon-button.component';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
@@ -18,7 +20,14 @@ import { UI_CONSTANTS } from '../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'app-message-input',
-  imports: [ReactiveFormsModule, TextareaModule, ButtonModule, TranslateModule],
+  imports: [
+    ReactiveFormsModule,
+    TextareaModule,
+    ButtonModule,
+    TooltipModule,
+    TranslateModule,
+    DsIconButtonComponent,
+  ],
   templateUrl: './message-input.component.html',
   styleUrl: './message-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

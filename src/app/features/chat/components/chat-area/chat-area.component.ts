@@ -17,6 +17,7 @@ import {
 import { DsAvatarComponent } from '../../../../design-system/primitives/avatar/ds-avatar.component';
 import { DsIconButtonComponent } from '../../../../design-system/composites/icon-button/ds-icon-button.component';
 import { DsEmptyStateComponent } from '../../../../design-system/primitives/empty-state/ds-empty-state.component';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-chat-area',
@@ -29,6 +30,7 @@ import { DsEmptyStateComponent } from '../../../../design-system/primitives/empt
     DsAvatarComponent,
     DsIconButtonComponent,
     DsEmptyStateComponent,
+    TooltipModule,
   ],
   templateUrl: './chat-area.component.html',
   styleUrls: ['./chat-area.component.scss'],

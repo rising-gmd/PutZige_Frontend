@@ -59,11 +59,29 @@
         </span>
       </div>
     </div>
+
+    <!-- Colour theme selector — uses ThemeService to swap the PrimeNG preset -->
+    <div class="setting-row">
+      <div class="setting-info">
+        <!--
+          ds-theme-selector contains a role="radiogroup" — not a native form
+          element. Using <p> instead of <label> avoids a false-positive
+          @angular-eslint/template/label-has-associated-control violation while
+          preserving the visual hierarchy and screen-reader context via
+          aria-labelledby on the component's internal radiogroup.
+        -->
+        <p class="setting-label" id="theme-selector-label">
+          {{ "settings.color_theme" | translate }}
+        </p>
+        <span class="setting-hint">
+          {{ "settings.color_theme_hint" | translate }}
+        </span>
+      </div>
+      <ds-theme-selector aria-labelledby="theme-selector-label" />
+    </div>
   </section>
 
   <hr class="settings-divider" role="separator" aria-hidden="true" />
-
-  <!-- Timezone section -->
   <section class="settings-section" aria-labelledby="timezone-heading">
     <div class="section-meta">
       <i class="pi pi-globe section-icon" aria-hidden="true"></i>

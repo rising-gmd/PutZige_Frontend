@@ -20,27 +20,51 @@
           [class.online]="conversation.isOnline"
           role="status"
         >
-          {{ conversation.isOnline ? "Online" : "Offline" }}
+          {{
+            conversation.isOnline
+              ? ("chat.status_online" | translate)
+              : ("chat.status_offline" | translate)
+          }}
         </span>
       </div>
 
-      <!-- Right-side action buttons (TODO: wire up when features are ready) -->
+      <!-- Right-side action buttons -->
       <div class="header-actions" role="group" aria-label="Chat actions">
-        <ds-icon-button icon="pi-video" ariaLabel="Video call" />
-        <ds-icon-button icon="pi-phone" ariaLabel="Voice call" />
-        <ds-icon-button icon="pi-ellipsis-v" ariaLabel="More options" />
+        <ds-icon-button
+          icon="pi-video"
+          ariaLabel="Video call"
+          pTooltip="Video call"
+          tooltipPosition="bottom"
+        />
+        <ds-icon-button
+          icon="pi-phone"
+          ariaLabel="Voice call"
+          pTooltip="Voice call"
+          tooltipPosition="bottom"
+        />
+        <ds-icon-button
+          icon="pi-ellipsis-v"
+          ariaLabel="More options"
+          pTooltip="More options"
+          tooltipPosition="bottom"
+        />
       </div>
     </header>
 
     <!-- ── Messages ────────────────────────────────────── -->
     <div class="messages-container">
       @if (isLoading()) {
-        <ds-empty-state icon="pi-spin pi-spinner" title="Loading messages..." />
+        <ds-empty-state
+          icon="pi-spin pi-spinner"
+          [title]="'chat.loading_messages' | translate"
+        />
       } @else if (activeMessages().length === 0) {
         <ds-empty-state
           icon="pi-comments"
-          title="Start the conversation"
-          [subtitle]="'Send a message to ' + displayName"
+          [title]="'chat.no_messages_title' | translate"
+          [subtitle]="
+            'chat.no_messages_subtitle' | translate: { name: displayName }
+          "
         />
       } @else {
         <app-message-list
@@ -64,7 +88,7 @@
     -->
     <span class="sr-only" aria-live="polite" aria-atomic="true">
       @if (conversation.isTyping) {
-        {{ displayName }} is typing
+        {{ "chat.typing_announcement" | translate: { name: displayName } }}
       }
     </span>
 

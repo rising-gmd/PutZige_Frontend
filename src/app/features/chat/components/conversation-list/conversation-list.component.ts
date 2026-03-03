@@ -26,6 +26,7 @@ import { DsSearchInputComponent } from '../../../../design-system/composites/sea
 import { DsIconButtonComponent } from '../../../../design-system/composites/icon-button/ds-icon-button.component';
 import { DsEmptyStateComponent } from '../../../../design-system/primitives/empty-state/ds-empty-state.component';
 import { DsAvatarComponent } from '../../../../design-system/primitives/avatar/ds-avatar.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-conversation-list',
@@ -38,6 +39,7 @@ import { DsAvatarComponent } from '../../../../design-system/primitives/avatar/d
     DsIconButtonComponent,
     DsEmptyStateComponent,
     DsAvatarComponent,
+    TranslateModule,
   ],
   templateUrl: './conversation-list.component.html',
   styleUrls: ['./conversation-list.component.scss'],
@@ -83,6 +85,18 @@ export class ConversationListComponent {
     { initialValue: [] },
   );
   readonly searchQuery = signal('');
+  /**
+   * Current user's id — passed to each conversation-item so it can compute
+   * its own read-receipt state without reaching into the store directly.
+   * Keeping store access out of leaf components keeps them unit-testable in
+   * isolation.
+   */
+  readonly currentUserId = toSignal(
+    this.store
+      .select(chatFeature.selectCurrentUser)
+      .pipe(map((u) => u?.id ?? '')),
+    { initialValue: '' },
+  );
 
   // ── Outputs ────────────────────────────────────────────────────────────────
   /**

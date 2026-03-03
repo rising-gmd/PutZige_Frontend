@@ -45,7 +45,23 @@
   },
   "chat": {
     "welcome_title": "Welcome to PutZige Chat",
-    "welcome_subtitle": "Select a conversation to start messaging"
+    "welcome_subtitle": "Select a conversation to start messaging",
+    "list_title": "Chats",
+    "status_online": "Online",
+    "status_offline": "Offline",
+    "loading_messages": "Loading messages\u2026",
+    "loading_conversations": "Loading conversations\u2026",
+    "no_messages_title": "Start the conversation",
+    "no_messages_subtitle": "Send a message to {{name}}",
+    "no_conversations_title": "No conversations yet",
+    "no_conversations_subtitle": "Start a new chat with the + button",
+    "typing": "typing\u2026",
+    "typing_announcement": "{{name}} is typing",
+    "search_placeholder": "Search conversations\u2026 (Ctrl+K)",
+    "search_people_label": "People",
+    "search_start_conversation": "Start conversation with {{name}}",
+    "search_no_results_title": "No results for \"{{query}}\"",
+    "search_no_results_subtitle": "Try a different name or email"
   },
   "profile": {
     "actions": "Profile actions"
@@ -61,7 +77,13 @@
     "message_label": "Message",
     "send_button": "Send message",
     "send_hint": "Press Enter to send, Shift+Enter for a new line",
-    "sending": "Sending message..."
+    "sending": "Sending message...",
+    "action_forward": "Forward",
+    "action_star": "Star",
+    "action_edit": "Edit",
+    "action_delete": "Delete",
+    "action_download": "Download",
+    "action_preview": "Preview"
   },
   "global": {
     "app_title": "PutZige",
@@ -140,6 +162,8 @@
     "appearance_desc": "Choose how PutZige looks for you",
     "dark_mode": "Theme",
     "dark_mode_hint": "Switch between light and dark mode",
+    "color_theme": "Colour theme",
+    "color_theme_hint": "Choose an accent colour for the interface",
     "light": "Light",
     "dark": "Dark",
     "timezone": "Timezone",

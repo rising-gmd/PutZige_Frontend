@@ -25,8 +25,22 @@
     </div>
     <div class="preview-row">
       @if (conversation().isTyping) {
-        <span class="typing-indicator" aria-live="polite">typing...</span>
+        <span class="typing-indicator" aria-live="polite">{{
+          "chat.typing" | translate
+        }}</span>
       } @else {
+        <!--
+          Read-receipt double-check: shown only when the current user sent
+          the last message (mirrors WhatsApp / Telegram UX convention).
+          aria-hidden — status is already encoded in ariaLabel on the item.
+        -->
+        @if (isLastMessageOwn()) {
+          <i
+            class="pi pi-check-double preview-status"
+            [class.preview-status--read]="conversation().unreadCount === 0"
+            aria-hidden="true"
+          ></i>
+        }
         <p class="message-preview">{{ lastMessagePreview() }}</p>
       }
       @if (conversation().unreadCount > 0) {

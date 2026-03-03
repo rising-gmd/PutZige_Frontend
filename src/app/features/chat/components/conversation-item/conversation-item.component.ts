@@ -12,6 +12,7 @@ import { Conversation } from '../../models/conversation.model';
 import { ConversationTimePipe } from '../../../../shared/pipes/conversation-time.pipe';
 import { DsAvatarComponent } from '../../../../design-system/primitives/avatar/ds-avatar.component';
 import { DsIconButtonComponent } from '../../../../design-system/composites/icon-button/ds-icon-button.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-conversation-item',
@@ -21,6 +22,7 @@ import { DsIconButtonComponent } from '../../../../design-system/composites/icon
     ConversationTimePipe,
     DsAvatarComponent,
     DsIconButtonComponent,
+    TranslateModule,
   ],
   templateUrl: './conversation-item.component.html',
   styleUrls: ['./conversation-item.component.scss'],
@@ -29,6 +31,11 @@ import { DsIconButtonComponent } from '../../../../design-system/composites/icon
 export class ConversationItemComponent {
   readonly conversation = input.required<Conversation>();
   readonly isActive = input(false);
+  /**
+   * Passed down from ConversationListComponent so this pure presentational
+   * component can compute the read-receipt checkmark without touching the store.
+   */
+  readonly currentUserId = input('');
 
   readonly selected = output<string>();
   readonly viewProfile = output<string>();
@@ -55,6 +62,16 @@ export class ConversationItemComponent {
     const status = conv.isOnline ? ', online' : '';
     return `${this.displayName()}${status}. ${this.lastMessagePreview()}${unread}`;
   });
+
+  /**
+   * True when the current user sent the last message in this conversation —
+   * controls the double-checkmark read-receipt shown in the preview row.
+   */
+  readonly isLastMessageOwn = computed(
+    () =>
+      !!this.conversation().lastMessageSenderId &&
+      this.conversation().lastMessageSenderId === this.currentUserId(),
+  );
 
   readonly menuItems = computed<MenuItem[]>(() => {
     const id = this.conversation().conversationId;

@@ -8,8 +8,8 @@
 .bubble-row {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  margin-bottom: 2px;
+  gap: var(--chat-bubble-row-gap);
+  margin-bottom: var(--chat-bubble-margin-y);
 
   // OWN: right-align — reverse the row so bubble is on right
   &.own {
@@ -37,7 +37,7 @@
 // ── Bubble ────────────────────────────────────────────────
 .bubble {
   max-width: 65%;
-  padding: 10px 14px;
+  padding: var(--chat-bubble-padding);
   font-size: var(--font-size-chat);
   line-height: 1.5;
   word-break: break-word;
@@ -45,14 +45,14 @@
 
   // OWN: blue, right tail
   .own & {
-    background: var(--p-primary-500);
+    background: var(--chat-bubble-own-bg);
     color: var(--app-on-primary);
     border-radius: var(--chat-bubble-own-radius);
   }
 
   // OTHER: gray, left tail
   .other & {
-    background: var(--app-surface-100);
+    background: var(--chat-bubble-other-bg);
     color: var(--app-text);
     border-radius: var(--chat-bubble-other-radius);
   }
@@ -72,12 +72,13 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 3px;
-  margin-top: 4px;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
 }
 
 .bubble-time {
   font-size: var(--font-size-xs);
+  white-space: nowrap; // prevent "4:30 PM" wrapping across two lines in narrow bubbles
 
   .other & {
     color: var(--app-muted);
@@ -109,7 +110,7 @@
   display: flex;
   align-items: center;
   align-self: flex-start;
-  padding-top: 4px;
+  padding-top: var(--space-1);
   flex-shrink: 0;
 }
 
@@ -117,8 +118,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: var(--chat-bubble-menu-btn-size);
+  height: var(--chat-bubble-menu-btn-size);
   border-radius: var(--radius-full);
   border: none;
   background: transparent;
@@ -167,4 +168,201 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
+}
+
+// ── Attachment block ───────────────────────────────────────
+
+.bubble-media {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--chat-media-grid-gap);
+
+  // 2-column grid for multiple images.
+  // CSS auto-fit keeps it natural for a single image (1-col).
+  &--grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// ── p-image override (image attachment) ────────────────────
+
+// p-image appends the preview overlay to <body>, so component-scoped
+// styles cannot reach it — only the host img needs scoping here.
+::ng-deep .bubble-img {
+  img {
+    width: 100%;
+    min-width: var(--chat-media-image-min);
+    max-width: var(--chat-media-image-max);
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: var(--chat-media-radius);
+    display: block;
+    cursor: zoom-in;
+  }
+}
+// ── Image wrapper + overflow badge ────────────────────────────────────────
+
+// Provides position context for the +N overflow count badge.
+.bubble-img-wrap {
+  position: relative;
+
+  // Dim the last visible tile when hidden images exist.
+  &.image-has-overflow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--chat-media-overlay-bg);
+    border-radius: var(--chat-media-radius);
+    pointer-events: none;
+  }
+}
+
+// "+N" count badge centred over the last visible image tile.
+.image-overflow-badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--chat-media-icon-color);
+  pointer-events: none;
+  z-index: 1; // above the ::after overlay
+}
+// ── Video stub ─────────────────────────────────────────────
+
+.bubble-video {
+  position: relative;
+  border-radius: var(--chat-media-radius);
+  overflow: hidden;
+  cursor: pointer;
+  max-width: var(--chat-media-image-max);
+}
+
+.bubble-video-thumb {
+  width: 100%;
+  height: var(--chat-media-video-height);
+  object-fit: cover;
+  display: block;
+}
+
+.bubble-video-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--chat-media-overlay-bg);
+  transition: background var(--transition-fast);
+
+  i {
+    font-size: 2.5rem;
+    color: var(--chat-media-icon-color);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  }
+
+  .bubble-video:hover & {
+    background: var(--chat-media-overlay-hover-bg);
+  }
+}
+
+.bubble-media-duration {
+  position: absolute;
+  bottom: var(--space-2);
+  right: var(--space-2);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--chat-media-icon-color);
+  background: var(--chat-media-duration-bg);
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+// ── Audio stub ──────────────────────────────────────────────
+
+.bubble-audio {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--chat-audio-bg);
+  border-radius: var(--chat-audio-radius);
+  min-width: var(--chat-audio-min-width);
+}
+
+.audio-track {
+  flex: 1;
+  height: var(--chat-audio-track-height);
+  background: var(--chat-audio-track-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.audio-track-fill {
+  display: block;
+  width: 0; // updated by JS when backend is wired
+  height: 100%;
+  background: var(--chat-audio-track-fill);
+  border-radius: var(--radius-full);
+}
+
+// ── File attachment ───────────────────────────────────────
+
+.bubble-file {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--chat-file-chip-bg);
+  border: 1px solid var(--chat-file-chip-border);
+  border-radius: var(--chat-file-chip-radius);
+  min-width: var(--chat-file-min-width);
+  max-width: var(--chat-file-max-width);
+}
+
+// Icon + file metadata row.
+.bubble-file-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.bubble-file-icon {
+  font-size: var(--font-size-3xl);
+  color: var(--p-primary-500);
+  flex-shrink: 0;
+}
+
+.bubble-file-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--chat-file-meta-gap);
+}
+
+.bubble-file-name {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--app-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bubble-file-size {
+  font-size: var(--font-size-xs);
+  color: var(--app-muted);
+}
+
+// Download + Preview action row.
+.bubble-file-actions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
 }

@@ -99,14 +99,10 @@
 }
 
 // ── Settings Drawer ─────────────────────────────────────────
-.settings-drawer.p-drawer {
-  .p-drawer-header {
-    padding: 1.25rem 1.5rem;
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-  }
-
-  .p-drawer-content {
-    padding: 0 1.5rem 1.5rem;
-  }
+// Width + border-radius are handled in settings-drawer.component.scss
+// (component-scoped ::ng-deep, styleClass-scoped).
+// This global file handles the backdrop overlay only.
+.settings-drawer.p-drawer-mask {
+  background: var(--chat-drawer-mask-bg);
+  backdrop-filter: blur(2px);
 }

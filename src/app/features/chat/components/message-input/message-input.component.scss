@@ -9,21 +9,36 @@
 
 .message-input-container {
   display: flex;
-  gap: var(--space-2);
-  padding: var(--space-3);
   align-items: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
   border-top: 1px solid var(--app-border);
-  background: var(--app-bg);
+  background: var(--chat-input-bar-bg);
 }
 
-// ── Textarea ─────────────────────────────────────────────────────────────────
+// ── Action button groups ─────────────────────────────────────
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  &--left {
+    gap: var(--space-1);
+  }
+
+  &--right {
+    gap: var(--space-1);
+  }
+}
+
+// ── Textarea ────────────────────────────────────────────────
 
 .message-input {
   flex: 1;
-  padding: 10px var(--space-3); // TODO: 10px is off the 4pt grid — needs --space-2-5 or design alignment to 8px/12px
-  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--chat-input-radius);
   border: 1px solid var(--app-border);
-  /* Use PrimeNG surface token with white fallback to ensure theme compatibility */
   background: var(--app-bg);
   resize: none;
   max-height: 120px;
@@ -43,15 +58,14 @@
   }
 }
 
-// ── Send button ───────────────────────────────────────────────────────────────
+// ── Send button ───────────────────────────────────────────────
 
 .send-button {
-  --p-button-padding: 10px 14px;
   flex-shrink: 0;
   align-self: flex-end;
 }
 
-// ── Screen reader only ────────────────────────────────────────────────────────
+// ── Screen reader only ──────────────────────────────────────────
 
 .sr-only {
   position: absolute;
@@ -65,7 +79,7 @@
   border: 0;
 }
 
-// ── Reduced motion ────────────────────────────────────────────────────────────
+// ── Reduced motion ────────────────────────────────────────────
 
 @media (prefers-reduced-motion: reduce) {
   .message-input {

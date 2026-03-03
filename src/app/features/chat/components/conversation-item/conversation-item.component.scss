@@ -10,9 +10,10 @@
   display: flex;
   align-items: center;
   gap: var(--chat-item-gap);
-  padding: 10px 16px; // TODO: 10px is off the 4pt grid — needs --space-2-5 or design alignment to 8px/12px
+  padding: var(--chat-item-padding-y) var(--chat-item-padding-x);
   cursor: pointer;
   position: relative;
+  border-bottom: 1px solid var(--app-border);
   transition: background var(--transition-fast);
 
   // Hover: background + reveal 3-dot button
@@ -123,8 +124,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px; // TODO: 6px is off the 4pt grid — optical micro-spacer, needs --space-1-5
+  gap: var(--space-1);
   min-height: 18px;
+}
+
+// ── Read-receipt checkmark ────────────────────────────────
+
+.preview-status {
+  flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  // Default: sent/delivered — muted tone so it’s visible but not dominant
+  color: var(--app-muted);
+  transition: color var(--transition-fast);
+
+  // When the last message has been read (unreadCount === 0 on own msg)
+  // turn the check green — the same semantic constant used for online dots.
+  &--read {
+    color: var(--app-online);
+  }
 }
 
 .message-preview {

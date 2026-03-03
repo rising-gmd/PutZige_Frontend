@@ -5,12 +5,78 @@
 }
 
 // PrimeNG Drawer does not support [dt] tokens for width, so
-// ::ng-deep is the only supported PrimeNG-blessed approach here.
-// Scoped to the styleClass 'settings-drawer' — won't leak globally.
+// ::ng-deep is the only PrimeNG-blessed approach here.
+// Scoped to the styleClass 'settings-drawer' — does not leak globally.
 ::ng-deep .settings-drawer.p-drawer {
   width: var(--_drawer-width) !important;
+  border-radius: var(--settings-drawer-radius) 0 0 var(--settings-drawer-radius);
+  box-shadow: var(--settings-drawer-shadow);
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 480px) {
     width: var(--_drawer-width-mobile) !important;
+    border-radius: 0;
+  }
+
+  // ── Header ─────────────────────────────────────────────
+  .p-drawer-header {
+    height: var(--settings-drawer-header-height);
+    padding: 0 var(--space-5);
+    border-bottom: 1px solid var(--settings-drawer-header-border);
+    background: var(--app-surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-radius: var(--settings-drawer-radius) 0 0 0;
+
+    .p-drawer-title {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--app-text);
+      letter-spacing: -0.01em;
+    }
+
+    // Close button — style to match ds-icon-button aesthetics
+    .p-drawer-close-button {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      color: var(--app-muted);
+      background: transparent;
+      transition:
+        background var(--transition-fast),
+        color var(--transition-fast);
+
+      &:hover {
+        background: var(--app-surface-100);
+        color: var(--app-text);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--p-primary-500);
+        outline-offset: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        transition: none;
+      }
+    }
+  }
+
+  // ── Body ────────────────────────────────────────────────
+  .p-drawer-content {
+    flex: 1;
+    padding: 0;
+    background: var(--settings-drawer-body-bg);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--p-surface-300) transparent;
+    border-radius: 0 0 0 var(--settings-drawer-radius);
+
+    @media (max-width: 480px) {
+      border-radius: 0;
+    }
   }
 }

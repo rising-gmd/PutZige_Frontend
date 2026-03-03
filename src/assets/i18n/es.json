@@ -45,7 +45,23 @@
   },
   "chat": {
     "welcome_title": "Bienvenido a PutZige Chat",
-    "welcome_subtitle": "Selecciona una conversación para empezar a enviar mensajes"
+    "welcome_subtitle": "Selecciona una conversación para empezar a enviar mensajes",
+    "list_title": "Chats",
+    "status_online": "En línea",
+    "status_offline": "Sin conexión",
+    "loading_messages": "Cargando mensajes\u2026",
+    "loading_conversations": "Cargando conversaciones\u2026",
+    "no_messages_title": "Inicia la conversación",
+    "no_messages_subtitle": "Envía un mensaje a {{name}}",
+    "no_conversations_title": "Todavía no hay conversaciones",
+    "no_conversations_subtitle": "Inicia un nuevo chat con el botón +",
+    "typing": "escribiendo\u2026",
+    "typing_announcement": "{{name}} está escribiendo",
+    "search_placeholder": "Buscar conversaciones\u2026 (Ctrl+K)",
+    "search_people_label": "Personas",
+    "search_start_conversation": "Iniciar conversación con {{name}}",
+    "search_no_results_title": "Sin resultados para \"{{query}}\"",
+    "search_no_results_subtitle": "Prueba con un nombre o correo diferente"
   },
   "profile": {
     "actions": "Acciones de perfil"
@@ -61,7 +77,13 @@
     "message_label": "Mensaje",
     "send_button": "Enviar mensaje",
     "send_hint": "Pulsa Enter para enviar, Shift+Enter para nueva línea",
-    "sending": "Enviando mensaje..."
+    "sending": "Enviando mensaje...",
+    "action_forward": "Reenviar",
+    "action_star": "Destacar",
+    "action_edit": "Editar",
+    "action_delete": "Eliminar",
+    "action_download": "Descargar",
+    "action_preview": "Vista previa"
   },
   "global": {
     "app_title": "PutZige",
@@ -141,6 +163,8 @@
     "appearance_desc": "Choose how PutZige looks for you",
     "dark_mode": "Theme",
     "dark_mode_hint": "Switch between light and dark mode",
+    "color_theme": "Tema de color",
+    "color_theme_hint": "Elige un color de acento para la interfaz",
     "light": "Light",
     "dark": "Dark",
     "timezone": "Timezone",
