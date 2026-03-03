@@ -6,31 +6,24 @@
 <header class="list-header">
   <h1 class="list-title">Chats</h1>
 
-  <button
-    class="fab-btn"
-    type="button"
-    aria-label="Start new conversation"
-    (click)="showNewChatModal()"
-  >
-    <i class="pi pi-plus" aria-hidden="true"></i>
-  </button>
+  <ds-icon-button
+    #fabBtn
+    icon="pi-plus"
+    ariaLabel="Start new conversation"
+    variant="fab"
+    (clicked)="showNewChatModal()"
+  />
 </header>
 
 <!-- Search -->
 <div class="search-wrap">
-  <div class="search-field">
-    <i class="pi pi-search search-icon" aria-hidden="true"></i>
-    <input
-      type="search"
-      [value]="searchQuery()"
-      (input)="onSearch($any($event.target).value)"
-      placeholder="Search conversations..."
-      aria-label="Search conversations or users"
-      autocomplete="off"
-      autocorrect="off"
-      spellcheck="false"
-    />
-  </div>
+  <ds-search-input
+    [value]="searchQuery()"
+    placeholder="Search conversations..."
+    [debounceMs]="300"
+    (valueChange)="onSearch($event)"
+    (cleared)="onSearch('')"
+  />
 </div>
 
 <!-- Body -->
@@ -38,8 +31,9 @@
   @if (searchQuery() && searchResults().length > 0) {
     <p class="section-label">People</p>
 
-    @for (user of searchResults(); track user.id) {
+    @for (user of searchResults(); track user.id; let i = $index) {
       <div
+        #searchResult
         class="search-result-item"
         role="option"
         tabindex="0"
@@ -51,13 +45,14 @@
         (click)="onSelectUser(user)"
         (keydown.enter)="onSelectUser(user)"
         (keydown.space)="$event.preventDefault(); onSelectUser(user)"
+        (keydown)="onSearchResultKeyDown($event, i)"
       >
-        <div class="result-avatar" aria-hidden="true">
-          {{
-            (user.displayName.trim() || user.username).substring(0, 2)
-              | uppercase
-          }}
-        </div>
+        <ds-avatar
+          [user]="user"
+          size="sm"
+          [showOnline]="true"
+          [isOnline]="user.isOnline"
+        />
         <div class="result-meta">
           <h4>{{ user.displayName.trim() || user.username }}</h4>
           <p>{{ user.jobTitle || user.email }}</p>
@@ -65,33 +60,33 @@
       </div>
     }
   } @else if (searchQuery() && searchResults().length === 0) {
-    <div class="state-container">
-      <i class="pi pi-search" aria-hidden="true"></i>
-      <p>No results for "{{ searchQuery() }}"</p>
-      <span>Try a different name or email</span>
-    </div>
+    <ds-empty-state
+      icon="pi-search"
+      [title]="'No results for &quot;' + searchQuery() + '&quot;'"
+      subtitle="Try a different name or email"
+    />
   } @else if (isLoading()) {
-    <div class="state-container" aria-busy="true" aria-live="polite">
-      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-      <p>Loading conversations...</p>
-    </div>
+    <ds-empty-state
+      icon="pi-spin pi-spinner"
+      title="Loading conversations..."
+    />
   } @else if (!isLoading() && conversations().length === 0) {
-    <div class="state-container">
-      <i class="pi pi-comments" aria-hidden="true"></i>
-      <p>No conversations yet</p>
-      <span>Start a new chat with the + button</span>
-    </div>
+    <ds-empty-state
+      icon="pi-comments"
+      title="No conversations yet"
+      subtitle="Start a new chat with the + button"
+    />
   } @else {
     @for (conversation of conversations(); track conversation.conversationId) {
       <app-conversation-item
         [conversation]="conversation"
         [isActive]="conversation.conversationId === activeConversationId()"
         (selected)="onSelectConversation($event)"
-        (viewProfile)="onViewProfile()"
-        (archive)="onArchive()"
-        (block)="onBlock()"
-        (deleteConv)="onDelete()"
-      ></app-conversation-item>
+        (viewProfile)="onViewProfile($event)"
+        (archive)="onArchive($event)"
+        (block)="onBlock($event)"
+        (deleteConv)="onDelete($event)"
+      />
     }
   }
 </div>
@@ -101,4 +96,7 @@
   #newChatModal
   (userSelected)="onUserSelected($event)"
   (closed)="onModalClosed()"
-></app-new-chat-modal>
+/>
+
+<!-- Scoped confirmation dialog — must be present for ConfirmationService to render -->
+<p-confirmDialog />

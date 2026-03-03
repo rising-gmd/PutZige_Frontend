@@ -1,23 +1,10 @@
 @if (currentUser(); as user) {
   <div class="profile-card">
-    <!-- Avatar -->
-    <div class="avatar-wrap">
-      @if (user.profilePictureUrl) {
-        <img
-          class="avatar-img"
-          [src]="user.profilePictureUrl"
-          [alt]="avatarAlt"
-          loading="lazy"
-        />
-      } @else {
-        <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
-      }
-      <span class="status-dot" role="img" aria-label="Online"></span>
-    </div>
+    <ds-avatar [user]="user" size="md" [showOnline]="true" [isOnline]="true" />
 
     <!-- User info -->
     <div class="user-info">
-      <span class="user-name">{{ userDisplayName }}</span>
+      <span class="user-name">{{ userDisplayName() }}</span>
       @if (user.jobTitle) {
         <span class="user-title">{{ user.jobTitle }}</span>
       }
@@ -29,32 +16,20 @@
       role="group"
       [attr.aria-label]="'profile.actions' | translate"
     >
-      <button
-        class="action-btn"
-        type="button"
-        [attr.aria-expanded]="settingsDrawer?.isVisible() ?? false"
+      <ds-icon-button
+        icon="pi-cog"
+        [ariaLabel]="'settings.open' | translate"
+        [attr.aria-expanded]="settingsDrawer.isVisible()"
         aria-controls="settings-drawer"
-        [attr.aria-label]="'settings.open' | translate"
-        [title]="'settings.open' | translate"
-        (click)="openSettings()"
-      >
-        <i class="pi pi-cog" aria-hidden="true"></i>
-      </button>
+        (clicked)="openSettings()"
+      />
 
-      <button
-        class="action-btn action-btn--danger"
-        type="button"
+      <ds-icon-button
+        [icon]="isLoggingOut() ? 'pi-spin pi-spinner' : 'pi-sign-out'"
+        [ariaLabel]="'global.btn_logout' | translate"
         [disabled]="isLoggingOut()"
-        [attr.aria-label]="'global.btn_logout' | translate"
-        [title]="'global.btn_logout' | translate"
-        (click)="logout()"
-      >
-        @if (isLoggingOut()) {
-          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-        } @else {
-          <i class="pi pi-sign-out" aria-hidden="true"></i>
-        }
-      </button>
+        (clicked)="logout()"
+      />
     </div>
 
     <app-settings-drawer #settingsDrawer></app-settings-drawer>

@@ -15,20 +15,13 @@
 >
   <!-- Search -->
   <div class="modal-search">
-    <div class="search-field">
-      <i class="pi pi-search search-icon" aria-hidden="true"></i>
-      <input
-        #searchInput
-        type="search"
-        [value]="searchQuery"
-        (input)="onSearchInput($event)"
-        placeholder="Search by name or email..."
-        aria-label="Search users"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-      />
-    </div>
+    <ds-search-input
+      #searchInput
+      placeholder="Search by name or email..."
+      [debounceMs]="0"
+      (valueChange)="onSearchInput($event)"
+      (cleared)="onSearchInput('')"
+    />
   </div>
 
   <!-- Results -->
@@ -39,10 +32,7 @@
     aria-label="Search results"
   >
     @if (isLoading()) {
-      <div class="modal-state">
-        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-        <p>Searching...</p>
-      </div>
+      <ds-empty-state icon="pi-spin pi-spinner" title="Searching..." />
     } @else if (searchQuery.length > 0 && searchResults().length > 0) {
       <p class="section-header">Results</p>
       @for (user of searchResults(); track user.id) {
@@ -52,11 +42,12 @@
         ></app-user-search-item>
       }
     } @else if (searchQuery.length > 0 && searchResults().length === 0) {
-      <div class="modal-state">
-        <i class="pi pi-search" aria-hidden="true"></i>
-        <p>No users found for "{{ searchQuery }}"</p>
-        <span>Try a different search term</span>
-      </div>
+      @let noResultsTitle = 'No users found for "' + searchQuery + '"';
+      <ds-empty-state
+        icon="pi-search"
+        [title]="noResultsTitle"
+        subtitle="Try a different search term"
+      />
     } @else {
       @if (recentContacts().length > 0) {
         <p class="section-header">
@@ -83,11 +74,11 @@
       }
 
       @if (recentContacts().length === 0 && suggestedUsers().length === 0) {
-        <div class="modal-state">
-          <i class="pi pi-users" aria-hidden="true"></i>
-          <p>No contacts yet</p>
-          <span>Search for users to start chatting</span>
-        </div>
+        <ds-empty-state
+          icon="pi-users"
+          title="No contacts yet"
+          subtitle="Search for users to start chatting"
+        />
       }
     }
   </div>

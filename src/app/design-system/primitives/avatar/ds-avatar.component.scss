@@ -22,6 +22,13 @@
   user-select: none;
   flex-shrink: 0;
 
+  // ── Size variants ────────────────────────────────────────
+  &--xs {
+    width: 24px;
+    height: 24px;
+    font-size: 0.625rem;
+  }
+
   &--sm {
     width: 32px;
     height: 32px;
@@ -38,6 +45,12 @@
     width: 56px;
     height: 56px;
     font-size: 1rem;
+  }
+
+  &--xl {
+    width: 72px;
+    height: 72px;
+    font-size: 1.25rem;
   }
 
   // ── Image ───────────────────────────────────────────────

@@ -2,34 +2,24 @@
   class="user-search-item"
   role="button"
   tabindex="0"
-  [attr.aria-label]="'Start chat with ' + displayName"
+  [attr.aria-label]="'Start chat with ' + displayName()"
   (click)="onSelect()"
   (keydown.enter)="onSelect()"
   (keydown.space)="$event.preventDefault(); onSelect()"
 >
-  <!-- Avatar -->
-  <div class="avatar-wrap">
-    @if (user.profilePictureUrl) {
-      <img
-        class="avatar-img"
-        [src]="user.profilePictureUrl"
-        [alt]="displayName"
-        loading="lazy"
-      />
-    } @else {
-      <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
-    }
-    @if (user.isOnline) {
-      <span class="status-dot" role="img" aria-label="Online"></span>
-    }
-  </div>
+  <ds-avatar
+    [user]="user()"
+    size="md"
+    [showOnline]="true"
+    [isOnline]="user().isOnline"
+  />
 
   <!-- Details -->
   <div class="user-details">
-    <h4 class="user-name">{{ displayName }}</h4>
-    <p class="user-meta">{{ user.jobTitle || user.email }}</p>
-    @if (user.bio) {
-      <p class="user-bio">{{ user.bio }}</p>
+    <h4 class="user-name">{{ displayName() }}</h4>
+    <p class="user-meta">{{ user().jobTitle || user().email }}</p>
+    @if (user().bio) {
+      <p class="user-bio">{{ user().bio }}</p>
     }
   </div>
 </div>

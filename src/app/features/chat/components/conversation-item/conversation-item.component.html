@@ -1,50 +1,43 @@
 <div
   class="conversation-item"
-  [class.active]="isActive"
+  [class.active]="isActive()"
   role="option"
-  [attr.aria-selected]="isActive"
-  [attr.aria-label]="ariaLabel"
+  [attr.aria-selected]="isActive()"
+  [attr.aria-label]="ariaLabel()"
   tabindex="0"
   (click)="onSelect()"
   (keydown.enter)="onSelect()"
   (keydown.space)="$event.preventDefault(); onSelect()"
 >
-  <div class="avatar-container">
-    @if (conversation.profilePictureUrl) {
-      <img
-        class="avatar-img"
-        [src]="conversation.profilePictureUrl"
-        [alt]="displayName"
-        loading="lazy"
-      />
-    } @else {
-      <div class="avatar-fallback" aria-hidden="true">{{ avatarText }}</div>
-    }
-    @if (conversation.isOnline) {
-      <div class="status-dot online" role="img" aria-label="Online"></div>
-    }
-  </div>
+  <ds-avatar
+    [user]="conversation()"
+    size="sm"
+    [showOnline]="true"
+    [isOnline]="conversation().isOnline"
+  />
 
   <div class="conversation-details">
     <div class="header-row">
-      <h4 class="user-name">{{ displayName }}</h4>
+      <h4 class="user-name">{{ displayName() }}</h4>
       <span class="timestamp">{{
-        conversation.lastActivity | conversationTime
+        conversation().lastActivity | conversationTime
       }}</span>
     </div>
     <div class="preview-row">
-      @if (conversation.isTyping) {
+      @if (conversation().isTyping) {
         <span class="typing-indicator" aria-live="polite">typing...</span>
       } @else {
-        <p class="message-preview">{{ lastMessagePreview }}</p>
+        <p class="message-preview">{{ lastMessagePreview() }}</p>
       }
-      @if (conversation.unreadCount > 0) {
+      @if (conversation().unreadCount > 0) {
         <div
           class="unread-badge"
           role="status"
-          [attr.aria-label]="conversation.unreadCount + ' unread'"
+          [attr.aria-label]="conversation().unreadCount + ' unread'"
         >
-          {{ conversation.unreadCount > 99 ? "99+" : conversation.unreadCount }}
+          {{
+            conversation().unreadCount > 99 ? "99+" : conversation().unreadCount
+          }}
         </div>
       }
     </div>
@@ -56,19 +49,16 @@
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
   >
-    <button
-      class="item-menu-btn"
-      type="button"
-      [attr.aria-label]="'More options for ' + displayName"
+    <ds-icon-button
+      icon="pi-ellipsis-h"
+      [ariaLabel]="'More options for ' + displayName()"
       aria-haspopup="menu"
-      (click)="toggleMenu($event)"
-    >
-      <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
-    </button>
+      (clicked)="toggleMenu($event)"
+    />
 
     <p-menu
       #itemMenu
-      [model]="menuItems"
+      [model]="menuItems()"
       [popup]="true"
       styleClass="chat-context-menu"
       appendTo="body"

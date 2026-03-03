@@ -24,3 +24,4 @@ export { DsEmptyStateComponent } from './primitives/empty-state/ds-empty-state.c
 
 // ── Composites ───────────────────────────────────────────────
 export { DsIconButtonComponent } from './composites/icon-button/ds-icon-button.component';
+export { DsSearchInputComponent } from './composites/search-input/ds-search-input.component';

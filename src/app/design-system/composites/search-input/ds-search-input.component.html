@@ -1,0 +1,38 @@
+<!-- ============================================================
+  ds-search-input.component.html
+  Composite search input with built-in debounce and clear button.
+  ============================================================ -->
+<div
+  class="ds-search-input"
+  [class.ds-search-input--focused]="isFocused()"
+  [class.ds-search-input--disabled]="disabled()"
+>
+  <i class="pi pi-search ds-search-input__icon" aria-hidden="true"></i>
+
+  <input
+    #inputRef
+    class="ds-search-input__field"
+    type="search"
+    [value]="rawValue()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [attr.aria-label]="placeholder()"
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck="false"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+  />
+
+  @if (showClear()) {
+    <button
+      class="ds-search-input__clear"
+      type="button"
+      aria-label="Clear search"
+      (click)="onClear()"
+    >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  }
+</div>

@@ -1,29 +1,20 @@
 <div class="chat-area">
   @if (activeConversation(); as conversation) {
+    @let displayName =
+      conversation.displayName?.trim() || conversation.username || "Unknown";
+
     <!-- ── Header ──────────────────────────────────────── -->
     <header class="chat-header">
-      <!-- Avatar -->
-      <div class="header-avatar-wrap">
-        @if (conversation.profilePictureUrl) {
-          <img
-            class="header-avatar-img"
-            [src]="conversation.profilePictureUrl"
-            [alt]="convDisplayName(conversation)"
-            loading="lazy"
-          />
-        } @else {
-          <div class="header-avatar-fallback" aria-hidden="true">
-            {{ convInitials(conversation) }}
-          </div>
-        }
-        @if (conversation.isOnline) {
-          <span class="header-status-dot" aria-hidden="true"></span>
-        }
-      </div>
+      <ds-avatar
+        [user]="conversation"
+        size="sm"
+        [showOnline]="true"
+        [isOnline]="conversation.isOnline"
+      />
 
       <!-- Name + Status -->
       <div class="header-info">
-        <h2 class="header-name">{{ convDisplayName(conversation) }}</h2>
+        <h2 class="header-name">{{ displayName }}</h2>
         <span
           class="header-status"
           [class.online]="conversation.isOnline"
@@ -33,57 +24,24 @@
         </span>
       </div>
 
-      <!-- Right-side action buttons -->
+      <!-- Right-side action buttons (TODO: wire up when features are ready) -->
       <div class="header-actions" role="group" aria-label="Chat actions">
-        <button
-          class="header-action-btn"
-          type="button"
-          aria-label="Video call"
-          title="Video call"
-        >
-          <i class="pi pi-video" aria-hidden="true"></i>
-        </button>
-        <button
-          class="header-action-btn"
-          type="button"
-          aria-label="Voice call"
-          title="Voice call"
-        >
-          <i class="pi pi-phone" aria-hidden="true"></i>
-        </button>
-        <button
-          class="header-action-btn"
-          type="button"
-          aria-label="More options"
-          title="More options"
-        >
-          <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
-        </button>
+        <ds-icon-button icon="pi-video" ariaLabel="Video call" />
+        <ds-icon-button icon="pi-phone" ariaLabel="Voice call" />
+        <ds-icon-button icon="pi-ellipsis-v" ariaLabel="More options" />
       </div>
     </header>
 
     <!-- ── Messages ────────────────────────────────────── -->
     <div class="messages-container">
       @if (isLoading()) {
-        <div
-          class="loading-state"
-          role="status"
-          aria-busy="true"
-          aria-live="polite"
-        >
-          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-          <p>Loading messages...</p>
-        </div>
+        <ds-empty-state icon="pi-spin pi-spinner" title="Loading messages..." />
       } @else if (activeMessages().length === 0) {
-        <div class="empty-state" role="status">
-          <div class="empty-icon-wrap" aria-hidden="true">
-            <i class="pi pi-comments"></i>
-          </div>
-          <h3 class="empty-title">Start the conversation</h3>
-          <p class="empty-subtitle">
-            Send a message to {{ convDisplayName(conversation) }}
-          </p>
-        </div>
+        <ds-empty-state
+          icon="pi-comments"
+          title="Start the conversation"
+          [subtitle]="'Send a message to ' + displayName"
+        />
       } @else {
         <app-message-list
           [messages]="activeMessages()"
@@ -95,9 +53,7 @@
     <!-- ── Typing indicator ─────────────────────────────── -->
     @if (conversation.isTyping) {
       <div class="typing-row">
-        <app-typing-indicator
-          [name]="convDisplayName(conversation)"
-        ></app-typing-indicator>
+        <app-typing-indicator [name]="displayName"></app-typing-indicator>
       </div>
     }
 
@@ -109,12 +65,10 @@
     ></app-message-input>
   } @else {
     <!-- ── No conversation selected ─────────────────────── -->
-    <div class="no-conversation-state" role="status" aria-live="polite">
-      <div class="empty-icon-wrap" aria-hidden="true">
-        <i class="pi pi-comments"></i>
-      </div>
-      <h3 class="empty-title">{{ "chat.welcome_title" | translate }}</h3>
-      <p class="empty-subtitle">{{ "chat.welcome_subtitle" | translate }}</p>
-    </div>
+    <ds-empty-state
+      icon="pi-comments"
+      [title]="'chat.welcome_title' | translate"
+      [subtitle]="'chat.welcome_subtitle' | translate"
+    />
   }
 </div>

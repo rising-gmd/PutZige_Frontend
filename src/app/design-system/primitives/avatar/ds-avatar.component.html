@@ -1,14 +1,13 @@
 <div
-  class="ds-avatar"
-  [class]="'ds-avatar--' + size()"
+  [class]="'ds-avatar ds-avatar--' + size()"
   role="img"
-  [attr.aria-label]="user().name"
+  [attr.aria-label]="displayLabel()"
 >
   @if (user().profilePictureUrl) {
     <img
       class="ds-avatar__img"
       [src]="user().profilePictureUrl"
-      [alt]="user().name"
+      [alt]="displayLabel()"
       loading="lazy"
     />
   } @else {

@@ -1,0 +1,98 @@
+// ============================================================
+// design-system/composites/search-input/ds-search-input.component.scss
+// Uses global --chat-*, --app-*, --space-*, --font-size-* tokens only.
+// Never references feature-specific raw values.
+// ============================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--chat-search-bg, var(--app-surface-50));
+  border: 1px solid var(--chat-search-border, var(--app-border));
+  border-radius: var(--chat-search-radius, var(--radius-full));
+  height: var(--chat-search-height, 36px);
+  transition: border-color var(--transition-fast);
+
+  // ── State modifiers ──────────────────────────────────────
+  &--focused {
+    border-color: var(--chat-search-border-focus, var(--p-primary-500));
+    background: var(--app-surface);
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  // ── Search icon ──────────────────────────────────────────
+  &__icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--app-muted);
+    font-size: var(--font-size-md);
+    pointer-events: none;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+
+  // ── Text field ───────────────────────────────────────────
+  &__field {
+    flex: 1;
+    height: 100%;
+    // leave room for icon on left, clear button on right
+    padding: 0 2.25rem 0 2.25rem;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: var(--font-size-md);
+    color: var(--app-text);
+
+    &::placeholder {
+      color: var(--app-muted);
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    // Suppress Chrome/Safari's native search cancel button - we render our own
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+
+  // ── Clear button ─────────────────────────────────────────
+  &__clear {
+    position: absolute;
+    right: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--app-muted);
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+
+    &:hover {
+      background: var(--app-surface-100, rgba(255, 255, 255, 0.08));
+      color: var(--app-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--p-primary-500);
+      outline-offset: 1px;
+    }
+  }
+}

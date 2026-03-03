@@ -1,17 +1,16 @@
 import {
-  Component,
-  Output,
-  EventEmitter,
-  signal,
-  inject,
   ChangeDetectionStrategy,
+  Component,
   OnInit,
+  inject,
+  output,
+  signal,
+  viewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { DsSearchInputComponent } from '../../../design-system/composites/search-input/ds-search-input.component';
+import { DsEmptyStateComponent } from '../../../design-system/primitives/empty-state/ds-empty-state.component';
 import {
   Subject,
   debounceTime,
@@ -31,7 +30,6 @@ import {
   RecentContactsData,
   SuggestedUsersData,
 } from '../models/new-chat.models';
-import { ElementRef, ViewChild } from '@angular/core';
 import { ChatStateService } from '../services/chat-state.service';
 import { User } from '../models';
 
@@ -39,11 +37,10 @@ import { User } from '../models';
   selector: 'app-new-chat-modal',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
     DialogModule,
-    InputTextModule,
     ButtonModule,
+    DsSearchInputComponent,
+    DsEmptyStateComponent,
     UserSearchItemComponent,
   ],
   templateUrl: './new-chat-modal.component.html',
@@ -56,8 +53,8 @@ export class NewChatModalComponent implements OnInit {
   private readonly searchSubject$ = new Subject<string>();
   private readonly startConversationSubject$ = new Subject<User>();
 
-  @Output() userSelected = new EventEmitter<UserSearchResult>();
-  @Output() closed = new EventEmitter<void>();
+  readonly userSelected = output<UserSearchResult>();
+  readonly closed = output<void>();
 
   visible = false;
   searchQuery = '';
@@ -86,14 +83,14 @@ export class NewChatModalComponent implements OnInit {
     this.loadInitialData();
   }
 
-  @ViewChild('searchInput', { read: ElementRef })
-  private searchInput?: ElementRef<HTMLInputElement>;
+  private readonly searchInput =
+    viewChild<DsSearchInputComponent>('searchInput');
 
   show(): void {
     this.visible = true;
     this.loadInitialData();
-    // focus input after dialog opens
-    setTimeout(() => this.searchInput?.nativeElement?.focus?.(), 50);
+    // Focus the search input once the dialog animation completes (~50 ms is enough).
+    setTimeout(() => this.searchInput()?.focus(), 50);
   }
 
   hide(): void {
@@ -101,8 +98,12 @@ export class NewChatModalComponent implements OnInit {
     this.resetState();
   }
 
-  onSearchInput(event: Event): void {
-    const query = (event.target as HTMLInputElement).value;
+  /**
+   * Called by ds-search-input (valueChange) and (cleared).
+   * Debounce is handled by the modal's own searchSubject$ pipeline;
+   * ds-search-input is configured with [debounceMs]="0" so we don't double-debounce.
+   */
+  onSearchInput(query: string): void {
     this.searchQuery = query;
     this.searchSubject$.next(query);
   }
