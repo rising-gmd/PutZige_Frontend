@@ -39,7 +39,10 @@ export class ChatApiService {
    * @returns Observable of current user data
    */
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(API_ENDPOINTS.CHAT.ME);
+    return this.http.get<ApiResponse<UserDto>>(API_ENDPOINTS.CHAT.ME).pipe(
+      map((res) => mapUserDtoToUser(res.data as UserDto)),
+      catchError(this.handleError),
+    );
   }
 
   /**
