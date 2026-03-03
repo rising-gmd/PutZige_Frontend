@@ -43,6 +43,8 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { MessageService } from 'primeng/api';
 import { AuthService } from './core/services/auth/auth.service';
+import { ThemeService } from './core/services/theme.service';
+import { DarkModeService } from './theme/dark-mode.service';
 
 export function initializeApp(
   translate: TranslateService,
@@ -120,11 +122,27 @@ export const appConfig: ApplicationConfig = {
         },
       }),
     ),
-    // APP_INITIALIZER - Preload translations and restore auth state before app starts
+    // APP_INITIALIZER — preload translations and restore auth state before app starts
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
       deps: [TranslateService, AuthService],
+      multi: true,
+    },
+    // APP_INITIALIZER — restore persisted colour-theme and dark-mode before first render
+    // to avoid a flash of default styles on page load.
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (dark: DarkModeService, theme: ThemeService) => (): void => {
+        // Dark mode must be applied first so PrimeNG generates tokens for the
+        // correct colour scheme when updatePreset() runs immediately after.
+        const savedDark = localStorage.getItem(STORAGE_KEYS.DARK_MODE);
+        if (savedDark !== null) {
+          dark.set(savedDark === 'true');
+        }
+        theme.restoreTheme();
+      },
+      deps: [DarkModeService, ThemeService],
       multi: true,
     },
     {

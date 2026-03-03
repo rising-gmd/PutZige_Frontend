@@ -34,6 +34,10 @@ export class AppPasswordComponent implements ControlValueAccessor {
   @Input() showToggle = true;
   @Input() strength = false;
   @Input() error?: string | null;
+  /** Forwarded as `inputId` to `p-password`. Use with `<label for="…">` outside the component. */
+  @Input() inputId = '';
+  /** Optional visible label rendered above the password input. */
+  @Input() label = '';
 
   value = '';
   private onChange: (v: string) => void = () => void 0;

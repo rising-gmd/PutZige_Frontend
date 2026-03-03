@@ -50,6 +50,8 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <app-input
         formControlName="username"
+        inputId="reg-username"
+        [label]="'global.label_username' | translate"
         [placeholder]="'global.label_username' | translate"
         [error]="
           submitted() || username.touched
@@ -61,6 +63,8 @@
       <app-input
         formControlName="email"
         type="email"
+        inputId="reg-email"
+        [label]="'global.label_email' | translate"
         [placeholder]="'global.label_email' | translate"
         [error]="
           submitted() || email.touched
@@ -71,6 +75,8 @@
 
       <app-password
         formControlName="password"
+        inputId="reg-password"
+        [label]="'global.label_password' | translate"
         [placeholder]="'global.label_password' | translate"
         [showToggle]="true"
         [strength]="true"

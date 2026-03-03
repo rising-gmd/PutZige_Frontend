@@ -56,6 +56,17 @@
         <app-typing-indicator [name]="displayName"></app-typing-indicator>
       </div>
     }
+    <!--
+      Permanent aria-live region for typing state.
+      The @if above removes the typing-indicator component from DOM when idle,
+      which means its aria-live="polite" never fires.
+      This sr-only span stays in the DOM so screen readers detect the change.
+    -->
+    <span class="sr-only" aria-live="polite" aria-atomic="true">
+      @if (conversation.isTyping) {
+        {{ displayName }} is typing
+      }
+    </span>
 
     <!-- ── Input ────────────────────────────────────────── -->
     <app-message-input

@@ -19,9 +19,9 @@
   <div class="conversation-details">
     <div class="header-row">
       <h4 class="user-name">{{ displayName() }}</h4>
-      <span class="timestamp">{{
+      <time class="timestamp" [attr.datetime]="conversation().lastActivity">{{
         conversation().lastActivity | conversationTime
-      }}</span>
+      }}</time>
     </div>
     <div class="preview-row">
       @if (conversation().isTyping) {

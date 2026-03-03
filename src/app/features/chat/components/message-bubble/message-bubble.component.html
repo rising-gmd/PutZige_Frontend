@@ -39,7 +39,11 @@
     <span class="bubble-text">{{ message.messageText }}</span>
 
     <div class="bubble-footer" aria-hidden="true">
-      <span class="bubble-time">{{ message.sentAt | messageTime }}</span>
+      <time
+        class="bubble-time"
+        [attr.datetime]="message.sentAt.toISOString()"
+        >{{ message.sentAt | messageTime }}</time
+      >
 
       @if (isOwnMessage) {
         <i class="pi {{ statusIcon }} bubble-status {{ statusClass }}"></i>

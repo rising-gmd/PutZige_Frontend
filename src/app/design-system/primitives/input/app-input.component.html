@@ -1,18 +1,27 @@
 <div class="app-input">
+  @if (label) {
+    <label [for]="inputId" class="app-input__label">{{ label }}</label>
+  }
   <input
     pInputText
     [type]="type"
     [placeholder]="placeholder"
     [disabled]="disabled"
     [value]="value"
-    (input)="update($any($event.target).value)"
+    [id]="inputId || null"
+    (input)="onInput($event)"
     (blur)="onTouched()"
     class="app-input__control"
-    aria-invalid="{{ !!error }}"
+    [attr.aria-invalid]="error ? true : null"
+    [attr.aria-describedby]="error && inputId ? inputId + '-error' : null"
   />
   @if (error) {
-    <p-message severity="error" variant="simple" size="small">{{
-      error
-    }}</p-message>
+    <p-message
+      [attr.id]="inputId ? inputId + '-error' : null"
+      severity="error"
+      variant="simple"
+      size="small"
+      >{{ error }}</p-message
+    >
   }
 </div>

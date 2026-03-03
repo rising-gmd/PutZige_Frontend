@@ -2,6 +2,7 @@ import {
   Component,
   inject,
   ChangeDetectionStrategy,
+  HostListener,
   signal,
   output,
   viewChild,
@@ -50,6 +51,9 @@ export class ConversationListComponent {
   private readonly newChatModal =
     viewChild<NewChatModalComponent>('newChatModal');
   private readonly fabBtn = viewChild<DsIconButtonComponent>('fabBtn');
+  /** Focused via Ctrl+K / Cmd+K keyboard shortcut. */
+  private readonly searchInputRef =
+    viewChild<DsSearchInputComponent>('searchInput');
   /** Used for keyboard navigation (ArrowDown / ArrowUp / Home / End). */
   protected readonly searchResultRefs =
     viewChildren<ElementRef<HTMLDivElement>>('searchResult');
@@ -171,6 +175,20 @@ export class ConversationListComponent {
     });
   }
 
+  // ── Global keyboard shortcuts ──────────────────────────────────────────────
+
+  /**
+   * Ctrl+K / Cmd+K focuses the search input — a widely adopted convention
+   * (VS Code, GitHub, Linear) that power users expect.
+   */
+  @HostListener('document:keydown', ['$event'])
+  onGlobalKeyDown(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      this.searchInputRef()?.focus();
+    }
+  }
+
   // ── Arrow-key navigation for search results ────────────────────────────────
 
   /**
@@ -201,6 +219,6 @@ export class ConversationListComponent {
     }
 
     event.preventDefault();
-    items[nextIndex].nativeElement.focus();
+    items[nextIndex]?.nativeElement.focus();
   }
 }

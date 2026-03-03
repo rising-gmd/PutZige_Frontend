@@ -18,13 +18,31 @@
 <!-- Search -->
 <div class="search-wrap">
   <ds-search-input
+    #searchInput
     [value]="searchQuery()"
-    placeholder="Search conversations..."
+    placeholder="Search conversations… (Ctrl+K)"
     [debounceMs]="300"
     (valueChange)="onSearch($event)"
     (cleared)="onSearch('')"
   />
 </div>
+
+<!--
+  Screen-reader announcement for live search results.
+  The container is always in the DOM so assistive technology picks up
+  the update when the count changes. Kept sr-only so it doesn't
+  affect visual layout.
+-->
+<span class="sr-only" aria-live="polite" aria-atomic="true">
+  @if (searchQuery() && searchResults().length > 0) {
+    {{ searchResults().length }} result{{
+      searchResults().length === 1 ? "" : "s"
+    }}
+    for {{ searchQuery() }}
+  } @else if (searchQuery() && searchResults().length === 0) {
+    No results for {{ searchQuery() }}
+  }
+</span>
 
 <!-- Body -->
 <div class="list-body" role="listbox" aria-label="Conversations">

@@ -1,0 +1,59 @@
+<!-- ============================================================
+  ds-theme-selector.component.html
+  Path: src/app/design-system/composites/theme-selector/
+  ============================================================ -->
+
+<section class="theme-selector" aria-label="Appearance settings">
+  <!-- ── Colour palette ──────────────────────────────────── -->
+  <div class="theme-selector__section">
+    <h3 class="theme-selector__label" id="colour-theme-label">Colour theme</h3>
+
+    <div
+      class="theme-selector__swatches"
+      role="radiogroup"
+      aria-labelledby="colour-theme-label"
+    >
+      @for (preset of themeService.presets; track preset.name; let i = $index) {
+        <button
+          type="button"
+          role="radio"
+          class="swatch"
+          [class.swatch--active]="
+            themeService.activeThemeName() === preset.name
+          "
+          [attr.aria-checked]="themeService.activeThemeName() === preset.name"
+          [attr.aria-label]="preset.label + ' colour theme'"
+          [title]="preset.label"
+          [style.--swatch-color]="preset.swatchHex"
+          [tabindex]="themeService.activeThemeName() === preset.name ? 0 : -1"
+          (click)="selectTheme(preset)"
+          (keydown)="onSwatchKeyDown($event, i)"
+        >
+          <span class="swatch__dot" aria-hidden="true"></span>
+          <span class="swatch__name">{{ preset.label }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Dark / light mode ───────────────────────────────── -->
+  <div class="theme-selector__section">
+    <h3 class="theme-selector__label" id="dark-mode-label">Appearance</h3>
+
+    <button
+      type="button"
+      role="switch"
+      class="dark-toggle"
+      [attr.aria-checked]="isDark()"
+      aria-labelledby="dark-mode-label"
+      (click)="toggleDarkMode()"
+    >
+      <span class="dark-toggle__track" aria-hidden="true">
+        <span class="dark-toggle__thumb"></span>
+      </span>
+      <span class="dark-toggle__text">
+        {{ isDark() ? "Dark mode" : "Light mode" }}
+      </span>
+    </button>
+  </div>
+</section>

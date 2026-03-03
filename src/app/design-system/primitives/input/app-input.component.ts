@@ -33,6 +33,10 @@ export class AppInputComponent implements ControlValueAccessor {
   @Input() type: 'text' | 'email' = 'text';
   @Input() disabled = false;
   @Input() error?: string | null;
+  /** Forwarded as `id` to the inner `<input>`. Use with `<label for="…">` outside the component. */
+  @Input() inputId = '';
+  /** Optional visible label rendered above the input. */
+  @Input() label = '';
 
   value = '';
   private onChange: (v: string) => void = () => void 0;
@@ -54,6 +58,14 @@ export class AppInputComponent implements ControlValueAccessor {
   update(value: string) {
     this.value = value;
     this.onChange(value);
+  }
+
+  /**
+   * Handles the native input event. Extracts the string value from the
+   * HTMLInputElement — avoids $any() in the template (WCAG + type safety).
+   */
+  onInput(event: Event): void {
+    this.update((event.target as HTMLInputElement).value);
   }
 
   onTouched(): void {

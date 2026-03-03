@@ -9,6 +9,7 @@ export const STORAGE_KEYS = {
 
   // App settings
   THEME: 'app_theme',
+  DARK_MODE: 'app_dark_mode',
   // 'preferredLanguage' is the key that has been persisted in localStorage
   // since the initial release. Do not change this value without a migration.
   LANGUAGE: 'preferredLanguage',

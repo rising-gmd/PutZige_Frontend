@@ -220,10 +220,11 @@ export class NotificationService implements OnDestroy {
   }
 
   private stripHtml(str: string): string {
-    // Create temporary element for safe HTML stripping
-    const tmp = document.createElement('div');
-    tmp.innerHTML = str;
-    return tmp.textContent || tmp.innerText || '';
+    // DOMParser parses in an isolated context — no script execution, no DOM mutation.
+    // Reading textContent returns plain text without any HTML structure.
+    return (
+      new DOMParser().parseFromString(str, 'text/html').body.textContent ?? ''
+    );
   }
 
   // ==================== Private: Deduplication ====================
@@ -471,7 +472,8 @@ export class NotificationService implements OnDestroy {
 
     const toRemove = Math.floor(entries.length * 0.25);
     for (let i = 0; i < toRemove; i++) {
-      this.dedupeCache.delete(entries[i][0]);
+      const entry = entries[i];
+      if (entry) this.dedupeCache.delete(entry[0]);
     }
 
     if (!NOTIFICATION_CONFIG.PRODUCTION_MODE) {
