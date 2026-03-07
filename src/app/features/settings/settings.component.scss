@@ -1,12 +1,13 @@
 /* Settings component — premium, variable-driven styles */
 :host {
+  --_max-width: 560px;
   --_padding: var(--space-6);
-  --_gap: var(--space-8);
-  --_section-gap: var(--space-4);
+  --_gap: var(--space-6);
+  --_section-gap: var(--space-5);
   --_divider: var(--app-border);
   --_title-color: var(--app-text);
   --_subtitle-color: var(--app-muted);
-  --_icon-color: var(--app-primary);
+  --_icon-color: var(--p-primary-500);
   --_icon-size: var(--font-size-lg);
   --_label-size: var(--font-size-md);
   --_hint-size: var(--font-size-xs);
@@ -15,14 +16,13 @@
   --_toggle-icon-color: var(--app-muted);
   --_toggle-icon-size: var(--font-size-sm);
   --_toggle-handle-size: var(--_toggle-icon-size);
-  /* Prominent page title size requested by design */
   --_title-size: var(--font-size-2xl);
-  /* small icon offset for alignment */
-  --_icon-offset: 3px;
-  --_title-size: var(--_label-size);
-  --_subtitle-size: var(--_hint-size);
-  --_title-letter-spacing: 0em;
-  --_section-title-letter-spacing: 0.06em;
+  --_subtitle-size: var(--font-size-sm);
+  --_card-bg: var(--app-surface);
+  --_card-border: var(--app-border);
+  --_card-radius: var(--radius-xl);
+  --_card-padding: var(--space-5);
+  --_card-shadow: 0 1px 3px rgb(0 0 0 / 0.04);
   display: block;
 }
 
@@ -31,12 +31,15 @@
   flex-direction: column;
   gap: var(--_gap);
   padding: var(--_padding);
+  max-width: var(--_max-width);
+  margin: 0 auto;
 }
 
 .settings-header {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  padding-bottom: var(--space-2);
 }
 
 .settings-title {
@@ -44,37 +47,46 @@
   font-weight: 700;
   color: var(--_title-color);
   margin: 0;
-  letter-spacing: var(--_title-letter-spacing);
+  letter-spacing: -0.01em;
 }
 
 .settings-subtitle {
-  font-size: var(--_hint-size);
+  font-size: var(--_subtitle-size);
   color: var(--_subtitle-color);
   margin: 0;
 }
 
 .settings-divider {
-  border: none;
-  border-top: 1px solid var(--_divider);
-  margin: 0;
+  display: none;
 }
 
 .settings-section {
   display: flex;
   flex-direction: column;
   gap: var(--_section-gap);
+  background: var(--_card-bg);
+  border: 1px solid var(--_card-border);
+  border-radius: var(--_card-radius);
+  padding: var(--_card-padding);
+  box-shadow: var(--_card-shadow);
 }
 
 .section-meta {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--p-primary-500) 10%, transparent);
   color: var(--_icon-color);
   font-size: var(--_icon-size);
-  margin-top: var(--_icon-offset);
   flex-shrink: 0;
 }
 
@@ -89,8 +101,6 @@
   font-weight: 600;
   color: var(--_title-color);
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: var(--_section-title-letter-spacing);
 }
 
 .section-desc {
@@ -105,6 +115,11 @@
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
+  padding: var(--space-3) 0;
+
+  & + & {
+    border-top: 1px solid var(--_divider);
+  }
 }
 
 .setting-row--column {

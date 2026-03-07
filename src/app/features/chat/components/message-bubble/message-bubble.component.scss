@@ -14,12 +14,6 @@
   // OWN: right-align — reverse the row so bubble is on right
   &.own {
     flex-direction: row-reverse;
-
-    // "…" button is after bubble in DOM but flex-direction: row-reverse
-    // puts it visually to the LEFT of own bubbles — matches reference
-    .bubble-actions {
-      // no extra order needed, row-reverse handles it
-    }
   }
 
   // OTHER: left-align (default flex row)
@@ -36,21 +30,22 @@
 
 // ── Bubble ────────────────────────────────────────────────
 .bubble {
-  max-width: 65%;
+  max-width: var(--chat-bubble-max-width);
   padding: var(--chat-bubble-padding);
   font-size: var(--font-size-chat);
   line-height: 1.5;
   word-break: break-word;
   overflow-wrap: anywhere;
+  min-width: 0;
 
-  // OWN: blue, right tail
+  // OWN: right tail
   .own & {
     background: var(--chat-bubble-own-bg);
-    color: var(--app-on-primary);
+    color: var(--chat-bubble-own-color);
     border-radius: var(--chat-bubble-own-radius);
   }
 
-  // OTHER: gray, left tail
+  // OTHER: left tail
   .other & {
     background: var(--chat-bubble-other-bg);
     color: var(--app-text);
@@ -73,45 +68,49 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-1);
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
 }
 
 .bubble-time {
-  font-size: var(--font-size-xs);
-  white-space: nowrap; // prevent "4:30 PM" wrapping across two lines in narrow bubbles
-
-  .other & {
-    color: var(--app-muted);
-  }
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  color: var(--app-muted);
 
   .own & {
-    // color-mix: same pattern used in _chat-tokens.scss for on-primary overlays
     color: color-mix(in srgb, var(--app-on-primary) 75%, transparent);
   }
 }
 
 .bubble-status {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   line-height: 1;
 
   &.sent {
-    color: color-mix(in srgb, var(--app-on-primary) 60%, transparent);
+    color: var(--chat-status-sent-color);
+
+    .own & {
+      color: var(--chat-status-own-sent-color);
+    }
   }
   &.delivered {
-    color: color-mix(in srgb, var(--app-on-primary) 85%, transparent);
+    color: var(--chat-status-delivered-color);
+
+    .own & {
+      color: var(--chat-status-own-delivered-color);
+    }
   }
   &.read {
-    color: var(--app-online);
-  } // green double-check — semantic constant
+    color: var(--chat-status-read-color);
+  }
 }
 
 // ── "…" actions ───────────────────────────────────────────
 .bubble-actions {
   display: flex;
   align-items: center;
-  align-self: flex-start;
-  padding-top: var(--space-1);
+  align-self: center;
   flex-shrink: 0;
+  order: 1;
 }
 
 .bubble-menu-btn {
@@ -227,11 +226,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-3xl);
   font-weight: 700;
   color: var(--chat-media-icon-color);
   pointer-events: none;
   z-index: 1; // above the ::after overlay
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 // ── Video stub ─────────────────────────────────────────────
 
@@ -283,24 +283,70 @@
   pointer-events: none;
 }
 
-// ── Audio stub ──────────────────────────────────────────────
+// ── Audio player ────────────────────────────────────────────
 
 .bubble-audio {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: var(--chat-audio-bg);
-  border-radius: var(--chat-audio-radius);
-  min-width: var(--chat-audio-min-width);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  min-width: 240px;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  .own & {
+    background: color-mix(in srgb, var(--app-on-primary) 15%, transparent);
+    border-color: color-mix(in srgb, var(--app-on-primary) 20%, transparent);
+  }
+}
+
+.audio-play-btn-wrap {
+  flex-shrink: 0;
+}
+
+.audio-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--p-primary-500);
+  color: var(--app-on-primary);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--p-primary-600, var(--p-primary-500));
+  }
+
+  .own & {
+    background: var(--app-on-primary);
+    color: var(--p-primary-500);
+
+    &:hover {
+      background: color-mix(in srgb, var(--app-on-primary) 85%, transparent);
+    }
+  }
 }
 
 .audio-track {
   flex: 1;
-  height: var(--chat-audio-track-height);
-  background: var(--chat-audio-track-bg);
+  height: 4px;
+  background: var(--app-border);
   border-radius: var(--radius-full);
   overflow: hidden;
+  position: relative;
+
+  .own & {
+    background: color-mix(in srgb, var(--app-on-primary) 25%, transparent);
+  }
 }
 
 .audio-track-fill {
@@ -311,39 +357,63 @@
   border-radius: var(--radius-full);
 }
 
+.audio-duration {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--app-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  .own & {
+    color: color-mix(in srgb, var(--app-on-primary) 75%, transparent);
+  }
+}
+
 // ── File attachment ───────────────────────────────────────
 
 .bubble-file {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  background: var(--chat-file-chip-bg);
-  border: 1px solid var(--chat-file-chip-border);
-  border-radius: var(--chat-file-chip-radius);
-  min-width: var(--chat-file-min-width);
-  max-width: var(--chat-file-max-width);
-}
-
-// Icon + file metadata row.
-.bubble-file-info {
-  display: flex;
   align-items: center;
   gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-bottom: none;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  .own & {
+    background: color-mix(in srgb, var(--app-on-primary) 15%, transparent);
+    border-color: color-mix(in srgb, var(--app-on-primary) 20%, transparent);
+  }
 }
 
 .bubble-file-icon {
-  font-size: var(--font-size-3xl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--p-primary-500) 12%, transparent);
+  font-size: 1.25rem;
   color: var(--p-primary-500);
   flex-shrink: 0;
+
+  .own & {
+    background: color-mix(in srgb, var(--app-on-primary) 20%, transparent);
+    color: var(--app-on-primary);
+  }
 }
 
 .bubble-file-meta {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: var(--chat-file-meta-gap);
+  flex-direction: row;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 
 .bubble-file-name {
@@ -353,16 +423,69 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  .own & {
+    color: var(--app-on-primary);
+  }
 }
 
 .bubble-file-size {
   font-size: var(--font-size-xs);
   color: var(--app-muted);
+
+  .own & {
+    color: color-mix(in srgb, var(--app-on-primary) 70%, transparent);
+  }
 }
 
 // Download + Preview action row.
 .bubble-file-actions {
   display: flex;
-  gap: var(--space-1);
-  justify-content: flex-end;
+  gap: 0;
+  border: 1px solid var(--app-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  overflow: hidden;
+
+  .own & {
+    border-color: color-mix(in srgb, var(--app-on-primary) 20%, transparent);
+  }
+}
+
+.bubble-file-action-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--app-surface-100);
+  }
+
+  // Divider between buttons
+  & + & {
+    border-left: 1px solid var(--app-border);
+  }
+
+  .own & {
+    color: var(--app-on-primary);
+    background: color-mix(in srgb, var(--app-on-primary) 10%, transparent);
+
+    &:hover {
+      background: color-mix(in srgb, var(--app-on-primary) 20%, transparent);
+    }
+  }
+
+  .own & + & {
+    border-left-color: color-mix(
+      in srgb,
+      var(--app-on-primary) 20%,
+      transparent
+    );
+  }
 }

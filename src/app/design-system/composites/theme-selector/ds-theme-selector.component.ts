@@ -24,6 +24,7 @@ import {
 } from '../../../core/services/theme.service';
 import { DarkModeService } from '../../../theme/dark-mode.service';
 import { STORAGE_KEYS } from '../../../core/constants/storage-keys.constants';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'ds-theme-selector',
@@ -36,6 +37,7 @@ import { STORAGE_KEYS } from '../../../core/constants/storage-keys.constants';
 export class DsThemeSelectorComponent {
   protected readonly themeService = inject(ThemeService);
   protected readonly darkModeService = inject(DarkModeService);
+  private readonly userService = inject(UserService);
 
   /**
    * Mirror of DarkModeService state as a signal so the template can re-render
@@ -58,6 +60,12 @@ export class DsThemeSelectorComponent {
     // DarkModeService only manages the DOM class; persistence lives here so
     // APP_INITIALIZER can restore the preference on the next page load.
     localStorage.setItem(STORAGE_KEYS.DARK_MODE, String(isDark));
+    // Persist to backend (fire-and-forget; localStorage is the fast cache).
+    this.userService.updateUserPreferences({ isDarkMode: isDark }).subscribe({
+      error: () => {
+        /* backend save is best-effort */
+      },
+    });
   }
 
   // ── Keyboard navigation (APG §Radio Group roving tabindex) ─────────────────

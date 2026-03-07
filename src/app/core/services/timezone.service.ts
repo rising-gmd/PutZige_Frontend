@@ -27,11 +27,8 @@ export class TimezoneService {
 
   readonly currentTimeZoneId = computed(() => {
     // Priority: saved user value (trimmed) -> browser resolved timezone
-    const maybeUser = this.auth.getCurrentUser();
-    const savedRaw = maybeUser
-      ? (maybeUser as unknown as Record<string, unknown>)['timeZoneId']
-      : undefined;
-    const saved = typeof savedRaw === 'string' ? savedRaw.trim() : '';
+    const user = this.userSignal();
+    const saved = user?.timeZoneId?.trim() ?? '';
     if (saved) return saved;
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   });
@@ -40,10 +37,9 @@ export class TimezoneService {
     // FIRST LOGIN AUTO-SAVE: if user has no saved timezone, silently save browser tz
     effect(() => {
       const user = this.userSignal();
-      if (!user || typeof user !== 'object') return;
-      const asRecord = user as unknown as Record<string, unknown>;
-      const tz = (asRecord['timeZoneId'] as string | undefined) ?? '';
-      if (!tz || tz.trim() === '') {
+      if (!user) return;
+      const tz = user.timeZoneId?.trim() ?? '';
+      if (!tz) {
         const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.userService
           .updateUserPreferences({ timeZoneId: browserTz })

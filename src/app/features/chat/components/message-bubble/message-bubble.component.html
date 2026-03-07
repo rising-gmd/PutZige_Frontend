@@ -36,16 +36,10 @@
 
   <!-- Bubble -->
   <div class="bubble" role="article" [attr.aria-label]="bubbleAriaLabel">
-    <span class="bubble-text">{{ message.messageText }}</span>
+    @if (message.messageText) {
+      <span class="bubble-text">{{ message.messageText }}</span>
+    }
 
-    <!--
-      Attachment block — UI stubs only; backend integration is a separate milestone.
-      p-image: free zoom/rotate modal via PrimeNG.
-      p-chip:  compact file display with icon + label.
-      p-button text+rounded: lightweight audio/video controls.
-      @switch on AttachmentType ensures a compile error if a new type is added
-      without updating this template.
-    -->
     <!--
       Attachments: images rendered in a separate capped grid (max 4).
       Excess images are summarised by the "+N" overflow badge on the last tile.
@@ -114,19 +108,17 @@
                   role="group"
                   [attr.aria-label]="att.fileName ?? 'Audio message'"
                 >
-                  <p-button
-                    icon="pi pi-play"
-                    [rounded]="true"
-                    [text]="true"
-                    severity="secondary"
-                    size="small"
-                    ariaLabel="Play audio"
-                    styleClass="audio-play-btn"
-                  />
+                  <button
+                    class="audio-play-btn"
+                    type="button"
+                    aria-label="Play audio"
+                  >
+                    <i class="pi pi-play" aria-hidden="true"></i>
+                  </button>
                   <div class="audio-track" aria-hidden="true">
                     <span class="audio-track-fill"></span>
                   </div>
-                  <span class="bubble-media-duration">
+                  <span class="audio-duration">
                     {{
                       att.durationSecs
                         ? formatDuration(att.durationSecs)
@@ -137,56 +129,38 @@
               }
 
               @case (AttachmentType.FILE) {
-                <!--
-                  File card: [icon + meta] row, then [Download + Preview] action row.
-                -->
                 <div
                   class="bubble-file"
                   role="group"
                   [attr.aria-label]="'File: ' + (att.fileName ?? 'Download')"
                 >
-                  <div class="bubble-file-info">
-                    <i
-                      class="pi pi-file-pdf bubble-file-icon"
-                      aria-hidden="true"
-                    ></i>
-                    <div class="bubble-file-meta">
-                      <span class="bubble-file-name">{{
-                        att.fileName ?? "File"
-                      }}</span>
-                      @if (att.fileSize) {
-                        <span class="bubble-file-size">{{
-                          formatSize(att.fileSize)
-                        }}</span>
-                      }
-                    </div>
+                  <i class="pi pi-file bubble-file-icon" aria-hidden="true"></i>
+                  <div class="bubble-file-meta">
+                    <span class="bubble-file-name">{{
+                      att.fileName ?? "File"
+                    }}</span>
+                    @if (att.fileSize) {
+                      <span class="bubble-file-size"
+                        >({{ formatSize(att.fileSize) }})</span
+                      >
+                    }
                   </div>
-                  <div class="bubble-file-actions">
-                    <p-button
-                      [label]="'messaging.action_download' | translate"
-                      icon="pi pi-download"
-                      [text]="true"
-                      severity="secondary"
-                      size="small"
-                      [ariaLabel]="
-                        ('messaging.action_download' | translate) +
-                        ' ' +
-                        (att.fileName ?? '')
-                      "
-                    />
-                    <p-button
-                      [label]="'messaging.action_preview' | translate"
-                      icon="pi pi-eye"
-                      [text]="true"
-                      severity="secondary"
-                      size="small"
-                      [ariaLabel]="
-                        ('messaging.action_preview' | translate) +
-                        ' ' +
-                        (att.fileName ?? '')
-                      "
-                    />
-                  </div>
+                </div>
+                <div class="bubble-file-actions">
+                  <button
+                    class="bubble-file-action-btn"
+                    type="button"
+                    aria-label="Download file"
+                  >
+                    Download
+                  </button>
+                  <button
+                    class="bubble-file-action-btn"
+                    type="button"
+                    aria-label="Preview file"
+                  >
+                    Preview
+                  </button>
                 </div>
               }
 

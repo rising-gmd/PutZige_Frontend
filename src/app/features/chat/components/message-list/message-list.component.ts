@@ -131,7 +131,7 @@ export class MessageListComponent implements OnChanges, AfterViewChecked {
    * `scrollToIndex` is preferred over `scrollToOffset` because CDK knows the
    * exact item position even before the DOM has fully reflowed.
    */
-  private scrollToBottom(): void {
+  scrollToBottom(): void {
     this.viewport?.scrollToIndex(this.virtualItems.length - 1, 'smooth');
   }
 

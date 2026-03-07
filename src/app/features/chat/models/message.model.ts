@@ -28,6 +28,22 @@ export interface Message {
    * separate milestone.  Array allows multi-image grids without a model change.
    */
   readonly attachments?: MessageAttachment[];
+  /** Whether the message has been starred/bookmarked by the current user */
+  readonly isStarred?: boolean;
+  /** Whether the message has been forwarded */
+  readonly isForwarded?: boolean;
+  /** ID of the message being replied to (quoted reply) */
+  readonly replyToId?: string;
+  /** Quoted reply preview text shown in the reply bubble */
+  readonly replyToText?: string;
+  /** Sender name of the quoted reply */
+  readonly replyToSenderName?: string;
+  /** Whether the message has been edited after sending */
+  readonly isEdited?: boolean;
+  /** Timestamp of last edit */
+  readonly editedAt?: Date;
+  /** Whether this message has been deleted (soft-delete / "deleted for everyone") */
+  readonly isDeleted?: boolean;
 }
 
 /**
@@ -88,4 +104,10 @@ export interface MessageAttachment {
   readonly height?: number;
   /** Duration in whole seconds — displayed on video/audio cards */
   readonly durationSecs?: number;
+  /** Direct download URL — may differ from the preview URL */
+  readonly downloadUrl?: string;
+  /** Upload progress (0–100) for optimistic attachment uploads */
+  readonly uploadProgress?: number;
+  /** Caption or description for the attachment */
+  readonly caption?: string;
 }

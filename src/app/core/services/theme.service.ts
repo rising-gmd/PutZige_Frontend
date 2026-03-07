@@ -16,6 +16,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { updatePreset } from '@primeuix/themes';
 import { STORAGE_KEYS } from '../constants/storage-keys.constants';
+import { UserService } from './user.service';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -164,6 +165,7 @@ export const DEFAULT_THEME_NAME: ColorThemeName = 'default';
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
+  private readonly userService = inject(UserService);
 
   /** All available presets — bind to this in the selector UI. */
   readonly presets: readonly ColorThemePreset[] = COLOR_THEMES;
@@ -179,7 +181,7 @@ export class ThemeService {
    * the primary palette, then persists the choice so `restoreTheme()` can
    * reapply it on the next page load.
    */
-  applyTheme(name: ColorThemeName): void {
+  applyTheme(name: ColorThemeName, persistToBackend = true): void {
     const preset = this.presets.find((p) => p.name === name);
     if (!preset) return;
 
@@ -194,6 +196,15 @@ export class ThemeService {
 
     this.activeThemeName.set(name);
     localStorage.setItem(STORAGE_KEYS.THEME, name);
+
+    // Persist to backend (fire-and-forget; localStorage is the fast cache).
+    if (persistToBackend) {
+      this.userService.updateUserPreferences({ theme: name }).subscribe({
+        error: () => {
+          /* backend save is best-effort */
+        },
+      });
+    }
   }
 
   /**
@@ -206,7 +217,7 @@ export class ThemeService {
     ) as ColorThemeName | null;
     const name: ColorThemeName =
       saved && this.isValidThemeName(saved) ? saved : DEFAULT_THEME_NAME;
-    this.applyTheme(name);
+    this.applyTheme(name, false);
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────

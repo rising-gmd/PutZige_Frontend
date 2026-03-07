@@ -47,18 +47,26 @@
           ariaLabel="More options"
           pTooltip="More options"
           tooltipPosition="bottom"
+          (clicked)="toggleHeaderMenu($event)"
+        />
+        <p-menu
+          #headerMenu
+          [model]="headerMenuItems()"
+          [popup]="true"
+          styleClass="chat-context-menu"
+          appendTo="body"
         />
       </div>
     </header>
 
     <!-- ── Messages ────────────────────────────────────── -->
     <div class="messages-container">
-      @if (isLoading()) {
+      @if (isLoading() && displayMessages().length === 0) {
         <ds-empty-state
           icon="pi-spin pi-spinner"
           [title]="'chat.loading_messages' | translate"
         />
-      } @else if (activeMessages().length === 0) {
+      } @else if (displayMessages().length === 0) {
         <ds-empty-state
           icon="pi-comments"
           [title]="'chat.no_messages_title' | translate"
@@ -68,8 +76,9 @@
         />
       } @else {
         <app-message-list
-          [messages]="activeMessages()"
-          [currentUserId]="currentUser()?.id ?? ''"
+          #messageList
+          [messages]="displayMessages()"
+          [currentUserId]="displayCurrentUserId()"
         ></app-message-list>
       }
     </div>

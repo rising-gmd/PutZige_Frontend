@@ -8,7 +8,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs/operators';
@@ -16,9 +15,13 @@ import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UI_CONSTANTS } from '../../core/constants/ui.constants';
 import { NotificationService } from '../../shared/services/notification.service';
-import { LocalStorageService } from '../../core/services/local-storage.service';
-import { STORAGE_KEYS } from '../../core/constants/storage-keys.constants';
 import { DsThemeSelectorComponent } from '../../design-system/composites/theme-selector/ds-theme-selector.component';
+import {
+  ThemeService,
+  ColorThemeName,
+} from '../../core/services/theme.service';
+import { DarkModeService } from '../../theme/dark-mode.service';
+import { STORAGE_KEYS } from '../../core/constants/storage-keys.constants';
 
 @Component({
   selector: 'app-settings',
@@ -27,22 +30,21 @@ import { DsThemeSelectorComponent } from '../../design-system/composites/theme-s
     CommonModule,
     FormsModule,
     SelectModule,
-    ToggleSwitchModule,
     TranslateModule,
     DsThemeSelectorComponent,
   ],
   templateUrl: './settings.component.html',
+  styleUrls: ['./settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
   private readonly userService = inject(UserService);
   private readonly auth = inject(AuthService);
-  // TimezoneService not required directly in this component; timezone
-  // is managed via UserService and AuthService. Keep code minimal.
   private readonly notificationService = inject(NotificationService);
-  private readonly localStorage = inject(LocalStorageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
+  private readonly themeService = inject(ThemeService);
+  private readonly darkModeService = inject(DarkModeService);
 
   readonly isLoading = signal(false);
   readonly isSaving = signal(false);
@@ -52,25 +54,6 @@ export class SettingsComponent {
   private previousTimezone = UI_CONSTANTS.DEFAULT_TIMEZONE as string;
 
   readonly options = UI_CONSTANTS.SUPPORTED_TIMEZONES;
-
-  private readonly htmlEl = document.documentElement;
-  readonly isDarkMode = signal<boolean>(
-    this.htmlEl.classList.contains('my-app-dark'),
-  );
-
-  private applySavedTheme(): void {
-    const saved = this.localStorage.get<string | null>(
-      STORAGE_KEYS.THEME,
-      null,
-    );
-    if (saved === 'dark') {
-      this.htmlEl.classList.add('my-app-dark');
-      this.isDarkMode.set(true);
-    } else {
-      this.htmlEl.classList.remove('my-app-dark');
-      this.isDarkMode.set(false);
-    }
-  }
 
   constructor() {
     // load preferences
@@ -84,12 +67,32 @@ export class SettingsComponent {
           const tz = response?.timeZoneId || browserTz;
           this.selectedTimezone.set(tz);
           this.previousTimezone = this.selectedTimezone();
+
+          // Apply backend-persisted theme preferences so they override
+          // the localStorage cache if the user changed settings on another device.
+          if (response?.theme) {
+            const themeName = response.theme as ColorThemeName;
+            if (themeName !== this.themeService.activeThemeName()) {
+              this.themeService.applyTheme(themeName, false);
+            }
+          }
+          if (
+            response?.isDarkMode !== undefined &&
+            response?.isDarkMode !== null
+          ) {
+            const current = this.darkModeService.isDark();
+            if (response.isDarkMode !== current) {
+              this.darkModeService.set(response.isDarkMode);
+              localStorage.setItem(
+                STORAGE_KEYS.DARK_MODE,
+                String(response.isDarkMode),
+              );
+            }
+          }
+
           this.isLoading.set(false);
-          // Apply saved UI theme after preferences load completes
-          this.applySavedTheme();
         },
         error: () => {
-          // Notify user, fall back to browser timezone
           this.notificationService.showWarn(
             this.translate.instant('settings.load_error'),
           );
@@ -97,8 +100,6 @@ export class SettingsComponent {
             Intl.DateTimeFormat().resolvedOptions().timeZone,
           );
           this.isLoading.set(false);
-          // Apply saved UI theme even when loading preferences fails
-          this.applySavedTheme();
         },
       });
   }
@@ -146,16 +147,5 @@ export class SettingsComponent {
           this.isSaving.set(false);
         },
       });
-  }
-
-  toggleDarkMode(): void {
-    this.htmlEl.classList.toggle('my-app-dark');
-    const isDark = this.htmlEl.classList.contains('my-app-dark');
-    this.isDarkMode.set(isDark);
-    try {
-      this.localStorage.set(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
-    } catch {
-      // ignore storage errors silently
-    }
   }
 }

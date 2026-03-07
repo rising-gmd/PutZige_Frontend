@@ -55,8 +55,8 @@
   //  Unread badge
   --chat-badge-bg: var(--p-primary-500);
   --chat-badge-color: var(--app-on-primary);
-  --chat-badge-size: 20px;
-  --chat-badge-font-size: var(--font-size-2xs);
+  --chat-badge-size: 24px;
+  --chat-badge-font-size: var(--font-size-sm);
   --chat-badge-font-weight: var(--font-weight-bold);
   --chat-badge-radius: var(--radius-full);
 
@@ -73,7 +73,7 @@
   --chat-bubble-other-bg: var(--app-surface-100);
   --chat-bubble-other-color: var(--app-text);
   --chat-bubble-other-radius: 18px 18px 18px 4px;
-  --chat-bubble-max-width: 65%;
+  --chat-bubble-max-width: 75%;
   --chat-bubble-padding: 10px 14px;
   --chat-bubble-font-size: var(--font-size-chat); // 15px  optimal readability
   --chat-bubble-line-height: var(--line-height-base);
@@ -92,6 +92,18 @@
     transparent
   );
   --chat-status-read-color: var(--app-online); // green double-check
+
+  // Own-bubble status uses lighter tints against the primary background
+  --chat-status-own-sent-color: color-mix(
+    in srgb,
+    var(--app-on-primary) 55%,
+    transparent
+  );
+  --chat-status-own-delivered-color: color-mix(
+    in srgb,
+    var(--app-on-primary) 75%,
+    transparent
+  );
 
   //  Message timestamp
   --chat-timestamp-color: var(--app-muted);
@@ -119,8 +131,8 @@
   --chat-header-padding-x: var(--space-5);
 
   //  Search bar
-  --chat-search-bg: var(--app-surface-100);
-  --chat-search-border: transparent;
+  --chat-search-bg: var(--app-surface);
+  --chat-search-border: var(--app-border);
   --chat-search-border-focus: var(--p-primary-500);
   --chat-search-radius: var(--radius-full);
   --chat-search-padding: var(--space-2) var(--space-4);
@@ -167,7 +179,7 @@
   --chat-audio-track-bg: var(--app-border);
   --chat-audio-track-fill: var(--p-primary-500);
   --chat-audio-track-height: 3px;
-  --chat-audio-min-width: 200px;
+  --chat-audio-min-width: 240px;
 
   //  Message input action buttons (emoji / attachment / mic)
   --chat-input-action-size: 36px;

@@ -31,6 +31,9 @@ export interface AuthUser {
   readonly displayName: string;
   readonly username?: string;
   readonly profilePictureUrl?: string;
+  readonly timeZoneId?: string;
+  readonly colorTheme?: string;
+  readonly isDarkMode?: boolean;
 }
 
 export interface AuthState {

@@ -1,7 +1,16 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  viewChild,
+  output,
+  computed,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
+import { Menu, MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { TypingIndicatorComponent } from '../typing-indicator/typing-indicator.component';
@@ -30,6 +39,7 @@ import { TooltipModule } from 'primeng/tooltip';
     DsAvatarComponent,
     DsIconButtonComponent,
     DsEmptyStateComponent,
+    MenuModule,
     TooltipModule,
   ],
   templateUrl: './chat-area.component.html',
@@ -39,6 +49,10 @@ import { TooltipModule } from 'primeng/tooltip';
 export class ChatAreaComponent {
   private readonly store = inject(Store);
   private readonly signalR = inject(SignalRService);
+  private readonly translate = inject(TranslateService);
+
+  private readonly headerMenu = viewChild<Menu>('headerMenu');
+  private readonly messageList = viewChild<MessageListComponent>('messageList');
 
   readonly activeConversation = toSignal(
     this.store.select(selectActiveConversation),
@@ -54,6 +68,49 @@ export class ChatAreaComponent {
   readonly isLoading = toSignal(this.store.select(selectIsMessageLoading), {
     initialValue: false,
   });
+
+  /**
+   * Messages to display in the chat area.
+   */
+  readonly displayMessages = computed(() => this.activeMessages());
+
+  /** User ID used as `currentUserId` for bubble alignment (own vs other). */
+  readonly displayCurrentUserId = computed(() => this.currentUser()?.id ?? '');
+
+  readonly viewProfile = output<string>();
+  readonly archive = output<string>();
+  readonly block = output<string>();
+  readonly deleteChat = output<string>();
+
+  readonly headerMenuItems = computed<MenuItem[]>(() => {
+    const conv = this.activeConversation();
+    const id = conv?.conversationId ?? '';
+    return [
+      {
+        label: this.translate.instant('chat.menu_view_profile'),
+        command: () => this.viewProfile.emit(id),
+      },
+      {
+        label: this.translate.instant('chat.menu_add_to_archive'),
+        command: () => this.archive.emit(id),
+      },
+      { separator: true },
+      {
+        label: this.translate.instant('chat.menu_block'),
+        styleClass: 'menu-item-danger',
+        command: () => this.block.emit(id),
+      },
+      {
+        label: this.translate.instant('chat.menu_delete'),
+        styleClass: 'menu-item-danger',
+        command: () => this.deleteChat.emit(id),
+      },
+    ];
+  });
+
+  toggleHeaderMenu(event: MouseEvent): void {
+    this.headerMenu()?.toggle(event);
+  }
 
   // ── Event handlers ───────────────────────────────────────
 
@@ -74,6 +131,9 @@ export class ChatAreaComponent {
         receiverId: conv.userId,
       }),
     );
+
+    // Scroll to the newly sent message after dispatch
+    setTimeout(() => this.messageList()?.scrollToBottom());
   }
 
   onTypingStarted(): void {

@@ -18,12 +18,14 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 export interface UserPreferencesDto {
   timeZoneId: string;
   theme: string;
+  isDarkMode: boolean;
   language: string;
 }
 
 export interface UserPreferencesPatchDto {
   timeZoneId?: string;
   theme?: string;
+  isDarkMode?: boolean;
   language?: string;
 }
 

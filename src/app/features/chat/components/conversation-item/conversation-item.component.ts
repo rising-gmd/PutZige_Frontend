@@ -4,6 +4,7 @@ import {
   computed,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { Menu, MenuModule } from 'primeng/menu';
@@ -45,6 +46,9 @@ export class ConversationItemComponent {
 
   private readonly itemMenu = viewChild.required<Menu>('itemMenu');
 
+  /** Tracks whether the popup context menu is currently open. */
+  readonly isMenuOpen = signal(false);
+
   readonly displayName = computed(
     () =>
       this.conversation().displayName?.trim() ||
@@ -71,6 +75,19 @@ export class ConversationItemComponent {
     () =>
       !!this.conversation().lastMessageSenderId &&
       this.conversation().lastMessageSenderId === this.currentUserId(),
+  );
+
+  /** Icon class for the read-receipt tick in the preview row. */
+  readonly previewStatusIcon = computed(() => {
+    const conv = this.conversation();
+    if (conv.lastMessageReadAt || conv.lastMessageDeliveredAt)
+      return 'pi-check-double';
+    return 'pi-check';
+  });
+
+  /** Whether the last message has been read (controls green color). */
+  readonly isPreviewRead = computed(
+    () => !!this.conversation().lastMessageReadAt,
   );
 
   readonly menuItems = computed<MenuItem[]>(() => {
@@ -104,5 +121,13 @@ export class ConversationItemComponent {
 
   toggleMenu(event: MouseEvent): void {
     this.itemMenu().toggle(event);
+  }
+
+  onMenuShow(): void {
+    this.isMenuOpen.set(true);
+  }
+
+  onMenuHide(): void {
+    this.isMenuOpen.set(false);
   }
 }

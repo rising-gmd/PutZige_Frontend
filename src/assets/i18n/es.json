@@ -61,7 +61,11 @@
     "search_people_label": "Personas",
     "search_start_conversation": "Iniciar conversación con {{name}}",
     "search_no_results_title": "Sin resultados para \"{{query}}\"",
-    "search_no_results_subtitle": "Prueba con un nombre o correo diferente"
+    "search_no_results_subtitle": "Prueba con un nombre o correo diferente",
+    "menu_view_profile": "Ver perfil",
+    "menu_add_to_archive": "Añadir al archivo",
+    "menu_block": "Bloquear",
+    "menu_delete": "Eliminar"
   },
   "profile": {
     "actions": "Acciones de perfil"
@@ -75,7 +79,7 @@
     "message_text_required": "No se puede enviar un mensaje vacío",
     "placeholder": "Escribe un mensaje...",
     "message_label": "Mensaje",
-    "send_button": "Enviar mensaje",
+    "send_button": "Enviar",
     "send_hint": "Pulsa Enter para enviar, Shift+Enter para nueva línea",
     "sending": "Enviando mensaje...",
     "action_forward": "Reenviar",

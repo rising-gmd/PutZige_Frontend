@@ -16,23 +16,20 @@
   border-bottom: 1px solid var(--app-border);
   transition: background var(--transition-fast);
 
-  // Hover: background + reveal 3-dot button
-  &:hover {
+  // Hover: background + reveal 3-dot button (only when menu is closed)
+  &:hover:not(.menu-open) {
     background: var(--chat-item-hover-bg);
 
-    .item-menu-btn {
+    .item-actions {
       opacity: 1;
       pointer-events: auto;
-    }
-
-    .timestamp {
-      visibility: hidden;
     }
   }
 
   // Active / selected state
   &.active {
     background: var(--chat-item-active-bg);
+    border-left: 3px solid var(--chat-item-active-border);
   }
 
   &:focus-visible {
@@ -124,21 +121,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-1);
-  min-height: 18px;
+  gap: var(--space-2);
+  min-height: 20px;
 }
 
 // ── Read-receipt checkmark ────────────────────────────────
 
 .preview-status {
   flex-shrink: 0;
-  font-size: var(--font-size-xs);
-  // Default: sent/delivered — muted tone so it’s visible but not dominant
+  font-size: var(--font-size-sm);
   color: var(--app-muted);
   transition: color var(--transition-fast);
 
-  // When the last message has been read (unreadCount === 0 on own msg)
-  // turn the check green — the same semantic constant used for online dots.
   &--read {
     color: var(--app-online);
   }
@@ -166,54 +160,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
+  min-width: var(--chat-badge-size);
+  height: var(--chat-badge-size);
+  padding: 0 var(--space-1);
   border-radius: var(--chat-badge-radius);
   background: var(--p-primary-500);
   color: var(--app-on-primary);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
+  font-size: var(--chat-badge-font-size);
+  font-weight: var(--chat-badge-font-weight);
   flex-shrink: 0;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 // ── 3-dot menu button ─────────────────────────────────────
+// Hidden by default; floats over the timestamp/badge corner on hover.
+// The button sits on top of the timestamp — timestamp stays in the DOM
+// so there is zero layout shift. When the popup menu is open the button
+// hides again and the timestamp is fully visible.
 .item-actions {
   position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.item-menu-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-full);
-  border: none;
-  background: transparent;
-  color: var(--app-muted);
-  cursor: pointer;
+  right: var(--chat-item-padding-x);
+  top: var(--chat-item-padding-y);
   opacity: 0;
   pointer-events: none;
-  transition:
-    opacity var(--transition-fast),
-    background var(--transition-fast);
-  font-size: var(--font-size-sm);
+  transition: opacity var(--transition-fast);
 
-  &:hover {
-    background: var(--app-border);
-    color: var(--app-text);
+  // Force the surface-variant button into a circle so it matches the
+  // floating-dot design (overlaps the timestamp with a clean disc).
+  ::ng-deep .ds-icon-button {
+    border-radius: var(--radius-full);
   }
 
-  &:focus-visible {
+  // Keyboard-focus inside the button must surface it even without mouse hover.
+  &:focus-within {
     opacity: 1;
     pointer-events: auto;
-    outline: 2px solid var(--p-primary-500);
-    outline-offset: 2px;
   }
 }
 

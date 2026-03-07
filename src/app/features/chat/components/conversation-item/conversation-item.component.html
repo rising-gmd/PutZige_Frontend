@@ -1,6 +1,7 @@
 <div
   class="conversation-item"
   [class.active]="isActive()"
+  [class.menu-open]="isMenuOpen()"
   role="option"
   [attr.aria-selected]="isActive()"
   [attr.aria-label]="ariaLabel()"
@@ -36,8 +37,8 @@
         -->
         @if (isLastMessageOwn()) {
           <i
-            class="pi pi-check-double preview-status"
-            [class.preview-status--read]="conversation().unreadCount === 0"
+            class="pi {{ previewStatusIcon() }} preview-status"
+            [class.preview-status--read]="isPreviewRead()"
             aria-hidden="true"
           ></i>
         }
@@ -67,6 +68,8 @@
       icon="pi-ellipsis-h"
       [ariaLabel]="'More options for ' + displayName()"
       aria-haspopup="menu"
+      variant="surface"
+      size="sm"
       (clicked)="toggleMenu($event)"
     />
 
@@ -76,6 +79,8 @@
       [popup]="true"
       styleClass="chat-context-menu"
       appendTo="body"
+      (onShow)="onMenuShow()"
+      (onHide)="onMenuHide()"
     ></p-menu>
   </div>
 </div>

@@ -57,11 +57,15 @@
     "no_conversations_subtitle": "Start a new chat with the + button",
     "typing": "typing\u2026",
     "typing_announcement": "{{name}} is typing",
-    "search_placeholder": "Search conversations\u2026 (Ctrl+K)",
+    "search_placeholder": "Chats search...",
     "search_people_label": "People",
     "search_start_conversation": "Start conversation with {{name}}",
     "search_no_results_title": "No results for \"{{query}}\"",
-    "search_no_results_subtitle": "Try a different name or email"
+    "search_no_results_subtitle": "Try a different name or email",
+    "menu_view_profile": "View profile",
+    "menu_add_to_archive": "Add to archive",
+    "menu_block": "Block",
+    "menu_delete": "Delete"
   },
   "profile": {
     "actions": "Profile actions"
@@ -73,9 +77,9 @@
     "sender_required": "Sender information is missing",
     "receiver_required": "Recipient is required",
     "message_text_required": "Can't send an empty message",
-    "placeholder": "Write a message...",
+    "placeholder": "Enter message...",
     "message_label": "Message",
-    "send_button": "Send message",
+    "send_button": "Send",
     "send_hint": "Press Enter to send, Shift+Enter for a new line",
     "sending": "Sending message...",
     "action_forward": "Forward",

@@ -10,9 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
 import { ImageModule } from 'primeng/image';
-import { ChipModule } from 'primeng/chip';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Message, AttachmentType } from '../../models/message.model';
@@ -28,9 +26,7 @@ import {
   imports: [
     CommonModule,
     MenuModule,
-    ButtonModule,
     ImageModule,
-    ChipModule,
     TooltipModule,
     MessageTimePipe,
     TranslateModule,
@@ -89,32 +85,29 @@ export class MessageBubbleComponent {
     const items: MenuItem[] = [
       {
         label: this.translate.instant('messaging.action_forward'),
-        icon: 'pi pi-share-alt',
         command: () => this.forward.emit(this.message),
       },
       {
         label: this.translate.instant('messaging.action_star'),
-        icon: 'pi pi-star',
         command: () => this.star.emit(this.message),
       },
     ];
 
     if (this.isOwnMessage) {
-      items.push(
-        {
-          label: this.translate.instant('messaging.action_edit'),
-          icon: 'pi pi-pencil',
-          command: () => this.edit.emit(this.message),
-        },
-        { separator: true },
-        {
-          label: this.translate.instant('messaging.action_delete'),
-          icon: 'pi pi-trash',
-          styleClass: 'menu-item-danger',
-          command: () => this.delete.emit(this.message),
-        },
-      );
+      items.push({
+        label: this.translate.instant('messaging.action_edit'),
+        command: () => this.edit.emit(this.message),
+      });
     }
+
+    items.push(
+      { separator: true },
+      {
+        label: this.translate.instant('messaging.action_delete'),
+        styleClass: 'menu-item-danger',
+        command: () => this.delete.emit(this.message),
+      },
+    );
 
     return items;
   }
