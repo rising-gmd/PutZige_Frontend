@@ -6,6 +6,7 @@ import { UserStatus } from '../models/user.model';
 import {
   ConversationCreatedPayload,
   MessageDeliveredPayload,
+  MessageEditedPayload,
   MessageReadPayload,
   MessageSentPayload,
   ReceiveMessagePayload,
@@ -15,6 +16,7 @@ import {
 import {
   ConversationCreatedPayloadSchema,
   MessageDeliveredPayloadSchema,
+  MessageEditedPayloadSchema,
   MessageReadPayloadSchema,
   MessageSentPayloadSchema,
   ReceiveMessagePayloadSchema,
@@ -73,6 +75,25 @@ export function mapMessageDeliveredPayload(
 
   const deliveredAt = parseDate(result.data.deliveredAt);
   return deliveredAt ? { messageId: result.data.messageId, deliveredAt } : null;
+}
+
+/** Maps a MessageEdited payload to { messageId, messageText, editedAt }. */
+export function mapMessageEditedPayload(
+  p: MessageEditedPayload,
+): { messageId: string; messageText: string; editedAt: Date } | null {
+  const result = MessageEditedPayloadSchema.safeParse(p);
+  if (!result.success) {
+    warnInvalid('MessageEdited', result.error.issues);
+    return null;
+  }
+  const editedAt = result.data.editedAt
+    ? (parseDate(result.data.editedAt) ?? new Date())
+    : new Date();
+  return {
+    messageId: result.data.messageId,
+    messageText: result.data.messageText,
+    editedAt,
+  };
 }
 
 /** Maps a MessageRead payload to { messageId, readAt }. */

@@ -31,6 +31,8 @@ export interface MessageDto {
   sentAt: string;
   deliveredAt?: string;
   readAt?: string;
+  isEdited?: boolean;
+  editedAt?: string;
 }
 
 export interface ConversationsListResponse {

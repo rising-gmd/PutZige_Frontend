@@ -24,6 +24,9 @@ export const MessageActions = createActionGroup({
       receiverId: string;
     }>(),
 
+    /** Edit an existing message text */
+    'Edit Requested': props<{ messageId: string; messageText: string }>(),
+
     /** Mark all messages in a conversation as read for the current user. */
     'Mark Read': props<{ conversationId: string }>(),
   },
@@ -41,6 +44,12 @@ export const MessageApiActions = createActionGroup({
     'Send Success': props<{ tempId: string; message: Message }>(),
     'Send Failure': props<{ tempId: string; error: string }>(),
     'Mark Read Success': props<{ conversationId: string }>(),
+    'Edit Success': props<{
+      messageId: string;
+      messageText: string;
+      editedAt: Date;
+    }>(),
+    'Edit Failure': props<{ messageId: string; error: string }>(),
   },
 });
 
@@ -65,5 +74,10 @@ export const MessageWebSocketActions = createActionGroup({
      * Used to reconcile an optimistic message with its real server ID.
      */
     'Message Sent Ack': props<{ payload: MessageSentPayload }>(),
+    'Message Edited': props<{
+      messageId: string;
+      messageText: string;
+      editedAt: Date;
+    }>(),
   },
 });

@@ -5,7 +5,6 @@ import {
   ViewChild,
   OnChanges,
   SimpleChanges,
-  AfterViewChecked,
 } from '@angular/core';
 import {
   CdkVirtualScrollViewport,
@@ -39,7 +38,7 @@ export type VirtualItem = DateDivider | MessageRow;
   styleUrls: ['./message-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MessageListComponent implements OnChanges, AfterViewChecked {
+export class MessageListComponent implements OnChanges {
   @Input({ required: true }) messages!: Message[];
   @Input({ required: true }) currentUserId!: string;
 
@@ -55,21 +54,48 @@ export class MessageListComponent implements OnChanges, AfterViewChecked {
 
   protected virtualItems: VirtualItem[] = [];
 
-  private prevCount = 0;
-  private wasNearBottom = true;
+  private scrollPending = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['messages']) {
-      this.wasNearBottom = this.isNearBottom();
-      this.virtualItems = this.buildVirtualItems(this.messages ?? []);
-    }
-  }
+    if (!changes['messages']) return;
 
-  ngAfterViewChecked(): void {
-    const count = this.virtualItems.length;
-    if (count !== this.prevCount) {
-      if (this.wasNearBottom) this.scrollToBottom();
-      this.prevCount = count;
+    const prev = (changes['messages'].previousValue ?? []) as Message[];
+    const curr = (changes['messages'].currentValue ?? []) as Message[];
+
+    // Measure near-bottom BEFORE rebuilding items (viewport not yet updated).
+    const isFirstLoad = changes['messages'].firstChange;
+    const isConversationSwitch =
+      !isFirstLoad &&
+      prev.length > 0 &&
+      curr.length > 0 &&
+      prev[0]?.conversationId !== curr[0]?.conversationId;
+
+    const shouldScroll =
+      isFirstLoad || isConversationSwitch || this.isNearBottom();
+    const behavior: ScrollBehavior =
+      isFirstLoad || isConversationSwitch ? 'instant' : 'smooth';
+
+    this.virtualItems = this.buildVirtualItems(curr);
+
+    if (shouldScroll && !this.scrollPending) {
+      this.scrollPending = true;
+      // CDK virtual scroll needs two ticks on initial load / conversation switch:
+      // tick 1 — CDK processes the new items array
+      // tick 2 — CDK renders rows; then we scroll to actual scrollHeight (not
+      //          estimated index) so variable-height bubbles don't cause undershoot.
+      const doScroll = () => {
+        this.scrollPending = false;
+        const el = this.viewport?.elementRef.nativeElement as
+          | HTMLElement
+          | undefined;
+        if (!el) return;
+        el.scrollTo({ top: el.scrollHeight, behavior });
+      };
+      if (isFirstLoad || isConversationSwitch) {
+        setTimeout(() => setTimeout(doScroll));
+      } else {
+        setTimeout(doScroll);
+      }
     }
   }
 
@@ -132,7 +158,12 @@ export class MessageListComponent implements OnChanges, AfterViewChecked {
    * exact item position even before the DOM has fully reflowed.
    */
   scrollToBottom(): void {
-    this.viewport?.scrollToIndex(this.virtualItems.length - 1, 'smooth');
+    setTimeout(() => {
+      const el = this.viewport?.elementRef.nativeElement as
+        | HTMLElement
+        | undefined;
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    });
   }
 
   /**

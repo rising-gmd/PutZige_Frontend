@@ -4,8 +4,12 @@ import {
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   ViewChild,
+  ElementRef,
+  AfterViewChecked,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Menu, MenuModule } from 'primeng/menu';
@@ -19,6 +23,8 @@ import {
   formatDuration,
   formatSize,
 } from '../../../../shared/utils/format.util';
+import { Store } from '@ngrx/store';
+import { MessageActions } from '../../../../store/messages/messages.actions';
 
 @Component({
   selector: 'app-message-bubble',
@@ -35,13 +41,14 @@ import {
   styleUrls: ['./message-bubble.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MessageBubbleComponent {
+export class MessageBubbleComponent implements AfterViewChecked {
+  private needsFocusOnEdit = false;
+  private pendingEdit = false;
   @Input({ required: true }) message!: Message;
   @Input({ required: true }) isOwnMessage!: boolean;
 
   @Output() forward = new EventEmitter<Message>();
   @Output() star = new EventEmitter<Message>();
-  @Output() edit = new EventEmitter<Message>();
   @Output() delete = new EventEmitter<Message>();
 
   @ViewChild('bubbleMenu') private bubbleMenu!: Menu;
@@ -54,6 +61,9 @@ export class MessageBubbleComponent {
   protected readonly formatSize = formatSize;
 
   private readonly translate = inject(TranslateService);
+  private readonly store = inject(Store);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly elRef = inject(ElementRef);
 
   // Tracks PrimeNG menu open state for aria-expanded binding and .menu-open CSS class.
   protected menuVisible = false;
@@ -96,7 +106,11 @@ export class MessageBubbleComponent {
     if (this.isOwnMessage) {
       items.push({
         label: this.translate.instant('messaging.action_edit'),
-        command: () => this.edit.emit(this.message),
+        // Set flag only — actual edit triggers in onMenuHide() after
+        // the overlay teardown and CD cycle have fully completed.
+        command: () => {
+          this.pendingEdit = true;
+        },
       });
     }
 
@@ -114,6 +128,67 @@ export class MessageBubbleComponent {
 
   toggleMenu(event: Event): void {
     this.bubbleMenu.toggle(event);
+  }
+
+  /** Fires after the menu overlay is fully closed — safe to trigger CD changes here. */
+  protected onMenuHide(): void {
+    this.menuVisible = false;
+    setTimeout(() => {
+      if (this.pendingEdit) {
+        this.pendingEdit = false;
+        this.isEditing.set(true);
+        this.editText.set(this.message.messageText ?? '');
+        this.needsFocusOnEdit = true;
+      }
+    }, 0);
+  }
+
+  // ── Inline edit signals ───────────────────────────────────────────────
+
+  protected readonly isEditing = signal(false);
+  protected readonly editText = signal('');
+
+  ngAfterViewChecked(): void {
+    if (this.needsFocusOnEdit) {
+      this.needsFocusOnEdit = false;
+      const textarea = this.elRef.nativeElement.querySelector(
+        '.bubble-edit-text',
+      ) as HTMLTextAreaElement | null;
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(
+          textarea.value.length,
+          textarea.value.length,
+        );
+      }
+    }
+  }
+
+  protected onEdit(): void {
+    this.isEditing.set(true);
+    this.editText.set(this.message.messageText ?? '');
+    this.needsFocusOnEdit = true;
+    this.cdr.detectChanges();
+  }
+
+  protected onSaveEdit(): void {
+    const text = this.editText();
+    if (!text || text === this.message.messageText) {
+      this.isEditing.set(false);
+      return;
+    }
+    this.store.dispatch(
+      MessageActions.editRequested({
+        messageId: this.message.id,
+        messageText: text,
+      }),
+    );
+    this.isEditing.set(false);
+  }
+
+  protected onCancelEdit(): void {
+    this.isEditing.set(false);
+    this.editText.set('');
   }
 
   // ── Attachment helpers ──────────────────────────────────────────

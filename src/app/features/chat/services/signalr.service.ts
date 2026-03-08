@@ -14,6 +14,7 @@ import { TypedHubConnection } from './typed-hub.types';
 import {
   mapReceiveMessagePayload,
   mapMessageDeliveredPayload,
+  mapMessageEditedPayload,
   mapMessageReadPayload,
   mapMessageSentPayload,
   mapUserStatusPayload,
@@ -44,6 +45,11 @@ export class SignalRService {
     messageId: string;
     readAt: Date;
   }>();
+  private readonly messageEdited$ = new Subject<{
+    messageId: string;
+    messageText: string;
+    editedAt: Date;
+  }>();
   private readonly userOnline$ = new Subject<UserStatus>();
   private readonly userOffline$ = new Subject<UserStatus>();
   private readonly userTyping$ = new Subject<{
@@ -71,6 +77,7 @@ export class SignalRService {
   readonly onUserTyping = this.userTyping$.asObservable();
   readonly onUserStoppedTyping = this.userStoppedTyping$.asObservable();
   readonly onConversationCreated = this.conversationCreated$.asObservable();
+  readonly onMessageEdited = this.messageEdited$.asObservable();
   /** Emits when the hub begins an automatic reconnect attempt. */
   readonly onReconnecting = this.reconnecting$.asObservable();
   /** Emits the new connectionId (or null) when the hub successfully reconnects. */
@@ -106,6 +113,13 @@ export class SignalRService {
   ) => {
     const r = mapMessageReadPayload(p);
     if (r) this.messageRead$.next(r);
+  };
+
+  private readonly handleMessageEdited = (
+    p: Parameters<typeof mapMessageEditedPayload>[0],
+  ) => {
+    const d = mapMessageEditedPayload(p);
+    if (d) this.messageEdited$.next(d);
   };
 
   private readonly handleUserOnline = (
@@ -216,6 +230,7 @@ export class SignalRService {
     this.hub.on(SignalREvents.MessageDelivered, this.handleMessageDelivered);
     this.hub.on(SignalREvents.MessageSent, this.handleMessageSent);
     this.hub.on(SignalREvents.MessageRead, this.handleMessageRead);
+    this.hub.on(SignalREvents.MessageEdited, this.handleMessageEdited);
     this.hub.on(SignalREvents.UserOnline, this.handleUserOnline);
     this.hub.on(SignalREvents.UserOffline, this.handleUserOffline);
     this.hub.on(SignalREvents.UserTyping, this.handleUserTyping);
@@ -232,6 +247,7 @@ export class SignalRService {
     this.hub.off(SignalREvents.MessageDelivered, this.handleMessageDelivered);
     this.hub.off(SignalREvents.MessageSent, this.handleMessageSent);
     this.hub.off(SignalREvents.MessageRead, this.handleMessageRead);
+    this.hub.off(SignalREvents.MessageEdited, this.handleMessageEdited);
     this.hub.off(SignalREvents.UserOnline, this.handleUserOnline);
     this.hub.off(SignalREvents.UserOffline, this.handleUserOffline);
     this.hub.off(SignalREvents.UserTyping, this.handleUserTyping);

@@ -115,6 +115,26 @@ export class ChatApiService {
       .pipe(catchError(this.handleError));
   }
 
+  /** Update an existing message's text. */
+  updateMessage(
+    messageId: string,
+    messageText: string,
+  ): Observable<{
+    id?: string;
+    messageId?: string;
+    messageText: string;
+    editedAt?: string;
+  }> {
+    return this.http
+      .put<{
+        id?: string;
+        messageId?: string;
+        messageText: string;
+        editedAt?: string;
+      }>(`${API_ENDPOINTS.CHAT.MESSAGES}/${messageId}`, { messageText }, { context: unwrap })
+      .pipe(catchError(this.handleError));
+  }
+
   searchUsers(query: string): Observable<User[]> {
     const params = new HttpParams().set('query', query);
 

@@ -162,5 +162,31 @@ export const messagesFeature = createFeature({
     // ── Mark conversation read (badge cleared on API success) ────────────────
 
     on(MessageApiActions.markReadSuccess, (state) => state), // No message mutation needed here.
+
+    // ── Message edit (REST response / WebSocket) ───────────────────────────
+
+    on(
+      MessageApiActions.editSuccess,
+      (state, { messageId, messageText, editedAt }) =>
+        messagesAdapter.updateOne(
+          {
+            id: messageId,
+            changes: { messageText, isEdited: true, editedAt },
+          },
+          state,
+        ),
+    ),
+
+    on(
+      MessageWebSocketActions.messageEdited,
+      (state, { messageId, messageText, editedAt }) =>
+        messagesAdapter.updateOne(
+          {
+            id: messageId,
+            changes: { messageText, isEdited: true, editedAt },
+          },
+          state,
+        ),
+    ),
   ),
 });

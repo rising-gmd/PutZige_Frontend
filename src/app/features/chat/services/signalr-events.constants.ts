@@ -10,6 +10,7 @@ export const SignalREvents = {
   UserTyping: 'UserTyping',
   UserStoppedTyping: 'UserStoppedTyping',
   ConversationCreated: 'ConversationCreated',
+  MessageEdited: 'MessageEdited',
   Error: 'Error',
 } as const;
 
@@ -42,6 +43,12 @@ export interface MessageDeliveredPayload {
 export interface MessageReadPayload {
   messageId: string;
   readAt: string | Date;
+}
+
+export interface MessageEditedPayload {
+  messageId: string;
+  messageText: string;
+  editedAt?: string | Date;
 }
 
 export interface MessageSentPayload {
@@ -93,6 +100,7 @@ export interface SignalREventMap {
   [SignalREvents.UserTyping]: TypingPayload;
   [SignalREvents.UserStoppedTyping]: TypingPayload;
   [SignalREvents.ConversationCreated]: ConversationCreatedPayload;
+  [SignalREvents.MessageEdited]: MessageEditedPayload;
   [SignalREvents.Error]: HubErrorPayload;
 }
 

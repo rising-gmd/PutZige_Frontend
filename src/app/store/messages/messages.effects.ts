@@ -12,6 +12,7 @@ import {
   mergeMap,
   of,
 } from 'rxjs';
+import { parseDate } from '../../core/utils/date.util';
 import { ChatApiService } from '../../features/chat/services/chat-api.service';
 import { SignalRService } from '../../features/chat/services/signalr.service';
 import { ConversationService } from '../../features/chat/services/conversation.service';
@@ -138,6 +139,34 @@ export class MessagesEffects {
         this.conversationService.markConversationAsRead(conversationId).pipe(
           map(() => MessageApiActions.markReadSuccess({ conversationId })),
           catchError(() => EMPTY), // Non-critical — unread count clears locally anyway.
+        ),
+      ),
+    ),
+  );
+
+  // ── Edit message via REST and reconcile ─────────────────────────────────
+
+  readonly editMessage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(MessageActions.editRequested),
+      concatMap(({ messageId, messageText }) =>
+        this.chatApi.updateMessage(messageId, messageText).pipe(
+          map((res) => {
+            const resolvedId = res.id ?? res.messageId ?? messageId;
+            return MessageApiActions.editSuccess({
+              messageId: resolvedId,
+              messageText: res.messageText,
+              editedAt: parseDate(res.editedAt) ?? new Date(),
+            });
+          }),
+          catchError((err: unknown) =>
+            of(
+              MessageApiActions.editFailure({
+                messageId,
+                error: extractErrorMessage(err),
+              }),
+            ),
+          ),
         ),
       ),
     ),

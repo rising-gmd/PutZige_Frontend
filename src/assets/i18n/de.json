@@ -87,7 +87,10 @@
     "action_edit": "Bearbeiten",
     "action_delete": "Löschen",
     "action_download": "Herunterladen",
-    "action_preview": "Vorschau"
+    "action_preview": "Vorschau",
+    "edited": "bearbeitet",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
   },
   "global": {
     "app_title": "PutZige",

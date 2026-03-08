@@ -30,14 +30,40 @@
       styleClass="chat-context-menu"
       appendTo="body"
       (onShow)="menuVisible = true"
-      (onHide)="menuVisible = false"
+      (onHide)="onMenuHide()"
     ></p-menu>
   </div>
 
   <!-- Bubble -->
   <div class="bubble" role="article" [attr.aria-label]="bubbleAriaLabel">
-    @if (message.messageText) {
+    @if (isEditing()) {
+      <div class="bubble-edit">
+        <textarea
+          class="bubble-edit-text"
+          rows="2"
+          [value]="editText()"
+          (input)="editText.set($any($event.target).value)"
+          (keydown.escape)="onCancelEdit()"
+          (keydown.control.enter)="onSaveEdit()"
+        ></textarea>
+        <div class="bubble-edit-actions">
+          <button class="btn btn-cancel" type="button" (click)="onCancelEdit()">
+            {{ "messaging.cancel" | translate }}
+          </button>
+          <button class="btn btn-save" type="button" (click)="onSaveEdit()">
+            {{ "messaging.save" | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (!isEditing() && message.messageText) {
       <span class="bubble-text">{{ message.messageText }}</span>
+      @if (message.isEdited) {
+        <span class="bubble-edited-label">{{
+          "messaging.edited" | translate
+        }}</span>
+      }
     }
 
     <!--

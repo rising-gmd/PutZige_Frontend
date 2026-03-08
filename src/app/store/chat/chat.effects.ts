@@ -259,4 +259,16 @@ export class ChatEffects {
       ),
     ),
   );
+
+  readonly listenMessageEdited$ = createEffect(() =>
+    this.signalR.onMessageEdited.pipe(
+      map(({ messageId, messageText, editedAt }) =>
+        MessageWebSocketActions.messageEdited({
+          messageId,
+          messageText,
+          editedAt,
+        }),
+      ),
+    ),
+  );
 }

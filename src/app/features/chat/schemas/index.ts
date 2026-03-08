@@ -4,6 +4,7 @@ export {
   ConversationCreatedPayloadSchema,
   MessageDeliveredPayloadSchema,
   MessageReadPayloadSchema,
+  MessageEditedPayloadSchema,
   UserStatusPayloadSchema,
   TypingPayloadSchema,
   HubErrorPayloadSchema,

@@ -23,6 +23,9 @@ export function mapMessageDtoToMessage(
         : undefined,
     readAt:
       dto.readAt != null ? (parseDate(dto.readAt) ?? undefined) : undefined,
+    isEdited: dto.isEdited ?? false,
+    editedAt:
+      dto.editedAt != null ? (parseDate(dto.editedAt) ?? undefined) : undefined,
   };
 }
 

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, Subject, of } from 'rxjs';
-import { catchError, first, tap, map, take } from 'rxjs/operators';
+import { Observable, BehaviorSubject, Subject, of, from } from 'rxjs';
+import { catchError, first, tap, map, take, switchMap } from 'rxjs/operators';
 import { authState } from './auth.state';
 import { AuthApiService } from '../../../features/auth/services/auth-api.service';
+import { SignalRService } from '../../../features/chat/services/signalr.service';
 import type { LoginRequest, AuthUser } from '../../models/auth.model';
 
 /**
@@ -17,6 +18,7 @@ import type { LoginRequest, AuthUser } from '../../models/auth.model';
 export class AuthService {
   private readonly router = inject(Router);
   private readonly api = inject(AuthApiService);
+  private readonly signalR = inject(SignalRService);
 
   // Single-flight refresh control
   private refreshInProgress = false;
@@ -84,12 +86,19 @@ export class AuthService {
    * Returns an Observable so callers may react to completion/failure.
    */
   logout(): Observable<void> {
-    return this.api.logout().pipe(
-      // only take a single response
-      take(1),
-      // treat errors as a successful flow from the caller's perspective,
-      // but still clear local state below
+    // Ensure the SignalR hub is stopped before calling server logout.
+    // Stop is attempted first and errors are swallowed so logout proceeds.
+    return from(this.signalR.stopConnection()).pipe(
       catchError(() => of(undefined)),
+      switchMap(() =>
+        this.api.logout().pipe(
+          // only take a single response
+          take(1),
+          // treat errors as a successful flow from the caller's perspective,
+          // but still clear local state below
+          catchError(() => of(undefined)),
+        ),
+      ),
       // always clear local session and navigate to login on completion
       tap(() => {
         this.clearAuthState();

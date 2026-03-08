@@ -85,6 +85,12 @@ export const TypingPayloadSchema = z.object({
   conversationId: nonEmptyString,
 });
 
+export const MessageEditedPayloadSchema = z.object({
+  messageId: nonEmptyString,
+  messageText: z.string(),
+  editedAt: dateOrString.optional(),
+});
+
 export const HubErrorPayloadSchema = z.object({
   message: z.string(),
   code: z.string().optional(),
